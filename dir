@@ -1,0 +1,17 @@
+
+File: dir,	Node: Top	Up: (/usr/share/info/dir)
+
+  This a list of Lisp Machine related manuals
+  Typing "q" exits, "?" lists all Info commands, "d" returns here,
+  "u" goes to the common system list of manuals,
+  "h" gives a primer for first-timers,
+
+  In Emacs, you can click mouse button 2 on a menu item or cross reference
+  to select it.
+
+* Menu:
+
+* cadr: (cadr).			The CADR Microprocessor
+* amber: (amber).		Chaosnet
+
+---- Lisp Machine `dir' ends here ----
