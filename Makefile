@@ -1,6 +1,6 @@
 # doc/Makefile --- generate documentation files
 
-TEXISRC = cadr.texi amber.texi
+TEXISRC = cadr.texi amber.texi chinual2nd.texi
 
 .DEFAULT_GOAL: all 
 
