@@ -4395,8 +4395,8 @@ Feel free to send suggestions, improvements, and errors errors to
 @itemize
 @item The ALU Instruction: Carry in is inverted in the ALU operation table.
 @item The ALU Instruction: In the ALU IR description, the ALU oepration field is one bit short.
-@item The Bus Interface: Add chapter describing I/O Board (from SYS: DOC; IOB TEXT).
-@item The Bus Interface: Add chapter describing Unibus and XBus mapping (from SYS: DOC; UNADDR TEXT). 
+@item The Bus Interface: Add chapter describing I/O Board (from @file{SYS: DOC; IOB TEXT}).
+@item The Bus Interface: Add chapter describing Unibus and XBus mapping (from @file{SYS: DOC; UNADDR TEXT}).
 @end itemize
 
 @bye
