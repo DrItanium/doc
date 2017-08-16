@@ -3825,6 +3825,565 @@ error is signalled.  Similarly,
 the function exit code decides whether to pull some stack back in from
 main memory.
 
+@chapter Unibus and Xbus address mapping
+
+This file is supposed to document Unibus addresses used in the Lisp machine.
+    Also see section on Xbus addresses after Unibus.
+    First, we have a textual description of the more important things.
+
+The unibus and xbus can be referred to through the virtual memory of the
+Lisp machine.  When this is done, the unibus runs from address 77400000
+to address 77777777.  The xbus i/o space runs from 77000000 to 77377777.
+The xbus i/o space contains 32-bit words just like Lisp machine memory.
+The unibus is made of 16-bit words, and each word is stored in the least
+significant bits of one Lisp machine word.  So, to convert a unibus
+address to a Lisp machine virtual address, you must divide by two (bytes
+to words) and then add 77400000.  Normally programs access the unibus with
+the functions %UNIBUS-READ and %UNIBUS-WRITE, so they don't need to contain
+these numbers.
+
+@unnumberedsec The unibus map
+
+When unibus devices do direct memory access to Lisp machine memory, they
+do so through a special facility in the bus interface which allows some
+parts of the Lisp machine main memory to appear on the unibus.  Any 16.
+pages of main memory can be selected to appear in 16. slots, which take
+up the range from 140000 to 177777 in unibus addresses.  Each Lisp
+machine memory word is accessed as two unibus words; the low half has
+the lower unibus address.  The unibus device should always access both
+unibus words, low word first, in order for the hardware to work.  This
+is because the bus interface actually stores half of the xbus word and
+usually accesses the main memory only once for each pair of unibus
+operations.  A special mode called write through mode exists in which
+each unibus write operation will actually write the xbus location.  This
+only applies to the second half of the mapped unibus pages, and is
+turned on by bit 7 (200) in the bus interface's Error Status register.
+
+To select the xbus pages to map into the unibus address space, you use the
+sixteen map registers which exist in the unibus at 766140 through 766176.
+Each register is one unibus word.  Bit 15 of the register signifies that
+mapping of that page is turned on; otherwise, that section of the unibus
+is non-existent memory.  Bit 14 enables write access from the unibus.
+The remainder of the register is the page number (address divided by 400)
+of the xbus page to be accessed from this unibus page.
+
+@unnumberedsec The 16-bit parallel I/O register.
+
+The I/O board contains one 16-bit register which can be connected to an
+arbitrary device.  Any unibus word written to this register appears on one
+set of connector pins; reading from this register samples another set of
+connector pins.  The register unibus address is 764126.
+
+To attach a 16-bit input device, use connector J07 on the I/O board.
+Pins 1 through 16 on this connector connect to the input bits.
+(Pins 17 through 20 connect to output bits 0 through 3).
+Similarly, connector J08 contains all the output bits and the low four
+input bits, in the same arrangement.  Use this for a 16-bit output device.
+
+Connector J05 contains input bits 0 through 9 and output bits 0 through 9,
+in connector pins 1 through 10 and 11 through 20.  This is good for a single
+bidirectional device.
+
+If you connect to two of these connectors, all connections to the same input
+or output pin are shorted together.
+
+@unnumberedsec Serial I/O.
+
+The serial I/O port uses unibus locations from 764160 through 164166.
+It interrupts with vector 264.  More information needs to be inserted here.
+
+@unnumberedsec Timers.
+
+The I/O board contains three timers: the microsecond clock, the 60 cycle clock,
+and the interval timer.  The first two are registers that you can read.  The
+last functions by generating interrupts.  (The 60 cycle clock can also
+be enabled to interrupt).
+
+The microsecond clock is incremented every microsecond.  It is a 32-bit register
+which is accessed as two unibus locations, at addresses 764120 and 764122.
+The low address is the low half of the register.  This half must be accessed
+first if you want to get two halfwords that are compatible with each other
+(no carries appear to have happened between one reference and the other).
+This clock is used for the function TIME, and for updating the who line.
+
+The 60 cycle clock is under the control of the AC power.  It has 16 bits,
+and appears at unibus address 764124.  You must read the clock repeatedly
+until two references get the same value; otherwise you may have referred to
+it while a carry was propagating and get an incorrect value.  The Lisp machine
+system does not use this clock.
+
+Ths interval timer can be used to generate an interrupt after a specified
+amount of time, in units of 16 microseconds.  The timer register is write-only
+and located at unibus address 764124 (the same address which, when read, gives
+the 60 cycle clock).  The timer increments each 16 microseconds, and when it
+reaches zero, it requests an interrupt with a vector of 274.
+
+@unnumberedsec Keyboard.
+
+Data from the keyboard appears in a 32-bit register at unibus addresses
+764100 and 764102.  The high half must be read first.  The keyboard generates
+an interrupt with vector number 260 when data is available, if enabled
+(see the I/O board status register).
+
+Connector J03 on the I/O board runs to the console, carrying the keyboard,
+mouse and speaker signals as well as the video output signal that runs through
+the I/O board from the TV board.
+
+@unnumberedsec Mouse.
+
+The mouse X position, in 16 bits, is accessible at unibus address
+764106, and the Y position and buttons are in 764104.  Only the
+difference between two X-positions or Y-positions is meaningful.
+Changes in the mouse position or buttons can cause an interrupt, but the
+Lisp machine system does not enable the interrupt.  If enabled, the
+interrupt vector is 260.
+
+@unnumberedsec Speaker.
+
+To complement the signal sent to the keyboard speaker, refer to unibus
+location 764110.  The value is meaningless.  A sound is produced by
+complementing the signal at the desired frequency.
+
+@unnumberedsec I/O board status register.
+
+Unibus address 764112 contains the I/O board status register.
+In this register:
+ Bit 0  enables the remote mouse (?)
+ Bit 1  enables interrupts on change of mouse status.
+ Bit 2  enables interrupts from the keyboard.
+ Bit 3  enables clock interrupts.
+ Bit 7  enables input interrupts from the serial I/O port.
+
+@unnumberedsec Chaos Interface.
+
+The I/O board contains the interface to the Chaos network.
+
+The chaosnet interface registers appear at addresses 764140 through
+764152 on the unibus, and it interrupts with vector 270.  For
+programming information, see the AI lab memo on the Chaosnet.
+
+The interface contains two DIP switches which control the network
+address of the interface.  The address is a 16 bit number whose high 8
+bits are the subnet number.  DIP D10 sets the subnet number and DIP D12
+sets the low 8 bits of the address.  A switch which is "ON" signifies
+a zero in the network address!  If a ten-switch DIP is used, only the
+middle 8 switches are meaningful.  The switches are numbered from least
+significant bit upward.
+
+The machine can read its own network address from unibus address 764142.
+This is the only way that the Lisp machine operating system knows which
+Lisp machine it is running on: it reads the machine's network address
+and looks that up in the host table.
+
+Not all chaosnet subnets correspond to physical cables, but each physical
+cable is one subnet, and has a unique subnet number.  All the net interfaces
+connected to the cable must have that subnet number in their net addresses.
+
+Connector J01 on the I/O board runs to the transceiver box.
+
+@unnumberedsec Table of all unibus addresses used.
+
+@verbatim
+140000-177777   (in CADR)  UNIBUS region mapped to XBUS
+
+600000-617777  MIP-3/A A/D converter -- buffer memory (4k x 16b)
+
+764040	Summagraphics tablet status register. (interrupt vector 114)
+764042	Tablet X register
+764044	Tablet Y register (last tablet reg)
+
+764000-764176 IOB addresses, detailed below:
+
+764100  Kbd data low
+764102  kbd data hi.  Read hi first then low.
+764104  Mouse Y
+764106  Mouse x
+764110  click audio
+764112  kbd/mouse CSR: bit 0 remote mouse enable, 1 mouse int enable, 2 kbd int enable
+		3 clock int enable, 7 serial input int enable
+
+764120  Time of Day, low part.  read low then hi
+764122  Time of Day, high part
+764124  interval timer
+764126  GPIO
+
+764140	Chaos net -- Control/Status register.
+764142	My number (this machine's chaos address).
+764144	Data register.
+764146	Bit count register.
+764152	Activate transmitter (upon being read!)
+
+	serial interface  (vector 264)
+764160  read received data, write transmit data
+764162  read data set status, write send weird characters in synchronous mode
+764164  mode selection
+764166  command register
+
+;document other IOB devices here.
+
+764200-764216	Ethernet (used at Xerox)
+
+764300-764377  MIP-3/A A/D converter -- control registers (32 x 16b)
+
+764400-764416  LMUNET robotics controller
+
+766000 start of CADR processor UNIBUS area
+766000-766036  CADR Spy locations
+766040	       CADR UNIBUS interrupt status 
+766042		also CADR UNIBUS interrupt related
+766044	       CADR XBUS error status
+
+766100  CADR Debuggee's selected UNIBUS location
+766104  CADR Debuggee's status info
+766110  CADR Debuggee additional info
+766114  CADR Debuggee selected address
+
+766136  end of CADR processor UNIBUS area
+
+766140 - 766176   CADR XBUS<-> UNIBUS mapping registers
+        These map UNIBUS addresses 140000-177777.
+	Bits are valid, write-enable, page.  If high 5 bits of page=1, writes MD register.
+	Allocation of mapping registers:
+		766140-766156	For use by software running on the same machine (the following
+				are merely suggestions):
+		  766140	Ethernet (Used at Xerox)
+	          766142        Ethernet (Used at Xerox)
+		  766142	Versatec
+		  766144	FPS Array Processor
+	          766144        Ethernet (Used at Xerox)		
+		766160-766170	unassigned
+
+		766172		Debugging microprocessor
+
+		766174		CC-WRITE-MD
+
+		766176		DBG-READ-XBUS and related routines
+
+
+774000 - 774116  FPS Control and Status Registers (Interrupt Vector 170)
+
+776000	Cheops Control Register
+776002  Cheops Status Register
+776004  Cheops DBR Register
+776006  Cheops MUX
+
+777500	Versatec plotter byte count
+777502	Versatec data buffer memory address extension
+777504	Versatec printer byte count
+777506	Versatec data buffer address
+777510	Versatec plotter control and status
+777512	Versatec plotter data buffer
+777514	Versatec printer control and status
+777516	Versatec printer data buffer
+
+XBUS ADDRESSES 
+
+Virtual address space.  Implemented by microcode.
+0          -               ordinary 
+76,,776000 - 76,,777777    mapped to A memory locations 0-1777 by microcode.
+77,,000000 - 77,,377777    Xbus IO space.  see below for further breakdown
+77,,400000 - 77,,777777    mapped to Unibus.   Each Xbus address is mapped to
+			   one 16 bit Unibus location.
+
+
+XBUS IO space (octant 6 of the XBUS)
+
+Current XBUS physical address assignments
+  
+17,,000000 to 17,,077777	Main TV screen
+17,,100000 to 17,,107777	Convolution box (offsets described below)
+17,,110000 to 17,,110017	Scheme chip interface (offsets described below)
+17,,140000 to 17,,177777	Audio i/o memory
+17,,200000 to 17,,277777	Color TV
+17,,377500 to 17,,377537	Grey TV (and frame grabber)
+17,,377600 to 17,,377677	Vision hardware control
+17,,377740 to 17,,377747	Audio i/o control registers
+17,,377750 to 17,,377757	Color TV control
+17,,377760 to 17,,377767	Main TV control
+17,,377770 to 17,,377773	Second disk control
+17,,377774 to 17,,377777	Disk control
+
+Note: octant 7 of the XBUS cannot be accessed by the Lisp Machine,
+because those physical addresses are mapped to the unibus.
+
+CONVOLUTION BOX ADRS
+
+00x xxx xxx xxx   -> PATCH MEM 0-1777    11:0
+01x xxx xxx xxx   -> MASK ELEMENT 0-1777  9:0
+10x xxx xxx xxx   -> MASK VALUE 0-1777   11:0
+11x xxx xx0 x00   -> MASK ADR  11:0      -> MASK ADR
+          0 x01   -> OFFSET     9:0      -> OFFSET
+          0 x10   -> MSP                 -> START       DATA 3:0 GIVES SPEED
+	  0 x11   -> LSP	         -> SINGLE-STEP  ", ALSO, 100 BIT -> CLEAR DONE AND
+							    PIPELINED DONE.
+            100   ->			 -> RESET
+
+11x xxx xx1 x00   -> READ-STATUS
+
+
+Scheme chip interface registers:
+00	RW	Clock duration -  Delay 1
+01	RW	Clock duration - Phase 2
+02	RW	Clock duration - Delay 2
+03	RW	Clock duration - Phase 1
+04	RW	Write: Map address (for examine/deposit)
+		Read: Memory address chip last referenced
+05	RW	Map data (addressed by Map Address register)
+06	RW	Control
+		Bit	RW	Function
+		0	 W	Reset
+		1	RW	Run (turns on/off clock, clock registers should not
+				     be changed with run on)
+		2	RW	External freeze (freezes chip, does not stop clock)
+		3	R	Chip is frozen
+		4	R	NXM (cleared by reset or mem start)
+		5	R	Parity error (cleared by reset or mem start)
+		6	R	Invalid map location addressed (cleared by reset or mem start)
+		7	RW	Freeze on error (causes chip to be frozen when one of
+						  above conditions is true)
+		8	RW	Freeze on GC (freeze when GC interrupt is set)
+		9	R	GC Needed
+		10	R	GC interrupt in progress
+		11	R	External interrupt request
+		12	R	External interrupt in progress
+		13	R	Single stepping in progress
+		14	RW	Read: Read request in progress
+				Write: Mem restart (writing a 1 restarts the Scheme chip
+				after a failing memory cycle.  LISPM should have
+				looked at the write data for a write, or stored
+				the read data for a read)
+		15	R	State hacking (reading or writing) in progress
+		16	R	Chip read signal (chip is waiting for a memory cycle)
+		17	R	Chip write signal (chip is starting a write)
+		18	R	Chip cdr (whether current memory cycle is a car or a cdr)
+		19	R	Chip is reading interrupt vector
+		20	R	GC Needed
+		21	R	Chip address latch enable
+		22	R	Memory freeze -- chip is waiting for a memory cycle
+07	RW	Single Step (single steps chip up to 256 times, only useful when Force Freeze
+			     is set and RUN is on)
+		Reading reads the current state of the counter.  Useful if froze due to
+		memory cycle
+10	RW	Reading reads latched state, writing causes state to be latched at
+		next convenient time
+11	RW	Int Vector
+12	RW	GC vector (vector sent to chip for GC interrupt)
+13	 W	Loads new state into chip
+14	RW	Memory data
+15	 W	Clears external interrupt request, data is ignored
+16	 W	Writing causes an external interrupt
+@end verbatim
+
+@chapter Programming Documentation on the I/O Board
+
+@unnumberedsec General-Purpose I/O
+
+@verbatim
+764126	(Read)	Gives the current value of 16 general-purpose input lines.
+764126	(Write) Writes a 16-bit register whose content appears on
+		16 general-purpose output lines.
+@end verbatim
+
+@unnumberedsec Clocks
+
+@verbatim
+764124	(Write) Storing the 16-bit number `n' into this register turns off
+		clock ready CSR<6>, delays 16 x `n' microseconds, then turns
+		clock ready back on.  Clock ready causes an interrupt to 274
+		if clock interrupt enable CSR<3> is on.  The 16-bit size gives
+		a maximum interval of just over 1 second.
+
+764124	(Read)	This 16-bit counter increments at the power-line frequency
+		(60 times per second).  It is a long-term-stable real-time
+		clock.  The 16-bit size provides a range of somewhat over
+		15 minutes.  Reading of this register is not synchronized;
+		you must read it twice and only believe it if the two results
+		are identical.
+
+764120	(Read)	This is the low 16 bits of the microsecond clock, a 32-bit
+		register which increments every microsecond.  The 32-bit size
+		provides somewhat over an hour before it overflows.  Reading
+		location 764120 synchronizes to the clock, copies the value
+		into a buffer, and returns the low word.
+764122	(Read)	This is the high 16 bits of the microsecond clock buffer.  You
+		must read the low word first for this to be valid, and you must
+		either arrange for no one else to read the low word before you
+		pick up the high word, or read both words twice, make sure the two
+		high words are the same, and believe the second low word.
+@end verbatim
+
+@unnumberedsec Command/Status register (CSR)
+
+@verbatim
+764112	      0 (R/W) Remote Mouse Enable.  If 0, the mouse is connected directly
+		to the board.  If 1, it comes in through the keyboard.  Powers up
+		to 0.
+	      1 (R/W) Mouse Interrupt Enable.  If 1, the mouse can interrupt.  
+		Powers up to 0.
+	      2 (R/W) Keyboard Interrupt Enable.  If 1, the keyboard can interrupt.
+		Powers up to 0.
+	      3 (R/W) Clock Interrupt Enable.  If 1, the interval timer can interrupt.
+		Powers up to 0.
+	      4 (RO) Mouse Ready.  Set by any change in the status of the mouse, cleared
+		when you read the Y register.  Causes interrupt.  Powers up randomly.
+	      5 (RO) Keyboard Ready.  Set when the keyboard receives a character (other
+		than a mouse character.)  Clears when you read the keyboard register.
+		Causes interrupt.  Powers up randomly.
+	      6 (RO) Clock Ready.  Set when the interval timer finishes the assigned
+		interval.  Cleared when you write into the interval timer.  Causes
+		interrupt.  Powers up randomly.
+	      7 (RO) Zero.
+	   8-15 (RO) Random meaningless data.
+@end verbatim
+
+@unnumberedsec Keyboard
+
+@verbatim
+764100	(Read)	The low 16 bits of keyboard input.  This is the last character typed,
+		if several are typed before you read the register, and is guaranteed
+		not to contain a partial character nor to change while you are looking
+		at it.  An additional incompatibility with the CONS keyboard interface
+		is that the bits are not complemented.  When a character arrives, an
+		interrupt to 260 occurs if CSR<2> is 1, and CSR<5> sets.  CSR<5>
+		clears when you read this register.  Bit assignment:
+			 00077   0006	 ;KEY CODE
+			 00300   0602    ;SHIFT LEFT,RIGHT
+			 01400   1002    ;TOP LEFT,RIGHT
+			 06000   1202    ;CONTROL LEFT,RIGHT
+			 30000   1402    ;META LEFT,RIGHT
+			 40000   1601    ;SHIFT LOCK
+			100000	 1701	 ;Unassigned
+
+764102	(Read)	The high 8 bits of keyboard input are in bits 0-7 of this register,
+		and bits 8-15 are random.  This is not normally used.
+
+764110		Any reference to this location complements the audio output to
+		the speaker built into the keyboard.
+@end verbatim
+
+@unnumberedsec Mouse
+
+The mouse status is guaranteed not to change while you're reading it.
+When any input from the mouse changes, the coordinate registers are updated
+and CSR<4> is set.  If CSR<1> is also set, an interrupt to 264 occurs.
+CSR<4> clears when 764104 is read.
+
+@verbatim
+764104	(Read)	0-11 The current Y-coordinate position of the mouse.
+		12   Tail switch (1=pressed)
+		13   Middle switch
+		14   Head switch
+		15   Zero
+
+764106	(Read)	0-11 The current X-coordinate position of the mouse.
+		12-13 The raw X-encoder inputs.
+		14-15 The raw Y-encoder inputs.
+@end verbatim
+
+@unnumberedsec Chaos Net
+
+@verbatim
+764140		Command/Status Register
+	      0 (R/W) Timer Interrupt Enable.  This bit doesnt seem to do anything.
+;	      0 (RO) CW.  This is 1 if the transmit side has been given a
+;		packet and is storing the CRC word, waiting for the cable, or
+;		transmitting.
+	      1 (R/W) LOOPBACK.  Setting this to 1 causes the transmitter output
+		to be directly looped back to the receiver, without going through
+		the transceiver.  Powers up 0.
+;	      1 (RO) TBUSY.  This is 1 if the transmit side actually has the
+;		cable and is transmitting.  Note that this bit is not the same
+;		as in the previous version of the Chaos interface.
+	      2 (R/W) Match Any Destination.  Setting this to 1 allows you to
+		receive messages directed to any destination.  Only messages
+		specifically to you will increment Lost Count and be aborted
+		if the receive buffer is full.  Setting Match Any Destination
+		to 0 allows you to receive only messages specifically directed
+		to you and "broadcast" messages directed to host zero.  Powers up 0.
+	      3 (WO) Writing a 1 here clears the receiver and enables it to
+		receive another packet, and clears Lost Count.
+	      4 (R/W) Recieve Interrupt Enable.  Powers up 0.
+	      5 (R/W) Transmit Interrupt Enable.  Powers up 0.
+	      6 (RO) Transmit Aborted.  Sets if a transmission from this host
+		is aborted by a collision or a full packet buffer in the receiver.
+		Clears when you start storing the next outgoing packet in the buffer.
+	      7 (RO) Transmit Done.  Sets when transmission is completed or aborted,
+		clears when you start storing the next outgoing packet in the buffer.
+		Powers up to 1.
+	      8 (WO) Writing a 1 here sets transmit done.  [It should also reset the
+		transmitter.]
+	   9-12 (RO) Lost Count.  Cleared by CSR<3>, incremented when the receiver
+		aborts an incoming packet because its buffer already contains
+		a packet.
+	     13 (WO) Writing a 1 here has the same effect as power up.  It stops the
+		transmitter, resets and enables the receiver, sets transmit done, clears
+		receive done, and clears the interrupt enables.
+	     14 (RO) CRC error.  A 1 when a packet has arrived indicates that the packet
+		was corrupted.  A 1 after reading out exactly all the bits of a packet
+		indicates that the buffer did not cough up the same bits as came in
+		from the network, suggesting a bad RAM or timing problems in the interface.
+	     15 (RO) Receive Done.  Set when a packet has arrived in the receiver, cleared
+		by power up or writing a 1 in CSR<3> or CSR<13>.  Causes interrupt.
+
+764142	(Read)	Returns the host number (entered in dip switches) of this interface.
+
+764144	(Read)	Returns the next word out of the receive buffer.
+
+764146	(Read)	Returns the count of bits remaining in the receive buffer.
+
+764152	(Read)	Returns the host number of this interface, as a side-effect
+		initiates transmission.  Store the destination address first,
+		then reading this will store the source address, then the CRC
+		word will automatically be stored, then transmission will start
+		when "my turn" comes around and the cable is free.
+
+764142	(Write)	Stores a word into the transmit buffer.
+@end verbatim
+
+Other locations between 764140 and 764156, inclusive, are obsolete and should
+not be used.  Generally they either do nothing or do the same as some other
+location.
+
+@unnumberedsec Keyboard Protocol
+
+There are 2 lines, Clock and Data.  Clock is output to the keyboard and
+Data is input from the keyboard.  Both are normally high.  The keyboard
+signals its desire to send a character by taking Data low.  The interface
+responds by sending 24 Clocks.  When Clock goes low, the keyboard should
+put the next bit of the character on Data.  When Clock goes high, the
+interface clocks this bit into its shift register.  The bit assignments
+are:
+
+@verbatim
+      (Characters from the Keyboard)
+	0-5 Key Code
+	6-7 Shifts
+	8-9 Tops
+	10-11 Controls
+	12-13 Metas
+	14 Shift Lock
+	15-23 One (High)
+
+      (Characters from the Mouse)
+	0-1 Y encoder
+	2-3 X encoder
+	4 Head Switch
+	5 Middle Switch
+	6 Tail Switch
+	7-15 One
+	16 Zero (flags this as a mouse character)
+	17-23 One
+
+      (Characters from the Boot Button)
+	0-15 Random Status (where to boot from).  Not yet defined.
+	16 One
+	17 Zero (flags this as a boot character)
+	18-23 One
+@end verbatim
+
+There is also an audio line, which is simply connected directly (through an
+amplifier) to a speaker, and can be used to make noise.
+
 @chapter Errata
 
 This is a list of currently known errors in the original CADR paper
@@ -3836,6 +4395,8 @@ Feel free to send suggestions, improvements, and errors errors to
 @itemize
 @item The ALU Instruction: Carry in is inverted in the ALU operation table.
 @item The ALU Instruction: In the ALU IR description, the ALU oepration field is one bit short.
+@item The Bus Interface: Add chapter describing I/O Board (from SYS: DOC; IOB TEXT).
+@item The Bus Interface: Add chapter describing Unibus and XBus mapping (from SYS: DOC; UNADDR TEXT). 
 @end itemize
 
 @bye
