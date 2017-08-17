@@ -2162,8 +2162,7 @@ values of the PC.  This provides a useful history for debugging.  It is also
 used by the microcode itself in certain trap-handling routines.  You
 can only read the last of the 8 OPCs, which is what the PC was 8 clocks
 ago.  Special control is provided over the clocking of the OPCs so that
-they can be read out without di
-@c ---!!! The original file (LMDOC; CADR 164) has 37 NUL characters here.
+they can be read out without disturbing the rest of the machine, and
 so that they can be saved and restored by the microcode debugger.
 This is described above under 766010.
 
@@ -4398,6 +4397,7 @@ errors to @email{ams@@gnu.org}.
 @item The ALU Instruction: In the ALU IR description, the ALU oepration field is one bit short.
 @item The Bus Interface: Add chapter describing I/O Board (from @file{SYS: DOC; IOB TEXT}).
 @item The Bus Interface: Add chapter describing Unibus and XBus mapping (from @file{SYS: DOC; UNADDR TEXT}).
+@item The Diagnostic Interface: Restored corrupt 37 missing octets (from @file{AI: LMDOC; CADR 149}).
 @end itemize
 
 @bye
