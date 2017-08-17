@@ -1,0 +1,145 @@
+This file is supposed to document Unibus addresses used in the Lisp machine.
+    Also see section on Xbus addresses after Unibus.
+
+000040  60 hz clock, high order word.
+000042  60 hz clock, low order word.
+
+040000	Cheops buffer memory
+057776	end of cheops buffer memory
+
+140000-237776   (in CONS)  UNIBUS region mapped to XBUS
+140000-177777   (in CADR)
+
+300000	TV buffer
+377776	end of TV buffer
+
+764000	Cons diagnostic interface
+764036	I think this is the last address used by the diagnostic interface
+
+764040	Summagraphics tablet status register. (interrupt vector 114)
+764042	Tablet X register
+764044	Tablet Y register (last tablet reg)
+
+764100	Keyboard data register
+	15 garbage, 14 shift lock, 13-12 meta, 11-10 control, 9-8 top, 7-6 shift, 5-0 key
+	Bits 14-0 are complemented, unfortunately.  Won't be on next machine.
+764102	Bit 15 is keyboard ready bit, rest is garbage
+764104	Bit 6 on writing is the interrupt enable.  Vector address = 110 (doesn't work though)
+764106	Any reference to this address complements the audio output to the keyboard speaker.
+764136	Last address responded to by keyboard M1710
+
+764140	Chaos net -- Control/Status register.
+764142	My number.
+764144	Data register.
+764146	Bit count register.
+764152	Activate transmitter (upon being read!)
+
+764200  Mouse Y register (bits 14-12 are buttons)
+764202  Mouse X register (bits 14-12 are buttons)
+764236  Last address responded to by mouse M1710
+
+764300	Unibus map
+	15 Write enable, 13-0 page number (bit 13 ignored)
+	Except if 13-11 = 7, writes READ-MEMORY-DATA register.
+	CC (CTALK) uses 70, FILE uses 77.  CCDISK (& LM itself) use 10-67 inclusive.
+	Locations 0-7 are reserved for CCONS, but I don't think it uses them.
+	Locations 140000-237776 are mapped, 1000 bytes per page.
+764476	End of unibus map
+
+764500  Temporary debugging interface for CADR
+	Locations 764500-764536 are the 16 spy registers of a machine without a bus interface,
+	in this case the kludge is plugged in to simulate the bus interface.
+764576	Locations 764540-764546 are the 4 debug registers of a machine with a bus interface,
+	in this case the kludge is plugged in to simulate another machine's debug connection.
+
+-766000  GT40 bootstrap prom memory
+-766776  end of prom.
+
+766000 start of CADR processor UNIBUS area
+766000-766036  CADR Spy locations
+766040	       CADR UNIBUS interrupt status 
+766042		also CADR UNIBUS interrupt related
+766044	       CADR XBUS error status
+
+766100  CADR Debuggee's selected UNIBUS location
+766104  CADR Debuggee's status info
+766110  CADR Debuggee additional info
+766114  CADR Debuggee selected address
+
+766136  end of CADR processor UNIBUS area
+
+766140 - 766176   CADR XBUS<-> UNIBUS mapping registers
+        These map UNIBUS addresses 140000-177777.
+	The CADTLK uses 766174 and FILE uses 766176, others are currently unused
+
+772000	GT40 display program counter
+772002	GT40 display status register
+772004	GT40 X status register, graph plot increment
+772006	GT40 Y status register, character register
+
+775610	KL11 input status
+775612	KL11 input buffer
+775614	KL11 output status
+775616	KL11 output buffer
+
+776000	Cheops Control Register
+776002  Cheops Status Register
+776004  Cheops DBR Register
+776006  Cheops MUX
+
+776660	TV control register
+	0 White on black (Read only), 1-3 Video switch select (read only)
+	8-10 Channel select, 15 vertical increment mode
+776662	TV pointer register
+776664	TV data register (reads or writes buffer location addressed by pointer)
+776666	TV data register, also writes here increment pointer by 1 or 36.
+776670	TV control register 2
+	0 White on black, 1-3 Video switch select
+	8-10 Channel select (read only), 15 vertical increment mode (read only)
+776672	TV pointer register
+776674	TV data register
+776676	TV data register (auto-increment on write)
+
+776700	Xylogics disk control
+776714	Last disk control register
+
+777546	pdp11 60-cycle clock (not on bus anyway)
+777560	GT40 keyboard status (not on bus anyway)
+777562	GT40 keyboard buffer (not on bus anyway)
+777570	pdp11 console switch register
+777776	pdp11 processor status register
+
+
+XBUS ADDRESSES (note: addresses here given in 24 bit form as on next machine.
+   on current machine, the high bit must always be 0)
+
+0          -    400000     real core
+
+76,,776000 - 76,,777777    mapped to A memory locations 0-1777 by microcode.
+			   (only 0-377 exist on current machine)
+77,,000000 - 77,,377777    Xbus IO space.  see below for further breakdown
+77,,400000 - 77,,777777    mapped to Unibus.   Each Xbus address is mapped to
+			   one 16 bit Unibus location.
+
+
+XBUS IO space (octant 6 of the XBUS)
+
+03,,000000 - 03,,377777    unused.
+
+Note: octant 7 of the XBUS cannot be accessed by the Lisp Machine,
+because those physical addresses are mapped to the unibus.
+
+
+CONVOLUTION BOX ADRS
+
+00x xxx xxx xxx   -> PATCH MEM 0-1777    11:0
+01x xxx xxx xxx   -> MASK ELEMENT 0-1777  9:0
+10x xxx xxx xxx   -> MASK VALUE 0-1777   11:0
+11x xxx xx0 x00   -> MASK ADR  11:0      -> MASK ADR
+          0 x01   -> OFFSET     9:0      -> OFFSET
+          0 x10   -> MSP                 -> START       DATA 3:0 GIVES SPEED
+	  0 x11   -> LSP	         -> SINGLE-STEP  ", ALSO, 100 BIT -> CLEAR DONE AND
+							    PIPELINED DONE.
+            100   ->			 -> RESET
+
+11x xxx xx1 x00   -> READ-STATUS
