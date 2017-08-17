@@ -4386,13 +4386,14 @@ amplifier) to a speaker, and can be used to make noise.
 
 @chapter Errata
 
-This is a list of currently known errors in the original CADR paper
-(AI: LMDOC; CADR 164).  As I find more errors, I will document such
-errors here, and update the document with the correct information.
-Feel free to send suggestions, improvements, and errors errors to
-@email{ams@@gnu.org}.
+This is a list of currently known errors and changes that differ from
+the original CADR paper (@file{AI: LMDOC; CADR 164}).  As I find more
+errors, I will document them here, and update the document with the
+correct information.  Feel free to send suggestions, improvements, and
+errors to @email{ams@@gnu.org}.
 
 @itemize
+@item Instruction formats: Add chapter showing instruction format (from @file{AI: CADR; IR BITS}).
 @item The ALU Instruction: Carry in is inverted in the ALU operation table.
 @item The ALU Instruction: In the ALU IR description, the ALU oepration field is one bit short.
 @item The Bus Interface: Add chapter describing I/O Board (from @file{SYS: DOC; IOB TEXT}).
