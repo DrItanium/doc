@@ -9,33 +9,35 @@
 @top Lisp Machine Manual
 @end ifnottex
 
-.headings off
+@titlepage
+@center @titlefont{Lisp Machine Manual}
 
-.space 10
-.center 9Lisp Machine Manual*
-.space 4
-.center Fourth Edition
-.space
-.center July 1981
-.space 5
-.center Daniel Weinreb
-.center David Moon
-.space 12
-.nopara
+@sp 4
+@center Fourth Edition
+
+@sp 1
+@center July 1981
+
+@sp 5
+@center Daniel Weinreb
+@center David Moon
+
+@sp 12
 This report describes research done at the Artificial Intelligence
 Laboratory of the Massachusetts Institute of Technology.  Support for the
 laboratory's artificial intelligence research is provided in part by the
 Advanced Research Projects Agency of the Department of Defense under Office
 of Naval Research Contract number N00014-80-C-0505.
-.page
-.space 40
-.nofill
- c   Copyright by the Massachusetts Institute of Technology; Cambridge, Mass. 02139
+@page
+
+@vskip 0pt plus 1filll
+@copyright{} Copyright by the Massachusetts Institute of Technology; Cambridge, Mass. 02139
+
 All rights reserved.
-.fill
-.page
-.space 2
-.center 5Preface*
+@page
+
+@sp 2
+@center @titlefont{Preface}
 
 The Lisp Machine manual describes both the language and the "operating system"
 of the Lisp Machine.  The language, a dialect of Lisp called Zetalisp,
@@ -50,14 +52,17 @@ Any comments, suggestions, or criticisms will be welcomed.  Please send
 Arpa network mail to BUG-LMMAN@@MIT-AI.
 
 Those not on the Arpanet may send U.S. mail to
-.lisp
-1Daniel L. Weinreb or David A. Moon
+
+@sp 1
+@verbatim
+Daniel L. Weinreb or David A. Moon
 Room 926
 545 Technology Square
 Cambridge, Mass. 02139*
-.end_lisp
-.space 2
-.center 5Note*
+@end verbatim
+
+@sp 2
+@center @titlefont{Note}
 
 The Lisp Machine is a product of the efforts of many people too numerous to list here
 and of the unique environment of the M.I.T. Artificial Intelligence Laboratory.
@@ -65,16 +70,11 @@ and of the unique environment of the M.I.T. Artificial Intelligence Laboratory.
 Portions of this manual were written by Richard Stallman, Mike McMahon, and
 Alan Bawden.  The chapter on the LOOP iteration macro is a reprint of Laboratory for
 Computer Science memo TM-169, by Glenn Burke.
+@end titlepage
 
-.page
-.headings on
-.c Next line fixes a bug which I really don't feel like finding
-.c (It's in the third edition, too.)
-.nopara
+@chapter "Introduction"
 
-.chapter "Introduction"
-
-.section "General Information"
+@section "General Information"
 
 	The Lisp Machine is a new computer system designed to provide a
 high performance and economical implementation of the Lisp language.  It
@@ -107,7 +107,7 @@ of general use, and others are tools used in writing programs.  However,
 the Lisp Machine window system, and the major utility programs, are not
 documented here.
 
-.section "Structure of the Manual"
+@section "Structure of the Manual"
 
 The manual starts out with an explanation of the language.  Chapter
 (object-chapter) explains the different primitive types of Lisp object,
@@ -180,7 +180,7 @@ dates and times, and chapter (misc-chapter) contains other
 miscellaneous functions and facilities.
 
 
-.section "Notational Conventions and Helpful Notes"
+@section "Notational Conventions and Helpful Notes"
 
 	There are several conventions of notation, and various points
 that should be understood before reading the manual to avoid confusion.
@@ -425,11 +425,11 @@ that can be typed on the keyboard.
 is only of interest to writers of large systems, and can be safely
 disregarded by the casual user.  It is described in chapter (area-chapter).
 
-.chapter Primitive Object Types
+@chapter Primitive Object Types
 .setq predicate-chapter chapter-number
 .setq object-chapter chapter-number
 
-.section "Data Types"
+@section "Data Types"
 
 This section enumerates some of the various different primitive types of
 objects in Zetalisp.  The types explained below include
@@ -532,7 +532,7 @@ the elements are 8-bit unsigned numbers which encode characters.
 	A 2list* is not a primitive data type, but rather a data structure
 made up out of conses and the symbol 3nil*.  See (list-and-tree).
 
-.section Predicates
+@section Predicates
 'cindex "predicate"
 	A 2predicate* is a function which tests for some condition involving
 its arguments and returns the symbol 3t* if the condition is true, or
@@ -820,12 +820,12 @@ depend on this fortuitously.  For example, one often writes:
 the same instructions.
 .end_defun
 
-.chapter "Evaluation"
+@chapter "Evaluation"
 .setq evaluator-chapter chapter-number
 'cindex "evaluation"
 .setq description-of-evaluation page
 
-.c Somewhere we should explain why sstatus uuolinks isn't needed.
+@c Somewhere we should explain why sstatus uuolinks isn't needed.
 
 	The following is a complete description of the actions taken by the
 evaluator, given a 2form* to evaluate.
@@ -884,7 +884,7 @@ arbitrary whenever the evaluator is invoked, is explained in
 special form is in the section on the facility it is part of.
 
 
-.section Variables
+@section Variables
 .setq variable-section section-page
 
 In Zetalisp, variables are implemented using symbols.  Symbols
@@ -1253,7 +1253,7 @@ It is 2not* the intent of 3defconst* to declare that the value of
 to build assumptions about the value of 2variable* into programs being compiled.
 .end_defspec
 
-.section Functions
+@section Functions
 .setq function-section section-page
 .setq lambda-list section-page
 .cindex lambda list
@@ -1612,7 +1612,7 @@ contain Lisp programming to take apart the rest parameter and make sense
 of the keywords and values.  The special form 3keyword-extract* (see
 (keyword-extract-fun)) may be useful for this.
 
-.section "Some Functions and Special Forms"
+@section "Some Functions and Special Forms"
 
 This section describes some functions and special forms.  Some are parts
 of the evaluator, or closely related to it.  Some have to do
@@ -1704,7 +1704,7 @@ subform (the Maclisp array type) and is otherwise identical to 3aref*.
 3subrcall* and 3lsubrcall* are not provided.
 'findex "subrcall"
 'findex "lsubrcall"
-.c 'findex "arraycall"  -- commented out since it does exist after all
+@c 'findex "arraycall"  -- commented out since it does exist after all
 
 .defun call function &rest argument-specifications
 3call* offers a very general way of controlling what arguments you
@@ -1999,7 +1999,7 @@ arguments of the lexpr.  Basically, it works as if defined as follows:
 .end_lisp
 .end_defun
 
-.section Multiple Values
+@section Multiple Values
 .cindex multiple values
 .cindex returning multiple values
 .setq multiple-value section-page
@@ -2197,7 +2197,7 @@ by enclosing the 3*catch* in a 3prog* and using 3return* to pass
 out the multiple values, 3return*ing through the 3*catch*.  This is
 inelegant, but we don't know anything that's much better.
 
-.chapter Flow of Control
+@chapter Flow of Control
 .setq flow-chapter chapter-number
 .cindex control structure
 .cindex flow of control
@@ -2251,7 +2251,7 @@ explained in the section on 2stack-groups* ((stack-group)), and
 a multiple-process facility (see (process)).  There is also a facility
 for generic function calling using message passing; see (flavor).
 
-.section "Conditionals"
+@section "Conditionals"
 
 .defspec if
 3if* is the simplest conditional form.  The "if-then" form looks like:
@@ -2510,7 +2510,7 @@ and 3ldb* are explained on (ldb-fun).
 		      "~S is not a known cat type."
 		      cat-type))))
 .end_lisp
-.c This example borrowed from DuMouchel.CatData
+@c This example borrowed from DuMouchel.CatData
 .cindex kitty
 It is not necessary to include all possible values of the byte which
 will be dispatched on.
@@ -2542,7 +2542,7 @@ that use 3caseq* will work correctly so long as they don't use the
 symbol 3otherwise* as the key.
 .end_defspec
 
-.section "Iteration"
+@section "Iteration"
 'cindex "iteration"
 
 .defspec do
@@ -3075,7 +3075,7 @@ name, use
 Also see 3defunp* ((defunp-fun)), a variant of 3defun* that incorporates a 3prog*
 into the function body.
 
-.section "Non-Local Exits"
+@section "Non-Local Exits"
 'cindex "non-local exit"
 'cindex catch
 'cindex throw
@@ -3268,7 +3268,7 @@ If you think you want this, most likely you are mistaken and you really
 want 3unwind-protect*.
 .end_defmac
 
-.section "Mapping"
+@section "Mapping"
 'cindex "mapping"
 
 .defun map fcn &rest lists
@@ -3377,7 +3377,7 @@ You can also do what the mapping functions do in a different way by using
 .apart
 .end_defun
 
-.chapter "Manipulating List Structure"
+@chapter "Manipulating List Structure"
 .setq cons-chapter chapter-number
 'cindex "cons"
 'cindex "list"
@@ -3465,7 +3465,7 @@ you are concerned with storage efficiency, you may want to learn about the
 cdr-coded representation and how to control it.  The cdr-coding scheme is
 discussed in (cdr-code).
 
-.section "Conses"
+@section "Conses"
 
 .defun car x
 Returns the 2car* of 2x*.
@@ -3587,7 +3587,7 @@ the car of 2cons*.
 Note: there is no 3cdr-location* function; it is difficult
 because of the cdr-coding scheme (see (cdr-code)).
 
-.section "Lists"
+@section "Lists"
 
 .defun length list
 3length* returns the length of 2list*.  The length of a list
@@ -4021,7 +4021,7 @@ before 2sublist*.
 .end_lisp
 .end_defun
 
-.section "Alteration of List Structure"
+@section "Alteration of List Structure"
 
 The functions 3rplaca* and 3rplacd*
 are used to make alterations in already-existing
@@ -4084,12 +4084,12 @@ the 2car* or 2cdr* of any already-existing list structure.
 To copy a tree, use 3copytree* (see (copytree-fun)); the old practice
 of using 3subst* to copy trees is unclear and obsolete.
 
-.c *************
+@c *************
 Note: certain details of 3subst* may be changed in the future.  It may
 possibly be changed to use 3eq* rather than 3equal* for the comparison,
 and possibly may substitute only in cars, not in cdrs.  This is still being
 discussed.
-.c *************
+@c *************
 .end_defun
 
 .defun nsubst new old tree
@@ -4155,7 +4155,7 @@ instead of creating new.
 .end_lisp
 .end_defun
 
-.section "Cdr-Coding"
+@section "Cdr-Coding"
 .setq cdr-code section-page
 
 This section explains the internal data format used to store conses
@@ -4283,7 +4283,7 @@ it simple-mindedly uses 3rplacd*, but this will be changed.
 3(copylist 2x*)* is a suitable way to copy a
 list, converting it into compact form (see (copylist-fun)).
 
-.section "Tables"
+@section "Tables"
 
 Zetalisp includes functions which simplify the maintenance
 of tabular data structures of several varieties.  The simplest is
@@ -4320,7 +4320,7 @@ Zetalisp includes hash table facilities for more efficient
 but more complex tables (see (hash-table)), and
 a hashing function (3sxhash*) to aid users in constructing their own facilities.
 
-.section Lists as Tables
+@section Lists as Tables
 
 .defun memq item list
 3(memq 2item list*)* returns 3nil* if 2item* is not one of the
@@ -4547,7 +4547,7 @@ as the function used to get to the next element of the list;
 3cddr* is a typical function to use here.
 .end_defun
 
-.section Association Lists
+@section Association Lists
 
 .defun assq item alist
 'cindex "association list"
@@ -4689,7 +4689,7 @@ list.
 .end_defun
 
 
-.section Property Lists
+@section Property Lists
 .setq plist section-page
 .cindex "property list"
 .cindex "plist"
@@ -4853,7 +4853,7 @@ provides messages that do things analogous to what the above functions
 do.  [Currently, the above functions do not work on flavor instances,
 but this will be fixed.]
 
-.section Hash Tables
+@section Hash Tables
 .cindex hash table
 .setq hash-table section-page
 
@@ -4950,7 +4950,7 @@ of a hash table will return 3t*.  However, it is not recommended to
 use ordinary array operations on a hash table.
 Hash tables should be manipulated only with the functions described below.
 
-.subsection Hashing on Eq
+@subsection Hashing on Eq
 
 This section documents the functions for 3eq* hash tables, which
 use 2objects* as keys and associate other objects with them.
@@ -5054,7 +5054,7 @@ order, are supplied as arguments, with the corresponding key.
 Remove all the entries from 2hash-table*.  Returns the hash table itself.
 .end_defun
 
-.subsection Hashing on Equal
+@subsection Hashing on Equal
 
 This section documents the functions for 3equal* hash tables, which
 use trees as keys and associate objects with them.  The function to
@@ -5126,7 +5126,7 @@ the key of the entry and the value of the entry.
 Remove all the entries from 2hash-table*.  Returns the hash table itself.
 .end_defun
 
-.subsection Hash Tables and the Garbage Collector
+@subsection Hash Tables and the Garbage Collector
 
 The 3eq* type hash tables actually hash on the address of the representation
 of the object.  When the copying garbage collector changes the addresses of
@@ -5140,7 +5140,7 @@ not known about by anything other than the hash table, then the entry for that
 key will be silently removed from the table.  When these exist they will be
 documented in this section.
 
-.subsection Hash Primitive
+@subsection Hash Primitive
 .setq hash-section section-page
 
 2Hashing* is a technique used in algorithms to provide fast retrieval
@@ -5219,7 +5219,7 @@ that hashes on 3eq*, it is already provided; if you need an
 either using the provided 3eq* hash table facility or carefully using
 subprimitives.
 
-.section "Sorting"
+@section "Sorting"
 'cindex "sorting"
 
 Several functions are provided for sorting arrays and lists.  These
@@ -5353,7 +5353,7 @@ than 3sort-grouped-array* since the function can get at
 all of the elements of the relevant records, instead of only the first element.
 .end_defun
 
-.section Resources
+@section Resources
 .cindex resource
 .cindex allocation of storage
 .cindex storage allocation
@@ -5565,12 +5565,12 @@ whether it returns normally or via 3*throw*.  This is done by using
     ...))                             ;1The array is returned at the end.*
 .end_lisp
 
-.c Remember to go back and try to figure out INTERN and REMOB.
-.chapter "Symbols"
+@c Remember to go back and try to figure out INTERN and REMOB.
+@chapter "Symbols"
 .cindex "symbol"
 .setq symbol section-page
 .setq symbol-chapter chapter-number
-.section "The Value Cell"
+@section "The Value Cell"
 'cindex "value cell"
 	Each symbol has associated with it a 2value cell*, which refers
 to one Lisp object.  This object is called the symbol's 2binding* or 2value*,
@@ -5647,7 +5647,7 @@ the name of a local variable.  It returns a pointer to the cell that holds
 the value of the local variable.
 .end_defun
 
-.section "The Function Cell"
+@section "The Function Cell"
 'cindex "function cell"
 	Every symbol also has associated with it a 2function cell*.  The 2function*
 cell is similar to the 2value* cell; it refers to a Lisp object.
@@ -5702,7 +5702,7 @@ Since functions are the basic building block of Lisp programs,
 the system provides a variety of facilities for dealing with functions.
 Refer to chapter (function-chapter) for details.
 
-.section "The Property List"
+@section "The Property List"
 .setq symbol-plist-section section-page
 
 Every symbol has an associated property list.  See (plist) for
@@ -5744,7 +5744,7 @@ cell.  This locative pointer is equally valid as 2sym* itself, as a handle
 on 2sym*'s property list.
 .end_defun
 
-.section "The Print Name"
+@section "The Print Name"
 'cindex "print name"
 Every symbol has an associated string called the 2print-name*, or 2pname*
 for short.  This string is used as the external representation of the symbol:
@@ -5785,7 +5785,7 @@ will work in Maclisp as well as Zetalisp; in new programs,
 you should just use 3string-equal*.
 .end_defun
 
-.section The Package Cell
+@section The Package Cell
 
 Every symbol has a 2package cell* which is used, for interned
 symbols, to point to the package which the symbol belongs to.  For an
@@ -5793,7 +5793,7 @@ uninterned symbol, the package cell contains 3nil*.  For
 information about packages in general, see the chapter on packages, (package).
 For information about package cells, see (symbol-package-cell-discussion).
 
-.section Creating Symbols
+@section Creating Symbols
 
 The functions in this section are primitives for creating symbols.
 However, before discussing them, it is important to point out that most
@@ -5882,10 +5882,10 @@ The name comes from "generate symbol", and the symbols produced by it
 are often called "gensyms".
 .end_defun
 
-.c Missing explanation of the random number algorithm. 
-.c Not documented because they are crocks: list-product, list-sum
+@c Missing explanation of the random number algorithm. 
+@c Not documented because they are crocks: list-product, list-sum
 .c
-.chapter "Numbers"
+@chapter "Numbers"
 .setq number section-page
 .setq number-chapter chapter-number
 .cindex number
@@ -6018,9 +6018,9 @@ sometimes makes regular integer division hard to use.  New functions
 that implement a different kind of division, that obeys this rule,
 will be implemented in the future.
 
-.c When the div and mod functions exist, document them here.  D
-.c is zero or the same sign as B, and C is the greatest integer
-.c less than or equal to the true result, provided B is positive.
+@c When the div and mod functions exist, document them here.  D
+@c is zero or the same sign as B, and C is the greatest integer
+@c less than or equal to the true result, provided B is positive.
 
 Unlike Maclisp, Zetalisp does not have number declarations in
 the compiler.  Note that because fixnums and small flonums require no
@@ -6041,7 +6041,7 @@ an integer is a bignum if and only if its magnitude too big for a
 fixnum.  See the examples on (flonum-examples), in the description
 of what the reader understands.
 
-.section "Numeric Predicates"
+@section "Numeric Predicates"
 .defun zerop x
 Returns 3t* if 2x* is zero.  Otherwise it returns 3nil*.
 If 2x* is not a number, 3zerop* causes an error.  For flonums,
@@ -6105,7 +6105,7 @@ x > 0
 See also the data-type predicates 3fixp*, 3floatp*, 3bigp*,
 3small-floatp*, and 3numberp* ((fixp-fun)).
 
-.section Numeric Comparisons
+@section Numeric Comparisons
 
 All of these functions require that their arguments be numbers, and signal
 an error if given a non-number.  They work on all types of numbers,
@@ -6181,7 +6181,7 @@ Returns 3t* if 2x* is not numerically equal to 2y*, and 3nil* otherwise.
 3min* requires at least one argument.
 .end_defun
 
-.section "Arithmetic"
+@section "Arithmetic"
 
 All of these functions require that their arguments be numbers, and signal
 an error if given a non-number.  They work on all types of numbers,
@@ -6325,7 +6325,7 @@ compiler knows how to generate the appropriate code for 3plus*,
 3+*, etc.  These names are only here for Maclisp compatibility.
 .end_defun
 
-.section Transcendental Functions
+@section Transcendental Functions
 
 These functions are only for floating-point arguments; if given an integer
 they will convert it to a flonum.  If given a small-flonum, they will return a
@@ -6344,7 +6344,7 @@ Returns the natural logarithm of 2x*.
 Returns the sine of 2x*, where 2x* is expressed in radians.
 .end_defun
 
-.c bletch, do we want these in here?
+@c bletch, do we want these in here?
 .defun sind x
 Returns the sine of 2x*, where 2x* is expressed in degrees.
 .end_defun
@@ -6353,7 +6353,7 @@ Returns the sine of 2x*, where 2x* is expressed in degrees.
 Returns the cosine of 2x*, where 2x* is expressed in radians.
 .end_defun
 
-.c bletch do we want these in here?
+@c bletch do we want these in here?
 .defun cosd x
 Returns the cosine of 2x*, where 2x* is expressed in degrees.
 .end_defun
@@ -6368,7 +6368,7 @@ Returns the angle, in radians, whose tangent is 2y/x*.  3atan2* always retur
 number between 3-* and 3*.
 .end_defun
 
-.section Numeric Type Conversions
+@section Numeric Type Conversions
 
 These functions are provided to allow specific conversions of data
 types to be forced, when desired.
@@ -6398,7 +6398,7 @@ Converts any kind of number to a flonum.
 Converts any kind of number to a small flonum.
 .end_defun
 
-.section "Logical Operations on Numbers"
+@section "Logical Operations on Numbers"
 
 Except for 3lsh* and 3rot*, these functions operate on both
 fixnums and bignums.  3lsh* and 3rot* have an inherent word-length
@@ -6557,7 +6557,7 @@ or the low 3-2n** bits if 2n* is negative.
 .end_defun
 
 
-.section "Byte Manipulation Functions"
+@section "Byte Manipulation Functions"
 .setq byte-manipulation-functions section-page
 'cindex "byte"
 Several functions are provided for dealing with an arbitrary-width field of
@@ -6673,7 +6673,7 @@ while 3dpb* would produce a bignum result for arithmetic correctness.
 in some internal system tables and data-structures.
 .end_defun
 
-.section "Random Numbers"
+@section "Random Numbers"
 
 The functions in this section provide a pseudo-random number generator
 facility.  The basic function you use is 3random*, which returns a new
@@ -6737,7 +6737,7 @@ contents of the array from the seed (calling 3random* changes the
 contents of the array and the pointers, but not the seed).
 .end_defun
 
-.section "24-Bit Numbers"
+@section "24-Bit Numbers"
 Sometimes it is desirable to have a form of arithmetic which has no
 overflow checking (which would produce bignums),
 and truncates results to the word size of the machine.
@@ -6763,7 +6763,7 @@ Returns the product of 2x* and 2y* modulo 2^24.  Both arguments must
 be fixnums.
 .end_defun
 
-.section "Double-Precision Arithmetic"
+@section "Double-Precision Arithmetic"
 
 These peculiar functions are useful in programs that don't want to use
 bignums for one reason or another.  They should usually be avoided,
@@ -6801,7 +6801,7 @@ bits are retained (after removal of leading zeroes.)  This function is
 mainly for the benefit of 3read*.
 .end_defun
 
-.chapter "Arrays"
+@chapter "Arrays"
 .setq array section-page
 .setq array-chapter chapter-number
 .cindex array
@@ -6815,7 +6815,7 @@ selected by numerical 2subscripts*.
 which the array has) is the number of subscripts used to
 refer to one of the elements of the array.  The dimensionality
 may be any integer from one to seven, inclusively.
-.c How about zero?
+@c How about zero?
 
 	The lowest value for any subscript is zero; the highest value
 is a property of the array.  Each dimension has a size, which is
@@ -7018,7 +7018,7 @@ that array.  For arrays that can hold general Lisp objects, the result is
 24., assuming you will be storing unsigned fixnums in the array.
 .end_defun
 
-.section "Extra Features of Arrays"
+@section "Extra Features of Arrays"
 'cindex "array leader"
 	Any array may have an 2array leader*.  An array leader is
 like a one-dimensional 3art-q* array which is attached to the main
@@ -7126,7 +7126,7 @@ is only one index offset; it is added in to the "linearized" subscript
 which is the result of multiplying each subscript by an appropriate
 coefficient and adding them together.
 
-.section "Basic Array Functions"
+@section "Basic Array Functions"
 
 .defun make-array dimensions &rest options.
 This is the primitive function for making arrays.  2dimensions*
@@ -7318,7 +7318,7 @@ This is analogous to 3aloc*.
 .end_defun
 
 
-.section Getting Information About an Array
+@section Getting Information About an Array
 
 .defun array-type array
 Returns the symbolic type of 2array*.
@@ -7437,7 +7437,7 @@ if it has one, or 3nil* if it does not.
 .end_defun
 
 
-.section Changing the Size of an Array
+@section Changing the Size of an Array
 
 .defun adjust-array-size array new-size
 If 2array* is a one-dimensional array, its size is
@@ -7509,13 +7509,13 @@ is called.  You should only call this function if you know what you are doing;
 otherwise the garbage collector can get fatal errors.  Be careful.
 .end_defun
 
-.section Arrays Overlaid With Lists
+@section Arrays Overlaid With Lists
 
 These functions manipulate 3art-q-list* arrays, which were
 introduced on (art-q-list-var).
 
 .defun g-l-p array
-.c This will probably be renamed, if anyone can think of a better name
+@c This will probably be renamed, if anyone can think of a better name
 2array* should be an 3art-q-list* array.  This returns
 a list which shares the storage of 2array*.
 .lisp
@@ -7536,7 +7536,7 @@ The following two functions work strangely, in the same way that 3store*
 does, and should not be used in new programs.
 
 .defun get-list-pointer-into-array array-ref
-.c This will probably be renamed, if anyone can think of a better name
+@c This will probably be renamed, if anyone can think of a better name
 The argument 2array-ref* is ignored, but should be a reference
 to an 3art-q-list* array by applying the array to subscripts (rather
 than by 3aref*).  This returns a list object which
@@ -7545,14 +7545,14 @@ element of the last array which has been called as a function.
 .end_defun
 
 .defun get-locative-pointer-into-array array-ref
-.c This will probably be flushed?
+@c This will probably be flushed?
 3get-locative-pointer-into-array* is
 similar to 3get-list-pointer-into-array*, except that it returns a
 locative, and doesn't require the array to be 3art-q-list*.
 Use 3aloc* instead of this function in new programs.
 .end_defun
 
-.section Adding to the End of an Array
+@section Adding to the End of an Array
 
 .defun array-push array x
 2array* must be a one-dimensional array which has a fill pointer, and 2x* may
@@ -7590,7 +7590,7 @@ updated to ensure this.
 .end_defun
 
 
-.section Copying an Array
+@section Copying an Array
 
 .defun fillarray array x
 	2array* may be any type of array, or, for Maclisp
@@ -7733,7 +7733,7 @@ of 32., for 3art-2b* arrays it must be a multiple of 16., etc.
 .end_defun
 
 
-.section Matrices and Systems of Linear Equations
+@section Matrices and Systems of Linear Equations
 
 The functions in this section perform some useful matrix operations.
 The matrices are represented as two-dimensional Lisp arrays.
@@ -7818,7 +7818,7 @@ list of lists, with each element being a list corresponding to a row.
 The lists which are elements of 2list* also work this way.
 .end_defun
 
-.section Planes
+@section Planes
 .cindex plane
 
 A 2plane* is an array whose bounds, in each dimension,
@@ -7905,7 +7905,7 @@ the subscripts as arguments, while 3plane-store* wants a list of subscripts.
 .end_defun
 
 
-.section "Maclisp Array Compatibility"
+@section "Maclisp Array Compatibility"
 .setq maclisp-array section-page
 
 The functions in this section are provided only for Maclisp compatibility,
@@ -7993,7 +7993,7 @@ as 3(aref 2array* 2sub1* 2sub2*...)*.  It exists for
 Maclisp compatibility.
 .end_defun
 
-.chapter "Strings"
+@chapter "Strings"
 .setq string-chapter chapter-number
 .cindex string
 	Strings are a type of array which represent a sequence of
@@ -8046,7 +8046,7 @@ The length of a string is always computed using 3array-active-length*,
 so that if a string has a fill-pointer, its value will be used
 as the length.
 
-.section "Characters"
+@section "Characters"
 
 .defun character x
 	3character* coerces 2x* to a single character,
@@ -8074,7 +8074,7 @@ ignoring case and font, otherwise 3nil*.  Details of the ordering
 of characters are in (character-set).
 .end_defun
 
-.section Upper and Lower Case Letters
+@section Upper and Lower Case Letters
 .cindex alphabetic case
 .cindex upper case letter
 .cindex lower case letter
@@ -8112,7 +8112,7 @@ characters replaced by the corresponding upper case characters.
 characters replaced by the corresponding lower case characters.
 .end_defun
 
-.section Basic String Operations
+@section Basic String Operations
 
 .defun string x
 	3string* coerces 2x* into a string.  Most of the string
@@ -8311,7 +8311,7 @@ For words with multiple plural forms depending on the
 meaning, 3string-pluralize* cannot always do the right thing.
 .end_defun
 
-.section "String Searching"
+@section "String Searching"
 
 .defun string-search-char char string &optional (from 0) to
 3string-search-char* searches through 2string* starting at the index 2from*,
@@ -8470,7 +8470,7 @@ of characters or a string of characters.
 See also 3intern* ((intern-fun)), which given a string will return "the" symbol
 with that print name.
 
-.section I/O to Strings
+@section I/O to Strings
 
 The special forms in this section allow you to create I/O streams which
 input from or output to a string rather than a real I/O device.
@@ -8575,7 +8575,7 @@ nested within one another, so long as there is only one of each.
 Another way of doing output to a string is to use the 3format* facility
 (see (format-fun)).
 
-.section "Maclisp-Compatible Functions"
+@section "Maclisp-Compatible Functions"
 
 The following functions are provided primarily for Maclisp compatibility.
 
@@ -8628,7 +8628,7 @@ is interned in the current package.
 .nopara
 The 3samepnamep* function is also provided; see (samepnamep-fun).
 
-.chapter Functions
+@chapter Functions
 .cindex function
 .cindex definition
 .setq function-functions section-page
@@ -8643,7 +8643,7 @@ to manipulate programs as well as material suitable for the beginner.
 Feel free to skip sections that look complicated or uninteresting
 when reading this for the first time.
 
-.section What Is a Function?
+@section What Is a Function?
 
 There are many different kinds of functions in Zetalisp.  Here
 are the printed representations of examples of some of them:
@@ -8664,7 +8664,7 @@ objects and so can be manipulated in all the usual ways; you can pass
 them as arguments, return them as values, and make other Lisp objects
 refer to them.
 
-.section Function Specs
+@section Function Specs
 .setq function-spec section-page
 .cindex function spec
 
@@ -8837,7 +8837,7 @@ as a function name.  This is translated into
 2symbol* must not be one of the keyword symbols which
 identifies a function spec, since that would be ambiguous.
 
-.section Simple Function Definitions
+@section Simple Function Definitions
 
 .defspec defun
 3defun* is the usual way of defining a function which is part of a
@@ -8955,7 +8955,7 @@ You can think of 3defunp* as being like 3defun* except that you can
 For more information on defining functions, and other ways of doing so,
 see (function-defining).
 
-.section Operations the User Can Perform on Functions
+@section Operations the User Can Perform on Functions
 
 Here is a list of the various things a user (as opposed to a program) is
 likely to want to do to a function.  In all cases, you specify a
@@ -8991,7 +8991,7 @@ through further function calls and returns.  You can customize the
 definition of the function, either temporarily or permanently, using
 3advise* (see (advise-fun)).
 
-.section Kinds of Functions
+@section Kinds of Functions
 .setq kinds-of-functions section-page
 
 There are many kinds of functions in Zetalisp.  This section
@@ -9087,7 +9087,7 @@ Finally, there are various types of Lisp object which, when used as
 functions, do something special related to the specific data type.
 These include arrays and stack-groups.
 
-.subsection "Interpreted Functions"
+@subsection "Interpreted Functions"
 
 An interpreted function is a piece of list structure which represents a
 program according to the rules of the Lisp interpreter.  Unlike other
@@ -9163,7 +9163,7 @@ just as a 3named-lambda* does.  It looks like
 .end_lisp
 where 2name* is interpreted the same way as in a 3named-lambda*.
 
-.subsection "Compiled Functions"
+@subsection "Compiled Functions"
 .cindex function entry frame
 .cindex FEF
 
@@ -9192,7 +9192,7 @@ written in Lisp Machine microcode.  You can also convert your own
 macrocode functions into microcode functions in some circumstances,
 using the micro-compiler.
 
-.subsection "Other Kinds of Functions"
+@subsection "Other Kinds of Functions"
 
 A closure is a kind of function which contains another function and a
 set of special variable bindings.  When the closure is applied, it
@@ -9225,7 +9225,7 @@ Use 3aref* ((aref-fun)) instead.
 A stack group can be called as a function.  This is one way to pass control
 to another stack group.  See (stack-group).
 
-.section Function-Defining Special Forms
+@section Function-Defining Special Forms
 .setq function-defining section-page
 
 3defun* is a special form which is put in a program to define a
@@ -9268,7 +9268,7 @@ is that anything which is used at top level (not inside a function)
 and starts with 3def* should be a special form for defining things
 and should be understood by the editor.  3defprop* is an exception.
 
-.c [Explain how a user can create his own, or point to an explanation]
+@c [Explain how a user can create his own, or point to an explanation]
 
 .setq additional-defun-explanation page
 The 3defun* special form (and the 3defunp* macro which expands into a
@@ -9417,7 +9417,7 @@ as the select-method, including the message symbol itself.
 .end_defspec
 
 
-.section Lambda-List Keywords
+@section Lambda-List Keywords
 .cindex lambda-list keywords
 .cindex "&" keywords
 .setq lambda-list-keywords section-page
@@ -9495,7 +9495,7 @@ Refer to (&body).
 .end_table
 
 
-.section How Programs Manipulate Definitions
+@section How Programs Manipulate Definitions
 
 .setq programs-that-manipulate-functions section-page
 
@@ -9610,7 +9610,7 @@ See also 3uncompile* ((uncompile-fun)).
 .end_defun
 
 
-.section How Programs Examine Functions
+@section How Programs Examine Functions
 
 These functions take a function as argument and return information about
 that function.  Some also accept a function spec and operate on its
@@ -9747,12 +9747,12 @@ to be in the microcode anyway, for 3apply* and the basic
 function-calling mechanism.
 .end_defun
 
-.c [This section could document a variety of other function-analysis
-.c functions which are not on the global package, including the ones in eh
-.c for getting arg names and so forth.]
+@c [This section could document a variety of other function-analysis
+@c functions which are not on the global package, including the ones in eh
+@c for getting arg names and so forth.]
 
 
-.section "Encapsulations"
+@section "Encapsulations"
 .cindex encapsulation
 .cindex basic definition
 .setq encapsulate section-page
@@ -9995,7 +9995,7 @@ other types of encapsulations.  Only the variable
 3si:unencapsulate-function-spec*, knows the order.
 .end_defun
 
-.subsection "Rename-Within Encapsulations"
+@subsection "Rename-Within Encapsulations"
 .cindex rename-within
 .cindex function renaming
 .setq rename-within-section section-page
@@ -10042,7 +10042,7 @@ encapsulations stripped off, including the 3si:rename-within*
 encapsulation if any, and so no renamings will be done.
 .end_defun
 
-.chapter "Closures"
+@chapter "Closures"
 'cindex "closure"
 .setq closure section-page
 .setq closure-chapter chapter-number
@@ -10057,7 +10057,7 @@ by the entering of a dynamic contour (i.e. a 3lambda*, 3do*,
 forms), and then use that environment
 elsewhere, even after the contour has been exited.
 
-.section "What a Closure Is"
+@section "What a Closure Is"
 
 	There is a view of lambda-binding which we will use in this
 section because it makes it easier to explain what closures do.  In
@@ -10190,7 +10190,7 @@ cell is a value cell that some closure is remembering; at other times,
 there won't be an invisible pointer, and the value will just reside in the
 internal value cell.
 
-.section "Examples of the Use of Closures"
+@section "Examples of the Use of Closures"
 
 One thing we can do with closures is to implement a 2generator*, which
 is a kind of function which is called successively to obtain successive elements
@@ -10244,7 +10244,7 @@ will return 3(5 . 1)*.  This shows that the value cell of 3a* seen
 by the closure 3y* is the same value cell seen by the closure 3x*.  The
 top-level value cell of 3a* is unaffected.
 
-.section Closure-Manipulating Functions
+@section Closure-Manipulating Functions
 
 .defun closure var-list function
 This creates and returns a closure of 2function* over the variables
@@ -10313,7 +10313,7 @@ is a special form which does all of this.  It is best described by example:
 .end_lisp
 .end_defspec
 
-.section "Entities"
+@section "Entities"
 .setq entity section-page
 .cindex entity
 An entity is almost the same thing as a closure; the data type is
@@ -10336,9 +10336,9 @@ To test whether an object is an entity, use the 3entityp* predicate
 (see (entityp-fun)).  The functions 3symeval-in-closure*,
 3closure-alist*, 3closure-function*, etc. also operate on entities.
 
-.c Need examples!
+@c Need examples!
 
-.chapter "Stack Groups"
+@chapter "Stack Groups"
 'cindex "stack group"
 .setq stack-group section-page
 .setq stack-group-chapter chapter-number
@@ -10394,7 +10394,7 @@ of arguments.  The stack group is placed in such a state that when it is
 first resumed, this function will call those arguments.  The function is
 called the "initial" function of the stack group.
 
-.section Resuming of Stack Groups
+@section Resuming of Stack Groups
 
 The interesting thing that happens to stack groups is that they resume
 each other.  When one stack group resumes a second stack group, the
@@ -10497,7 +10497,7 @@ currently running.  A program can use this variable to get its hands
 on its own stack group.
 .end_defvar
 
-.section Stack Group States
+@section Stack Group States
 
 A stack group has a 2state*, which controls what it will do when it
 is resumed.  The code number for the state is returned by the function
@@ -10535,7 +10535,7 @@ and arguments are already set up on the stack.  The debugger uses this
 to force the stack group being debugged to do things.
 .end_table
 
-.section Stack Group Functions
+@section Stack Group Functions
 
 .defun make-stack-group name &optional options
 This creates and returns a new stack group.  2name* may be any symbol
@@ -10580,7 +10580,7 @@ if it is 30* the machine halts.  Defaults to 1.
 If this flag is 31* (the default), a strict call-return discipline among
 stack-groups is enforced.  If 30*, no restriction on stack-group
 switching is imposed.
-.c I could explain this a lot better if I understood it.
+@c I could explain this a lot better if I understood it.
 .end_table
 .end_defun
 
@@ -10629,12 +10629,12 @@ for manipulating the internal details of stack groups.  These are not
 documented here as they are not necessary for most users or even system
 programmers to know about.  Refer to the file SYS: LMWIN; EH LISP for them.
 
-.c If eh:unwind-sg was global it might be documented here
-.c If there was a way to "interrupt" a stack group (force it to call a function)
-.c it would be documented here.  There is only force-break currently.
+@c If eh:unwind-sg was global it might be documented here
+@c If there was a way to "interrupt" a stack group (force it to call a function)
+@c it would be documented here.  There is only force-break currently.
 
 
-.section Input/Output in Stack Groups
+@section Input/Output in Stack Groups
 .setq sg-terminal-io-issues section-page
 
 	Because each stack group has its own set of dynamic bindings, a
@@ -10659,7 +10659,7 @@ variables that are desired to be shared between the stack group and its
 creator.
 
 
-.section An Example of Stack Groups
+@section An Example of Stack Groups
 
 The canonical coroutine example is the so-called samefringe problem:
 Given two trees, determine whether they contain the same
@@ -10752,11 +10752,11 @@ not be an atom.
 
 Now we can compare the fringes of two trees with no allocation of memory whatsoever.
 
-.chapter "Locatives"
+@chapter "Locatives"
 'cindex locative
 .setq locative section-page
 
-.section "Cells and Locatives"
+@section "Cells and Locatives"
 'cindex cell
 .setq locative-chapter chapter-number
 
@@ -10789,7 +10789,7 @@ creates a locative pointer to that cell: for example,
 a program from having to remember the names of all the functions
 that create locatives.
 
-.section "Functions That Operate on Locatives"
+@section "Functions That Operate on Locatives"
 
 	Either of the functions 3car* and 3cdr* 
 (see (car-fun))
@@ -10835,7 +10835,7 @@ it to work anyway, by recognizing 3value-cell-location* of the name
 of a local variable, and compiling it as something other than a call
 to the 3value-cell-location* function.
 
-.chapter "Subprimitives"
+@chapter "Subprimitives"
 .setq subprimitive-chapter chapter-number
 .cindex subprimitive
 	Subprimitives are functions which are not intended to be used by
@@ -10880,7 +10880,7 @@ access or modify the cell addressed by the locative without regard to what
 object the cell is inside.  Subprimitives can be used to create locatives
 to strange places.
 
-.section Data Types
+@section Data Types
 
 .defun data-type arg
 3data-type* returns a symbol which is the name
@@ -10977,7 +10977,7 @@ Given the internal numeric data-type code, returns the corresponding symbolic na
 This "function" is actually an array.
 .end_defun
 
-.section Forwarding
+@section Forwarding
 .cindex invisible-pointer
 
 An 2invisible pointer* is a kind of pointer that does not represent a
@@ -11063,7 +11063,7 @@ If 2evcp-p* is 3t*, external value cell pointers are followed; if
 it is 3nil* they are not.
 .end_defun
 
-.section Pointer Manipulation
+@section Pointer Manipulation
 
 It should again be emphasized that improper use of these functions
 can damage or destroy the Lisp environment.  It is possible to create
@@ -11071,7 +11071,7 @@ pointers with illegal data-type, pointers to non-existent objects, and
 pointers to untyped storage which will completely confuse the garbage
 collector.
 
-.c Narrative description of Q format, and data types, or pointer thereto.
+@c Narrative description of Q format, and data types, or pointer thereto.
 
 .defun %data-type x
 Returns the data-type field of 2x*, as a fixnum.
@@ -11113,7 +11113,7 @@ must point into the same object, so that their difference cannot change
 as a result of garbage collection.
 .end_defun
 
-.section Analyzing Structures
+@section Analyzing Structures
 
 .defun %find-structure-header pointer
 This subprimitive finds the structure into which 
@@ -11157,7 +11157,7 @@ of 2object*, including boxed Q's, unboxed Q's, and garbage Q's off
 the ends of PDLs.
 .end_defun
 
-.section Creating Objects
+@section Creating Objects
 
 .defun %allocate-and-initialize data-type header-type header second-word area size
 	This is the subprimitive for creating most structured-type objects.
@@ -11186,7 +11186,7 @@ It is different from 3%allocate-and-initialize* because arrays have
 a more complicated header structure.
 .end_defun
 
-.section Locking Subprimitive
+@section Locking Subprimitive
 
 .defun %store-conditional pointer old new
 This is the basic locking primitive.  2pointer* is a locative to
@@ -11196,7 +11196,7 @@ the cell is 3eq* to 2old*, then it is replaced by 2new* and
 of the cell is not changed.
 .end_defun
 
-.section I/O Device Subprimitives
+@section I/O Device Subprimitives
 
 .defun %unibus-read address
 Returns the contents of the register at the specified Unibus
@@ -11243,7 +11243,7 @@ The number of microseconds of delay is roughly one third of 2delay*.
 Stops the machine.
 .end_defun
 
-.section Special Memory Referencing
+@section Special Memory Referencing
 
 .defun %p-contents-offset base-pointer offset
 This checks the cell pointed to by 2base-pointer* for
@@ -11411,7 +11411,7 @@ the "caller's stack frame" really means "the frame for the FEF
 that executed the 3%stack-frame-pointer* instruction".
 .end_defun
 
-.section Storage Layout Definitions
+@section Storage Layout Definitions
 
 The following special variables have values which define the most important attributes
 of the way Lisp data structures are laid out in storage.  In addition to the variables
@@ -11474,7 +11474,7 @@ The values of these four variables are the numeric values which go in the cdr-co
 field of a memory word.  See (cdr-code) for the details of cdr-coding.
 .end_defvar
 
-.section Function-Calling Subprimitives
+@section Function-Calling Subprimitives
 
 These subprimitives can be used (carefully!) to call a function with the
 number of arguments variable at run time.  They only work in compiled code
@@ -11514,9 +11514,9 @@ If the frame is going to exceed the legal limit, 3%assure-pdl-room* will signa
 an error.
 .end_defun
 
-.c sys:%make-stack-list could be documented here I suppose
+@c sys:%make-stack-list could be documented here I suppose
 
-.section Lambda-Binding Subprimitive
+@section Lambda-Binding Subprimitive
 
 .defun bind locative value
 Binds the cell pointed to by 2locative* to 2x*, in the caller's
@@ -11530,9 +11530,9 @@ higher-level primitives which turn into this are 3let* ((let-fun)),
 [This will be renamed to 3%bind* in the future.]
 .end_defun
 
-.section The Paging System
+@section The Paging System
 
-.c Insert narrative description of the page hash table, etc.
+@c Insert narrative description of the page hash table, etc.
 
 [Someday this may discuss how it works.]
 
@@ -11666,7 +11666,7 @@ argument should come from 3%sys-com-memory-size* in 3system-communication-are
 This is the primitive used by 3disk-save* (see (disk-save-fun)).
 .end_defun
 
-.section Closure Subprimitives
+@section Closure Subprimitives
 
 These functions deal with things like what closures deal with: the distinction
 between internal and external value cells and control over how they work.
@@ -11710,7 +11710,7 @@ considered invisible as soon as they leave the "inside of the machine",
 meaning internal registers and the stack.
 .end_defun
 
-.section Microcode Variables
+@section Microcode Variables
 
 The following variables' values actually reside in the scratchpad memory
 of the processor.  They are put there by 3dtp-one-q-forward* invisible
@@ -11875,7 +11875,7 @@ A list of all of the above symbols (and any others added after this documentatio
 was written).
 .end_defvar
 
-.section Meters
+@section Meters
 
 .defun read-meter name
 Returns the contents of the microcode meter named 2name*, which can be a fixnum
@@ -12049,7 +12049,7 @@ A list of all of the above symbols (and any others added after this documentatio
 was written).
 .end_defvar
 
-.chapter "Areas"
+@chapter "Areas"
 'cindex area
 .setq area section-page
 .setq area-chapter chapter-number
@@ -12126,7 +12126,7 @@ on areas, as it clearly ought to be, it's just because both limits have
 to be multiples of 3256.* for internal reasons, and 3256.* regions seem
 to be enough.)
 
-.section Area Functions and Variables
+@section Area Functions and Variables
 
 .defvar default-cons-area
 The value of this variable is the number of the area in which objects are created
@@ -12252,7 +12252,7 @@ See also 3cons-in-area* ((cons-in-area-fun)), 3list-in-area* ((list-in-are
 and 3room* ((room-fun)).
 
 
-.section Interesting Areas
+@section Interesting Areas
 
 This section lists the names of some of the areas and tells what they are for.
 Only the ones of the most interest to a user are listed; there are many others.
@@ -12295,12 +12295,12 @@ This area holds the property lists of symbols.
 These two areas contain constants used by compiled programs.
 .end_defvar
 
-.chapter "The Compiler"
+@chapter "The Compiler"
 .setq compiler section-page
 .setq compiler-chapter chapter-number
 .cindex compiler
 
-.section "The Basic Operations of the Compiler"
+@section "The Basic Operations of the Compiler"
 
 	The purpose of the Lisp compiler is to convert Lisp functions
 into programs in the Lisp Machine's instruction set, so that they
@@ -12328,10 +12328,10 @@ file; the difference is that the functions defined in the file will be
 defined as compiled functions instead of interpreted functions.
 The 3qc-file* function is used for translating source files into QFASL files.
 
-.c Explain why the compiler expands macros.
-.c Explain specialness versus localness, etc.
+@c Explain why the compiler expands macros.
+@c Explain specialness versus localness, etc.
 
-.section "How to Invoke the Compiler"
+@section "How to Invoke the Compiler"
 
 .defun compile function-spec &optional definition
 If 2definition* is supplied, it should be a 3lambda*-expression.
@@ -12394,7 +12394,7 @@ See also the 3disassemble* function ((disassemble-fun)), which lists the inst
 of a compiled function in symbolic form.
 
 
-.section "Input to the Compiler"
+@section "Input to the Compiler"
 .setq compiler-input-section section-page
 .cindex input to the compiler
 
@@ -12561,7 +12561,7 @@ function (see (arglist-fun)).
 .end_defun
 
 
-.section "Compiler Declarations"
+@section "Compiler Declarations"
 
 'cindex declaration
 
@@ -12714,7 +12714,7 @@ is so that global switches which affect the behavior of macro
 expanders can be bound locally.
 .end_defmac
 
-.section Controlling Compiler Warnings
+@section Controlling Compiler Warnings
 .cindex warnings from the compiler
 .cindex compiler warnings
 
@@ -12802,7 +12802,7 @@ obsolete-function declaration is:
 .end_defspec
 
 
-.section "Compiler Source-Level Optimizers"
+@section "Compiler Source-Level Optimizers"
 'cindex optimizer, compiler
 
 The compiler stores optimizers for source code on property lists so as
@@ -12852,7 +12852,7 @@ of the optimization.
 .end_defspec
 
 
-.section "Files that Maclisp Must Compile"
+@section "Files that Maclisp Must Compile"
 
 Certain programs are intended to be run both in Maclisp and in
 Zetalisp.  Their source files need some special conventions.  For
@@ -12932,7 +12932,7 @@ program.  The form 3(status feature lispm)* is generally useful in
 other ways; it evaluates to 3t* when evaluated on the Lisp machine and
 to 3nil* when evaluated in Maclisp.
 
-.section Putting Data in QFASL Files
+@section Putting Data in QFASL Files
 .cindex fasdump
 .setq fasdump section-page
 
@@ -12979,7 +12979,7 @@ Writes the font named 2name* into a QFASL file with the appropriate name
 (on the LMFONT directory).
 .end_defun
 
-.c I wonder if this works?  I never heard of it until I found it in the file.
+@c I wonder if this works?  I never heard of it until I found it in the file.
 .defun compiler:fasd-file-symbols-properties filename symbols properties dump-values-p dump-functions-p new-symbol-function
 This is a way to dump a complex data structure into a QFASL file.  The values,
 the function definitions, and some of the properties of certain symbols are put into
@@ -13002,15 +13002,15 @@ list to be processed by calling 3compiler:fasd-symbol-push*.  The value
 returned by 2new-symbol-function* is ignored.
 .end_defun
 
-.c Note: there are still some sections to be written; see end of the file.
+@c Note: there are still some sections to be written; see end of the file.
 
-.chapter "Macros"
+@chapter "Macros"
 .setq macro section-page
 .setq macros-chapter chapter-number
 .cindex macros
-.c Macros!!!!!!!
+@c Macros!!!!!!!
 
-.section "Introduction to Macros"
+@section "Introduction to Macros"
 
 If 3eval* is handed a list whose car is a symbol, then 3eval*
 inspects the definition of the symbol to find out what to do.  If the
@@ -13135,7 +13135,7 @@ A macro to do this could be defined with
 Now he has defined his own new control structure primitive, and it
 will act just as if it were a special form provided by Lisp itself.
 
-.section "Aids for Defining Macros"
+@section "Aids for Defining Macros"
 
 	The main problem with the definition for the 3for* macro is
 that it is verbose and clumsy.  If it is that hard to write a macro
@@ -13152,7 +13152,7 @@ to the 3list* and 3cons* functions are very hard to read.
 The 3defmacro* macro solves the former, and the "backquote" (3`*)
 reader macro solves the latter.
 
-.subsection "Defmacro"
+@subsection "Defmacro"
 .cindex macro-defining macros
 .cindex defmacro
 
@@ -13238,7 +13238,7 @@ defined by the macro.
 displacing macros (see (displacing-macro)).
 3defmacro* has other, more complex features; see (defmacro-hair).
 
-.subsection "Backquote"
+@subsection "Backquote"
 .setq backquote section-page
 .cindex backquote
 
@@ -13456,7 +13456,7 @@ of macros.  Whenever there is a piece of list structure to be consed
 up, most of which is constant, the use of backquote can make the
 program considerably clearer.
 
-.section Substitutable Functions
+@section Substitutable Functions
 .cindex subst
 .cindex substitutable function
 
@@ -13555,7 +13555,7 @@ As with 3defun*, 2name* can be any function spec.
 .end_defspec
 
 
-.section Hints to Macro Writers
+@section Hints to Macro Writers
 
 There are many useful techniques for writing macros.  Over the years,
 Lisp programmers have discovered techniques that most programmers find
@@ -13581,7 +13581,7 @@ exactly the semantics of a function, rather than a special form.  The
 macros we will see in this section are not semantically like functions;
 they must be written as macros.
 
-.subsection Name Conflicts
+@subsection Name Conflicts
 
 One of the most common errors in writing macros is best illustrated by
 example.  Suppose we wanted to write 3dolist* (see (dolist-fun)) as
@@ -13702,7 +13702,7 @@ This provides meaningful names for these variables when looking at the generated
 code and when looking at the state of a computation in the error-handler.
 However, this convention means that users should avoid naming variables this way.
 
-.subsection prog-context Conflicts
+@subsection prog-context Conflicts
 
 A related problem occurs when you write a macro that expands into a
 3prog* (or a 3do*, or something that expands into 3prog* or 3do*)
@@ -13738,7 +13738,7 @@ user's code, the 3prog* or 3do* should be named 3t* so that
 unless the macro is documented as generating a 3prog/do*-like form
 which may be exited with 3return*.
 
-.subsection Macros Expanding into Many Forms
+@subsection Macros Expanding into Many Forms
 .setq progn-quote-compile-discussion section-page
 .setq progn-quote-compile-page page
 
@@ -13852,7 +13852,7 @@ The way that the Lisp environment works, with load-time evaluation able
 to build data structures, lets the documentation data base and the list
 of commands be constructed automatically.
 
-.subsection Macros that Surround Code
+@subsection Macros that Surround Code
 
 There is a particular kind of macro that is very useful for many
 applications.  This is a macro that you place "around" some Lisp code,
@@ -13932,7 +13932,7 @@ an 3unwind-protect* that has a 3deallocate-resource* in its
 "cleanup" forms.  This way the allocated resource item will be
 deallocated whenever control leaves the 3using-resource* special form.
 
-.subsection Multiple and Out-of-order Evaluation
+@subsection Multiple and Out-of-order Evaluation
 
 In any macro, you should always pay attention to the problem of
 multiple or out-of-order evaluation of user subforms.  Here is an
@@ -14056,7 +14056,7 @@ is prominently mentioned in the documentation of these macros, and will
 be fixed in the future.  It would be best not to compromise the semantic
 simplicity of your own macros in this way.
 
-.subsection Nesting Macros
+@subsection Nesting Macros
 .setq compiler-let-discussion section-page
 
 A useful technique for building language extensions is to define
@@ -14162,7 +14162,7 @@ Here's the right way to write these macros:
   `(push ,argument ,*collect-variable*))
 .end_lisp
 
-.subsection Functions Used During Expansion
+@subsection Functions Used During Expansion
 
 The technique of defining functions to be used during macro expansion
 deserves explicit mention here.  It may not occur to you, but a macro
@@ -14193,7 +14193,7 @@ The 2system* facility (see (system-system)) helps keep these
 various files straight, compiling and loading things in the right order.
 
 
-.section "Aids for Debugging Macros"
+@section "Aids for Debugging Macros"
 
 .defun mexp
 3mexp* goes into a loop in which it reads forms and sequentially
@@ -14206,7 +14206,7 @@ another form.  This allows you to see what your macros are
 expanding into, without actually evaluating the result of the expansion.
 .end_defun
 
-.section "Displacing Macros"
+@section "Displacing Macros"
 .setq displacing-macro section-page
 .cindex displacing macros
 	Every time the the evaluator sees a macro form, it must
@@ -14287,7 +14287,7 @@ it defines a displacing macro, using the 3displace* function.
 All we have changed in this example is the 3defmacro* into
 3defmacro-displace*.  3addone* is now a displacing macro.
 
-.section "Advanced Features of Defmacro"
+@section "Advanced Features of Defmacro"
 .setq defmacro-hair section-page
 
 The pattern in a 3defmacro* is more like the 3lambda*-list
@@ -14366,7 +14366,7 @@ You can combine 3&optional* and 3&list-of*.  Consider the following example:
 In this example we aren't using 3&body* or anything like it, so you do see
 the list itself; that is why you see parentheses around the 3(bar 3)*.
 
-.section "Functions to Expand Macros"
+@section "Functions to Expand Macros"
 
 	The following two functions are provided to allow the user to
 control expansion of macros; they are often useful for the writer of
@@ -14387,7 +14387,7 @@ Otherwise, it just returns 2form*.  3macroexpand* expands 3defsubst*
 function forms as well as macro forms.
 .end_defun
 
-.section Generalized Variables
+@section Generalized Variables
 .cindex setf
 
 In Lisp, a variable is something that can remember one piece of data.  The
@@ -14581,23 +14581,10 @@ All the caveats that apply to 3incf* apply to 3pop* as well:
 forms within 2ref* may be evaluated more than once.
 .end_defmac
 
-.c The canonical source for this file is ML:LSBDOC;LOOPTM >.
-.c Secondary source is AI:LMMAN;.
-.c The file LOOPTM LISPM defines the bolio requests to make this file
-.c includable as a chapter in the Lisp Machine manual (or actually, as
-.c a chapter in any other manual);  the "chapters" become "sections",
-.c etc.  ML:LSBDOC;LOOPTM BOLIO sets things up for this to be a
-.c stand-alone document;  this is what you get if you BOLIO the file
-.c LOOPTM alone.
-.c Any changes made to this document should be described in mail to
-.c BUG-LOOP, so that they can be checked over;  LOOP is used by
-.c differring lisp implementations, the users of which often know
-.c little about the others.
+.chapter The LOOP Iteration Macro
 
-.if_lmman_chapter_else_noop The LOOP Iteration Macro
-
-.loop_chapter "Introduction"
-.c For the sake of the Lispm Manual:
+@section "Introduction"
+@c For the sake of the Lispm Manual:
 .setq loop-chapter chapter-number
 .mindex loop
 .cindex loop
@@ -14709,7 +14696,7 @@ satisfies the predicate 3frobp*.  If none is found, an error is
 generated.
 .end_group
 
-.loop_chapter "Clauses"
+@section "Clauses"
 
 	Internally, 3loop* constructs a 3prog* which includes
 variable bindings, pre-iteration (initialization) code,
@@ -14744,7 +14731,7 @@ of things is "in parallel", all of the bindings produced will be
 performed in parallel by a single lambda binding.  Subsequent
 bindings will be performed inside of that binding environment.
 
-.loop_section "Iteration-Driving Clauses"
+@subsection "Iteration-Driving Clauses"
 
 	These clauses all create a 2variable of iteration*, which
 is bound locally to the loop and takes on a new value on each
@@ -14923,7 +14910,7 @@ may appear.  See the section on Iteration Paths
 ((iteration-path-page)) for complete documentation.
 .end_table
 
-.loop_section "Bindings"
+@subsection "Bindings"
 .setq with-clause page
 .loop_keyword_index with
 'loop_topic variable bindings
@@ -15039,7 +15026,7 @@ variables so noted.  Positioning it incorrectly will cause this clause
 to not take effect, and may not be diagnosed.
 .end_table
 
-.loop_section "Entrance and Exit"
+@subsection "Entrance and Exit"
 
 .table 3 250 500
 .item initially 2expression*
@@ -15070,7 +15057,7 @@ to return values in a non-standard way:
 .end_lisp
 .end_table
 
-.loop_section "Side Effects"
+@subsection "Side Effects"
 .setq side-effects-section css-number
 .table 3 250 500
 .item do 2expression*
@@ -15081,7 +15068,7 @@ the 3print-elements-of-list* example on
 (print-elements-of-list-example).
 .end_table
 
-.loop_section "Values"
+@subsection "Values"
 .setq values-section css-number
 	The following clauses accumulate a return value for the
 iteration in some manner.  The general form is
@@ -15202,7 +15189,7 @@ The following computes the average of the entries in the list
 .end_lisp
 .end_group
 
-.loop_section "Endtests"
+@subsection "Endtests"
 .loop_topic terminating the iteration
 	The following clauses may be used to provide additional
 control over when the iteration gets terminated, possibly causing
@@ -15252,7 +15239,7 @@ This particular example would be better written as 3until (= x 4)*
 in place of the 3do* clause.
 .end_defmac
 
-.loop_section "Aggregated Boolean Tests"
+@subsection "Aggregated Boolean Tests"
 .setq aggregated-boolean-tests-section css-number
 	All of these clauses perform some test, and may immediately
 terminate the iteration depending on the result of that test.
@@ -15279,7 +15266,7 @@ terminated and that value is returned, without running the epilogue
 code.
 .end_table
 
-.loop_section "Conditionalization"
+@subsection "Conditionalization"
 .loop_topic conditionalizing clause(s)
 	These clauses may be used to "conditionalize" the following
 clause.  They may precede any of the side-effecting or value-producing
@@ -15291,9 +15278,9 @@ clauses, such as 3do*, 3collect*, 3always*, or
 .item1 if 2expr*
 .loop_keyword_index when if
 .space 0
-.c Make sure this starts it on a new line....
-.c .break doesn't do it.
-.c Will a ".space 0" do it?
+@c Make sure this starts it on a new line....
+@c .break doesn't do it.
+@c Will a ".space 0" do it?
 If 2expr* evaluates to 3nil*, the following clause will be
 skipped, otherwise not.
 
@@ -15402,7 +15389,7 @@ substituted for 3it* will be that of the last test performed.
 The 3it* keyword is not recognized in an 3else*-phrase.
 .end_group
 
-.loop_section "Miscellaneous Other Clauses"
+@subsection "Miscellaneous Other Clauses"
 
 .table 3 250 500
 .item named 2name*
@@ -15442,7 +15429,7 @@ finishes normally, one may place a call to the 3return* function in the
 epilogue (with the 3finally* clause, (loop-finally-clause)).
 .end_table
 
-.loop_chapter "Loop Synonyms"
+@section "Loop Synonyms"
 
 .defmac define-loop-macro keyword
 May be used to make 2keyword*, a 3loop* keyword (such as
@@ -15461,7 +15448,7 @@ predecessor of 3loop*.  Its unconstrained use is not recommended,
 as it tends to decrease the transportability of the code and
 needlessly uses up a function name.
 
-.loop_chapter "Data Types"
+@section "Data Types"
 .setq loop-data-type-section css-number
 .setq loop-data-type-page page
 .loop_topic data type keywords
@@ -15515,7 +15502,7 @@ cause a variable to be initialized to 3nil* when it should be
 the 3nodeclare* clause, which is described on
 (loop-nodeclare-clause).
 
-.loop_chapter "Destructuring"
+@section "Destructuring"
 .setq loop-destructuring-section css-number
 .setq loop-destructuring-page page
 	2Destructuring* provides one with the ability to
@@ -15592,7 +15579,7 @@ then one should set this variable to 3t*;  there is, however,
 little (if any) efficiency loss if this is not done.
 .end_defvar
 
-.loop_chapter "The Iteration Framework"
+@section "The Iteration Framework"
 .setq loop-iteration-framework-section css-number
 .setq loop-iteration-framework-page page
 	This section describes the way 3loop* constructs
@@ -15681,7 +15668,7 @@ is incorrect, but
 is safe because the endtest is explicitly dissociated from the
 stepping.
 
-.loop_chapter "Iteration Paths"
+@section "Iteration Paths"
 .setq iteration-path-page page
 	Iteration paths provide a mechanism for user extension of
 iteration-driving clauses.  The interface is constrained so that the
@@ -15779,21 +15766,21 @@ potential for syntactic ambiguity exists if 2frob* is the name of
 a defined iteration path.  This feature is not for casual use;  it is
 intended for use by large systems which wish to use a special
 syntax for some feature they provide.
-.c In Brand X, for example, the two formats
-.c .lisp
-.c for 2var* being each 2p* of 2expr*
-.c .end_lisp
-.c where 2p* is not a 3loop* path, and
-.c .lisp
-.c for 2var* being the property-values of 2expr* in '2p*
-.c .end_lisp
-.c are equivalent, having the effect of stepping 2x* through the
-.c 2p* property of 2expr* (Brand X manipulates "multiple
-.c valued" properties).  Note that 2p* is implicitly quoted by the
-.c first format; this behavior is defined by the default loop path
-.c function which Brand X defines, not by 3loop*.
+@c In Brand X, for example, the two formats
+@c .lisp
+@c for 2var* being each 2p* of 2expr*
+@c .end_lisp
+@c where 2p* is not a 3loop* path, and
+@c .lisp
+@c for 2var* being the property-values of 2expr* in '2p*
+@c .end_lisp
+@c are equivalent, having the effect of stepping 2x* through the
+@c 2p* property of 2expr* (Brand X manipulates "multiple
+@c valued" properties).  Note that 2p* is implicitly quoted by the
+@c first format; this behavior is defined by the default loop path
+@c function which Brand X defines, not by 3loop*.
 
-.loop_section "Pre-Defined Paths"
+@subsection "Pre-Defined Paths"
 .setq predefined-paths-section css-number
 	3loop* comes with two pre-defined iteration path
 functions;  one implements a 3mapatoms*-like iteration path
@@ -15924,7 +15911,7 @@ an example) on (loop-using-crock).
 
 .loop_insert_for_NIL "lsbdoc;()path >"
 
-.loop_section "Defining Paths"
+@subsection "Defining Paths"
 
 	This section and the next may not be of interest to those
 not interested in defining their own iteration paths.
@@ -15939,8 +15926,8 @@ giving it to the user function which will return those items.  A
 function to generate code for a path may be declared to 3loop*
 with the 3define-loop-path* function:
 .defmac define-loop-path
-.c  pathname-or-names path-function list-of-allowable-prepositions
-.c &rest data
+@c  pathname-or-names path-function list-of-allowable-prepositions
+@c &rest data
 .nofill
 7(define-loop-path 2pathname-or-names* 2path-function*
      2list-of-allowable-prepositions*
@@ -16064,7 +16051,7 @@ through all of the characters of a string.  It accepts the format
 (define-loop-path string-characters string-chars-path
       (of))
 .end_lisp
-.c I may regret this later:
+@c I may regret this later:
 .page
 	Here is the function:
 .lisp
@@ -16158,19 +16145,19 @@ have been placed earlier (where the second 3nil* is), it is best
 for it to match up with the equivalent test in the first iteration
 specification grouping.
 
-.c This needs more work.  More examples are needed.
-.c Everything needs more work....
+@c This needs more work.  More examples are needed.
+@c Everything needs more work....
 
-.chapter "Defstruct"
+@chapter "Defstruct"
 .setq defstruct section-page
 .setq defstruct-chapter chapter-number
 .cindex structures
 .cindex defstruct
 .cindex record (structure)
-.c Macro-defining macros!!!!!
+@c Macro-defining macros!!!!!
 .cindex macro defining macros
 
-.section "Introduction to Structure Macros"
+@section "Introduction to Structure Macros"
 
 	3defstruct* provides a facility in Lisp for creating and
 using aggregate datatypes with named elements.  These are like
@@ -16312,7 +16299,7 @@ easier to write code that will run equally well in Zetalisp and
 Maclisp.  (Note that this 3defstruct* is not necessarily the default
 one installed in Maclisp!)
 
-.section "How to Use Defstruct"
+@section "How to Use Defstruct"
 .cindex slot
 
 .defmac defstruct
@@ -16396,7 +16383,7 @@ however some named structures have their own idea of how to describe themselves.
 See (named-structure) for more information about named structures.
 .end_defun
 
-.section "Options to Defstruct"
+@section "Options to Defstruct"
 
 This section explains each of the options that can be given to 3defstruct*.
 
@@ -16693,7 +16680,7 @@ you were going to allocate one of these structures yourself.  The symbol
 will have this value both at compile time and at run time.  If this
 option is present without an argument, then the name of the structure is
 concatenated with 3"-size"* to produce the symbol.
-.c [The name :size-symbol is not so hot.]
+@c [The name :size-symbol is not so hot.]
 
 .item :size-macro
 'kindex :size-macro defstruct
@@ -16826,7 +16813,7 @@ This provides a primitive way for you to define your own options to
 are actually implemented using this mechanism.
 .end_table
 
-.section "Using the Constructor and Alterant Macros"
+@section "Using the Constructor and Alterant Macros"
 
 After you have defined a new structure with 3defstruct*, you can
 create instances of this structure using the constructor macro, and
@@ -16838,7 +16825,7 @@ yourself by passing the name you want to use as the argument to the
 3:constructor* or 3:alterant* options, or specify that you don't
 want the macro created at all by passing 3nil* as the argument.
 
-.subsection Constructor Macros
+@subsection Constructor Macros
 .setq using-defstruct-constructor section-page
 .cindex constructor macro
 
@@ -16888,7 +16875,7 @@ and it overrides what was requested in that option.  For example:
 	   :make-array (:leader-length 5 :area disaster-area))
 .end_lisp
 
-.subsection By-position Constructor Macros
+@subsection By-position Constructor Macros
 
 If the 3:constructor* option is given as
 3(:constructor 2name* 2arglist*)*, then instead of making a keyword
@@ -16939,7 +16926,7 @@ guarantee that their arguments will be evaluated in the order that you
 wrote them.  Also note that you cannot specify the 3:make-array*
 nor 3:times* information in this form of constructor macro.
 
-.subsection Alterant Macros
+@subsection Alterant Macros
 .setq using-defstruct-alterant section-page
 .cindex alterant macro
 
@@ -16966,7 +16953,7 @@ undefined.  Using the alterant macro can produce more efficient Lisp
 than using consecutive 3setf*s when you are altering two byte fields
 of the same object, or when you are using the 3:but-first* option.
 
-.section "Byte Fields"
+@section "Byte Fields"
 'setq defstruct-byte-field page
 	The byte field feature of 3defstruct* allows you to specify that
 several slots of your structure are bytes (see
@@ -17067,7 +17054,7 @@ object is done first, followed by modifications to specific byte fields.
 If any byte fields being initialized or altered overlap each other, the
 action of the constructor and alterant will be unpredictable.
 
-.section "Grouped Arrays"
+@section "Grouped Arrays"
 .setq grouped-array section-page
 .cindex grouped array
 
@@ -17091,7 +17078,7 @@ number of instances.  The number of instances to be created by the constructor
 macro is given as the argument to the 3:times* option to 3defstruct*, or 
 the 3:times* keyword of the constructor macro.
 
-.section Named Structures
+@section Named Structures
 
 'setq named-structure page
 .cindex named structure
@@ -17230,7 +17217,7 @@ not be used in new programs.)
 
 See also the 3:named-structure-symbol* keyword to 3make-array*, (make-array-fun).
 
-.section The si:defstruct-description Structure
+@section The si:defstruct-description Structure
 'setq defstruct-description page
 	This section discusses the internal structures used by
 3defstruct* that might be useful to programs that want to interface
@@ -17311,7 +17298,7 @@ symbol 3si:%%defstruct-empty%%*.
 a macro or a subst that expands into a reference to this slot (that is, the name
 of the accessor function).
 
-.section Extensions to Defstruct
+@section Extensions to Defstruct
 .setq defining-your-own-defstruct-types section-page
 
 	The macro 3defstruct-define-type* can be used to teach 3defstruct*
@@ -17322,7 +17309,7 @@ This macro is used for teaching 3defstruct* about new types; it is described
 in the rest of this chapter.
 .end_defmac
 
-.subsection An Example
+@subsection An Example
 
 	Let us start by examining a sample call to
 3defstruct-define-type*.  This is how the 3:list* type of structure might
@@ -17357,7 +17344,7 @@ should reference.  The second, 3description*, will be bound to the
 3defstruct-description* structure for the structure.  The third, 3argument*,
 will be bound to the form that was provided as the argument to the accessor.
 
-.subsection Syntax of defstruct-define-type
+@subsection Syntax of defstruct-define-type
 
 	The syntax of 3defstruct-define-type* is:
 
@@ -17374,7 +17361,7 @@ the form 3(2option-name* .  2rest*)*.  Different options interpret
 completely.
 
 
-.subsection Options to defstruct-define-type
+@subsection Options to defstruct-define-type
 
 	This section is a catalog of all the options currently known
 about by 3defstruct-define-type*.
@@ -17514,10 +17501,10 @@ you don't want to actually output any additional code, then you should
 be careful to return 3nil* from the code in this option.
 .end_table
 
-.c I assume that this comes after the discussion of defstruct (chap 17) but
-.c before the discussion of streams (sect 18.5).
+@c I assume that this comes after the discussion of defstruct (chap 17) but
+@c before the discussion of streams (sect 18.5).
 
-.chapter Objects, Message Passing, and Flavors
+@chapter Objects, Message Passing, and Flavors
 .setq flavor-chapter chapter-number
 .cindex flavor
 .cindex message
@@ -17526,7 +17513,7 @@ be careful to return 3nil* from the code in this option.
 .cindex instance
 .setq flavor section-page
 
-.section Introduction
+@section Introduction
 
 The object oriented programming style used in the Smalltalk and
 Actor families of languages is available in Zetalisp, and used
@@ -17539,7 +17526,7 @@ message passing means, the various means of implementing these in
 Zetalisp, and when you should use them.  It assumes no prior
 knowledge of any other languages.
 
-.section Objects
+@section Objects
 
 When writing a program, it is often convenient to model what the program
 does in terms of 2objects*: conceptual entities that can be likened to
@@ -17598,7 +17585,7 @@ some state information.  For every type of object, there is a set of
 operations that can be performed to examine or alter the state of the
 object.
 
-.section Modularity
+@section Modularity
 
 An important benefit of the object-oriented style is that it lends
 itself to a particularly simple and lucid kind of modularity.
@@ -17774,7 +17761,7 @@ feature is used; see (outside-accessible-instance-variables-option),
 where this problem is explained further.  If you don't use the "outside-accessible instance
 variables" feature, you don't have to worry about this.
 
-.section Generic Operations
+@section Generic Operations
 
 Suppose we think about the rest of the program that uses the
 3ship* abstraction.  It may want to deal with other objects that are
@@ -17864,7 +17851,7 @@ object.  We now have true generic functions, in the form of message
 passing: the same operation can mean different things depending on the
 type of the object.
 
-.section Generic Operations in Lisp
+@section Generic Operations in Lisp
 
 How do we implement message passing in Lisp?  By convention, objects
 that receive messages are always 2functional* objects (that is, you
@@ -17939,7 +17926,7 @@ modifying anything.  Furthermore, many common and useful things to do
 are very easy to do with flavors.  The rest of this chapter describes
 flavors.
 
-.section Simple Use of Flavors
+@section Simple Use of Flavors
 
 A 2flavor*, in its simplest form, is a definition of an abstract type.
 New flavors are created with the 3defflavor* special form, and
@@ -18138,7 +18125,7 @@ variables; full details are given later in this chapter.  But even with
 the small set of features we have seen so far, it is easy to write
 object-oriented programs.
 
-.section Mixing Flavors
+@section Mixing Flavors
 
 Now we have a system for defining message-receiving objects so that we
 can have generic operations.  If we want to create a new type called
@@ -18338,7 +18325,7 @@ most common.  The more advanced ways of combining methods are explained
 in a later section; see (method-combination).  The 3vanilla-flavor* and what it does for
 you are also explained later; see (vanilla-flavor).
 
-.section Flavor Functions
+@section Flavor Functions
 
 .defmac defflavor
 A flavor is defined by a form
@@ -18816,7 +18803,7 @@ loading some files that you suspect may have missing or obsolete
 3compile-flavor-methods* in them.
 .end_defvar
 
-.section Defflavor Options
+@section Defflavor Options
 
 .setq defflavor-options section-page
 
@@ -19161,7 +19148,7 @@ command (see (describe-flavor-command)).
 
 .end_table
 
-.section Flavor Families
+@section Flavor Families
 
 .setq base-flavor page
 .setq mixin-flavor page
@@ -19204,7 +19191,7 @@ you can use its 3:default-init-plist* (see (default-init-plist-option)) to
 select options of its component flavors and you can define one or two methods
 to customize it "just a little".
 
-.section Vanilla Flavor
+@section Vanilla Flavor
 .setq vanilla-flavor section-page
 
 The messages described in this section are a standard protocol which all
@@ -19291,7 +19278,7 @@ variables with the names of the instance variables are bound to the values
 of the instance variables.
 .end_defmessage
 
-.section Method Combination
+@section Method Combination
 
 .setq method-combination section-page
 
@@ -19518,7 +19505,7 @@ Of course, since flavors are not hierarchically organized, the notion of
 levels of abstraction is not strictly applicable.  However, it remains a
 useful way of thinking about systems.
 
-.section Implementation of Flavors
+@section Implementation of Flavors
 
 An object which is an instance of a flavor is implemented using the
 data type 3dtp-instance*.  The representation is a structure whose
@@ -19574,7 +19561,7 @@ The function-specifier syntax 3(:method 2flavor-name
 optional-method-type message-name*)* is understood by 3fdefine* and
 related functions.
 
-.subsection Order of Definition
+@subsection Order of Definition
 
 There is a certain amount of freedom to the order in which you do 3defflavor*'s,
 3defmethod*'s, and 3defwrapper*'s.  This freedom is designed to make it easy
@@ -19621,7 +19608,7 @@ After a flavor has been instantiated, it is possible to make changes to it.
 These changes will affect all existing instances if possible.  This is
 described more fully immediately below.
 
-.subsection Changing a Flavor
+@subsection Changing a Flavor
 
 You can change anything about a flavor at any time.  You can change the flavor's
 general attributes by doing another 3defflavor* with the same name.  You
@@ -19652,7 +19639,7 @@ point at it.  However, if you redefine methods in such a way that they
 only work for the new version of the flavor, then trying to use those
 methods with the old instances won't work.
 
-.subsection Restrictions
+@subsection Restrictions
 
 There is presently an implementation restriction that when using daemons,
 the primary method may return at most three values if there are any 3:after*
@@ -19663,7 +19650,7 @@ In this implementation, all message names must be in the keyword package,
 in order for various tools in the editor to work correctly.
 [This is gradually being fixed.]
 
-.section Entities
+@section Entities
 
 .setq flavor-entity section-page
 
@@ -19698,7 +19685,7 @@ Entities are created with the 3entity* function (see (entity-fun)).
 The function part of an entity should usually be a function created
 by 3defselect* (see (defselect-fun)).
 
-.section Useful Editor Commands
+@section Useful Editor Commands
 
 Since we presently lack an editor manual, this section briefly documents
 some editor commands that are useful in conjunction with flavors.
@@ -19758,7 +19745,7 @@ them; type 3control-.* to get to successive ones.
 
 .end_table
 
-.section Property List Messages
+@section Property List Messages
 
 It is often useful to associate a property list with an
 abstract object, for the same reasons that it is useful to have a
@@ -19827,9 +19814,9 @@ This initializes the list of alternating indicators and values that implements
 the property list to 2list*.
 .end_definitoption
 
-.c Need to add examples in the section on read, maybe print too.
+@c Need to add examples in the section on read, maybe print too.
 
-.chapter "The I/O System"
+@chapter "The I/O System"
 .cindex input and output
 .setq io-chapter chapter-number
 	Zetalisp provides a powerful and flexible system for
@@ -19842,7 +19829,7 @@ manipulate streams, are described in this chapter.  This chapter also
 describes the Lisp "I/O" operations 3read* and 3print*, and the
 printed representation they use for Lisp objects.
 
-.section "The Character Set"
+@section "The Character Set"
 'cindex character set
 .setq character-set section-page
 
@@ -20072,7 +20059,7 @@ stored in files.
 .fill
 .apart
 *
-.section "Printed Representation"
+@section "Printed Representation"
 
 	People cannot deal directly with Lisp objects, because the
 objects live inside the machine.  In order to let us get at and talk
@@ -20092,7 +20079,7 @@ representation is for any Lisp object, and just what 3read* does.
 For the rest of the chapter, the phrase "printed representation" will
 usually be abbreviated as "p.r.".
 
-.subsection "What the Printer Produces"
+@subsection "What the Printer Produces"
 .setq printer section-page
 .cindex printer
 	The printed representation of an object depends on its
@@ -20324,7 +20311,7 @@ printer.  All of the printing functions, such as 3print* and
 3princ*, as well as 3format*, go through this function.  The way to
 customize it is by using the "advice" facility (see (advise)).
 
-.subsection "What The Reader Accepts"
+@subsection "What The Reader Accepts"
 .setq reader section-page
 .cindex reader
 	The purpose of the reader is to accept characters,
@@ -20495,7 +20482,7 @@ character whose code is that number replaces the circle-X and the digits in the
 input stream.  This character is always taken to be an alphabetic character,
 just as if it had been preceded by a slash.
 
-.subsection "Macro Characters"
+@subsection "Macro Characters"
 .cindex macro character
 
 	Certain characters are defined to be macro characters.  When the reader
@@ -20528,7 +20515,7 @@ The function 3set-syntax-macro-char* (see (set-syntax-macro-char-fun))
 can be used to define your own macro characters.
 
 
-.subsection "Sharp-sign Abbreviations"
+@subsection "Sharp-sign Abbreviations"
 .cindex sharp sign reader macros
 .cindex # reader macros
 
@@ -20674,8 +20661,8 @@ Also, during the reading of 2foo*,
 the reader temporarily defines various NIL-compatible sharp-sign
 abbreviations (such as 3#!* and 3#"*) in order to parse
 the form correctly, even though its not going to be evaluated.
-.c This doesn't work, but I doubt that anyone cares.  If anyone
-.c squawks it can easily be fixed.
+@c This doesn't work, but I doubt that anyone cares.  If anyone
+@c squawks it can easily be fixed.
 
 .item #+
 'setq sharp-plus page
@@ -20710,7 +20697,7 @@ The function 3set-syntax-#-macro-char* (see (set-syntax-#-macro-char-fun)) ca
 used to define your own sharp sign abbreviations.
 
 
-.subsection Special Character Names
+@subsection Special Character Names
 .setq xr-special-character-names section-page
 .cindex special character
 
@@ -20748,7 +20735,7 @@ mouse-m-1=mouse-2-1		mouse-m-2=mouse-2-2
 mouse-r-1=mouse-3-1		mouse-r-2=mouse-3-2*
 .end_lisp
 
-.subsection "The Readtable"
+@subsection "The Readtable"
 .setq readtable section-page
 .cindex readtable
 
@@ -20927,7 +20914,7 @@ argument, which is 3nil* or the number between the 3#* and the 2character*
 .end_defun
 
 
-.section "Input Functions"
+@section "Input Functions"
 
 Most of these functions take optional arguments called 2stream* and 2eof-option*.
 2stream* is the stream from which the input is to be read; if unsupplied it
@@ -21122,7 +21109,7 @@ enough characters, an "eof in middle of object" error is signalled.
 See also the 3with-input-from-string* special form ((with-input-from-string-fun)).
 
 
-.section "Output Functions"
+@section "Output Functions"
 
 These functions all take an optional argument called 2stream*, which is
 where to send the output.  If unsupplied 2stream* defaults to the value of
@@ -21297,16 +21284,16 @@ of 2x*.
 .end_defun
 
 .page
-.c section on I/O streams
+@c section on I/O streams
 .insert lmman;stream >
 
 
 
-.c sections on FORMAT and OUTPUT
+@c sections on FORMAT and OUTPUT
 .insert lmman;fd.fio >
 
 
-.section "Rubout Handling"
+@section "Rubout Handling"
 .setq rubout-handler section-page
 .setq rubout-handling section-page
 .cindex rubout handler
@@ -21509,7 +21496,7 @@ character that terminated a 3readline*, for example.
 .end_table
 
 
-.section The :read and :print Stream Operations
+@section The :read and :print Stream Operations
 
 A stream can specially handle the reading and printing of objects by
 handling the 3:read* and 3:print* stream operations.  Note that these
@@ -21558,7 +21545,7 @@ normal way and the stream's 3:print* hook to get a chance at each of the
 list's elements.
 .end_defun
 
-.section "Accessing Files"
+@section "Accessing Files"
 .setq file-stream section-page
 .cindex file
 
@@ -21845,7 +21832,7 @@ normal form of file-opening options are preferred over these.
 .end_table
 
 
-.subsection Loading Files
+@subsection Loading Files
 .cindex loading
 .cindex program source file
 
@@ -21906,7 +21893,7 @@ package.  The defaulting of 2pathname* is the same as in 3load*.
 .end_defun
 
 
-.subsection File Property Lists
+@subsection File Property Lists
 .cindex file property list
 .cindex property list, file
 .setq file-property-list section-page
@@ -22090,7 +22077,7 @@ bound and a list of values to bind them to.  The function for the
 .end_lisp
 .end_defun
 
-.subsection File Stream Operations
+@subsection File Stream Operations
 .setq file-stream-operations-section section-page
 
 The following messages may be sent to file streams, in addition to the normal I/O
@@ -22139,12 +22126,12 @@ For an output stream the info is not meaningful until after the stream has
 been closed, at least when the file server is an ITS.
 .end_defmessage
 
-.c .defmessage :status
-.c Returns the status of the file stream.  This usually 3:open* or 3:closed*
-.c (which should be self-explanatory).  3:eof* means that the file is open but
-.c no more data are available.  There are other states associated with error handling.
-.c [Maybe this shouldn't be documented.]
-.c .end_defmessage
+@c .defmessage :status
+@c Returns the status of the file stream.  This usually 3:open* or 3:closed*
+@c (which should be self-explanatory).  3:eof* means that the file is open but
+@c no more data are available.  There are other states associated with error handling.
+@c [Maybe this shouldn't be documented.]
+@c .end_defmessage
 
 .defmessage :set-byte-size new-byte-size
 This is only allowed on binary ("fixnum mode") file streams.  The byte size
@@ -22161,19 +22148,19 @@ Renames the file open on this stream.  For the meaning of 2error-p*, see the 
 function.
 .end_defmessage
 
-.c .defmessage :command mark-p command &rest strings
-.c [Should this be documented?]
-.c .end_defmessage
-.c 
-.c .defmessage :continue
-.c [Should this be documented?]
-.c .end_defmessage
+@c .defmessage :command mark-p command &rest strings
+@c [Should this be documented?]
+@c .end_defmessage
+@c 
+@c .defmessage :continue
+@c [Should this be documented?]
+@c .end_defmessage
 
 .nopara
 File output streams implement the 3:finish* and 3:force-output* messages.
 
 
-.section Accessing Directories
+@section Accessing Directories
 
 To understand the functions in this section, it helps to have read the following
 chapter, on 2pathnames*.
@@ -22241,22 +22228,22 @@ The name of the person who created the file, as a string.
 .item :not-backed-up
 3t* if the file exists only on disk, 3nil* if it has been backed up on magnetic tape.
 
-.c These are for ITS only
-.c .item :dont-reap
-.c .item :physical-volume
-.c .item :link-to
-.c .item :physical-volume-free-blocks
+@c These are for ITS only
+@c .item :dont-reap
+@c .item :physical-volume
+@c .item :link-to
+@c .item :physical-volume-free-blocks
 
-.c These are TOPS-20 only
-.c .item :temporary
-.c .item :deleted
-.c .item :directory
-.c .item :dont-dump
-.c .item :offline
-.c .item :dont-delete
-.c .item :protection
-.c .item :generation-retention-count
-.c .item :account
+@c These are TOPS-20 only
+@c .item :temporary
+@c .item :deleted
+@c .item :directory
+@c .item :dont-dump
+@c .item :offline
+@c .item :dont-delete
+@c .item :protection
+@c .item :generation-retention-count
+@c .item :account
 .end_table
 .end_defun
 
@@ -22335,7 +22322,7 @@ the string completed to the name of a file which could be created, and 3nil*
 again, which means that there is no possible completion.
 .end_defun
 
-.chapter Naming of Files
+@chapter Naming of Files
 .cindex filename
 .cindex pathname
 .setq pathname section-page
@@ -22375,7 +22362,7 @@ their syntax.  This lets a program deal with multiple remote file
 servers simultaneously, using a uniform set of conventions.
 
 
-.section Pathnames
+@section Pathnames
 
 All file systems dealt with by the Lisp Machine are mapped into a common model,
 in which files are named by something called a 2pathname*.  A pathname always
@@ -22605,7 +22592,7 @@ work for certain file servers and not others; in general, it is a good
 idea to make your program work just as well no matter what file server
 is being used.
 
-.section Defaults and Merging
+@section Defaults and Merging
 .cindex default (pathname)
 .cindex merge (pathname)
 
@@ -22715,7 +22702,7 @@ unfortunate surprises, and so such use is discouraged.
 .end_defvar
 
 
-.section Generic Pathnames
+@section Generic Pathnames
 
 .cindex generic pathname
 .setq generic-pathname section-page
@@ -22853,7 +22840,7 @@ The value is a list of font names for the fonts to be used in displaying
 this file.
 .end_table 
 
-.section Pathname Functions
+@section Pathname Functions
 
 .nopara
 These functions are what programs use to parse and default file names
@@ -23006,7 +22993,7 @@ function 3maphash-equal* to this will extract all the pathnames in the world.
 
 
 
-.section Pathname Messages
+@section Pathname Messages
 
 This section documents the messages a user may send to a pathname object.  Pathnames
 handle some additional messages which are only intended to be sent by the file system
@@ -23129,18 +23116,18 @@ Please read the paragraph on (pathname-plist-warning) explaining some
 care you must take in using property lists of pathnames.
 .end_defmethod
 
-.c omitted:
-.c init-file because it's internal
-.c open, rename, delete, truename, directory-stream because they are internal
+@c omitted:
+@c init-file because it's internal
+@c open, rename, delete, truename, directory-stream because they are internal
 
 
-.section Host File Systems Supported
+@section Host File Systems Supported
 
 This section lists the host file systems supported, gives an example
 of the pathname syntax for each system, and discusses any special idiosyncracies.
 More host types will no doubt be added in the future.
 
-.subsection ITS
+@subsection ITS
 
 .cindex ITS pathnames
 
@@ -23216,7 +23203,7 @@ On any other type of pathname, these operations simply return or set
 both the type component and the version component.
 .end_defmethod
 
-.subsection TOPS-20 (Twenex), Tenex, and VMS.
+@subsection TOPS-20 (Twenex), Tenex, and VMS.
 
 .cindex TOPS-20 pathnames
 .cindex Twenex pathnames
@@ -23283,9 +23270,9 @@ press  prs; (pdir)  pdr; patch-directory  pdr;
 qwabl  qwb; babyl  bab; mail  mai; xmail  xml;
 init  ini; unfasl  unf; cwarns  cwn; output  out.
 
-.c How does one make a columnar table in Bolio, I wonder?
+@c How does one make a columnar table in Bolio, I wonder?
 
-.subsection Unix pathnames
+@subsection Unix pathnames
 .cindex Unix pathnames
 
 A Unix pathname is a sequence of directory or file names separated by
@@ -23351,7 +23338,7 @@ of the default directory.
 The limits on filename sizes are very large, so there is no translation
 of type components.
 
-.subsection Lisp Machine File Systems
+@subsection Lisp Machine File Systems
 .cindex Lisp machine pathnames
 
 There are two file systems that run in the MIT Lisp Machine system.
@@ -23391,7 +23378,7 @@ create or rename a file, and appears in directory listings, but it is
 ignored when you refer to an existing file, and you cannot have two
 files whose names differ only in case.
 
-.subsection Logical Pathnames
+@subsection Logical Pathnames
 .cindex logical pathnames
 
 There is another kind of pathname that doesn't correspond to any
@@ -23527,7 +23514,7 @@ passed on to the translated pathname, but the 3:string-for-printing*
 is handled by the 3fs:logical-pathname* flavor itself and shows
 the logical name.
 
-.section Hosts
+@section Hosts
 .cindex Host objects
 
 Each host known to the Lisp Machine is represented by a flavor instance
@@ -23543,7 +23530,7 @@ The hosts that you can use for making network connections appear in the
 value of 3si:host-alist*.  Most of the hosts you can use for pathnames
 are among these; but some, such as logical hosts, are not.
 
-.subsection Parsing Hostnames
+@subsection Parsing Hostnames
 
 .defun si:parse-host namestring &optional no-error-p unknown-ok
 Returns a host object that recognizes the specified name.
@@ -23628,7 +23615,7 @@ networks can be recorded.  Networks include 3:chaos* and 3:arpa*.
 The address is meaningful only to code for a specific network.
 .end_defvar
 
-.subsection Host Object Messages
+@subsection Host Object Messages
 
 .defmessage host :name
 Returns the full, official name of the host.
@@ -23676,7 +23663,7 @@ Returns the type component for a generic pathname assuming it is being
 made from a pathname whose type component is the one specified.
 .end_defmessage
 
-.section Maclisp Conversion
+@section Maclisp Conversion
 
 .cindex namelists (Maclisp compatibility)
 .cindex Maclisp file manipulation
@@ -23713,7 +23700,7 @@ which returns a pathname containing the actual name of the file open on that
 stream.
 The 3directory* and 3allfiles* functions are replaced by 3fs:directory-list*.
 
-.section Examples
+@section Examples
 
 The following examples illustrate some of the rules of parsing and
 merging.  They assume that the default host is an ITS host named
@@ -23756,11 +23743,11 @@ different: its version is 3:unspecific*.  This difference does not
 appear in the printed representation because ITS filenames cannot convey
 both a meaningful type and a meaningful version number at the same time.
 
-.chapter "Packages"
+@chapter "Packages"
 'cindex package
 .setq package section-page
 .setq package-chapter chapter-number
-.section "The Need for Multiple Contexts"
+@section "The Need for Multiple Contexts"
 
 	A Lisp program is a collection of function definitions.
 The functions are known by their names, and so each must have its
@@ -23825,7 +23812,7 @@ it calls 3intern* to look up that string in some name space and find
 a corresponding symbol.  The package system arranges that the correct
 name space is used whenever a file is loaded.
 
-.section "The Organization of Name Spaces"
+@section "The Organization of Name Spaces"
 
 	We could simply let every name space be implemented as one
 obarray, e.g. one big table of symbols.  The problem with this is
@@ -23898,7 +23885,7 @@ and install it on the 3arpa* package.
 3chaos* and one for 3arpa*.  The two programs are loaded together without name
 conflicts.
 
-.section "Shared Programs"
+@section "Shared Programs"
 
 	Now, a very important feature of the Lisp Machine is that of
 "shared programs"; if one person writes a function to, say, print
@@ -23955,7 +23942,7 @@ referred to as 3foo:bar:finish*.  What happens here is that the second
 name, 3bar*, is interpreted as a refname in the context of the package
 3foo*.
 
-.section "Declaring Packages"
+@section "Declaring Packages"
 .setq declaring-packages section-page
 .cindex declaring packages
 .cindex package declarations
@@ -24053,7 +24040,7 @@ The interpretation of the declaration is complicated; see (declaring-packages).
 that is, it describes the package whose name is 2package-name*.
 .end_defun
 
-.section "Packages and Writing Code"
+@section "Packages and Writing Code"
 
 	The unsophisticated user need never be aware of the existence of
 packages when writing his programs.  He should just load all of his
@@ -24126,7 +24113,7 @@ symbols passed in from outside, the property name should belong to the
 program's package, so that two programs using the same property name
 in that way don't conflict.
 
-.section "Shadowing"
+@section "Shadowing"
 
 	Suppose the user doesn't like the system 3nth* function;  he
 might be a former Interlisp user, and expect a completely
@@ -24152,7 +24139,7 @@ for the 3global* package.  Since 3global* is the superpackage of the
 3snail* package, all refnames defined by 3global*, including 3"global"*,
 are available in 3snail*.
 
-.section "Packages and Interning"
+@section "Packages and Interning"
 
 	The function 3intern* allows you to specify a package as the second
 argument.  It can be specified either by giving the package object
@@ -24381,7 +24368,7 @@ The refname alist of the package, associating strings with packages.
 The superpackage of the package.
 .end_table
 
-.section "Status Information"
+@section "Status Information"
 
 	The current package--where your type-in is being interned--is
 always the value of the symbol 3package*.  A package is a named
@@ -24398,7 +24385,7 @@ print out everything except a list of all the symbols in the package.
 If you want 2that*, use 3(mapatoms 'print 2package* nil)*.
 3describe* of a package will call 3describe-package*.
 
-.section "Packages, Loading, and Compilation"
+@section "Packages, Loading, and Compilation"
 
 	It's obvious that every file has to be loaded into the right package
 to serve its purpose.  It may not be so obvious that every file must be
@@ -24418,7 +24405,7 @@ If a file is not mentioned in a package's file-alist and doesn't
 have such a package specification in it, the system loads it into
 the current package, and tells you what it did.
 
-.section "Subpackages"
+@section "Subpackages"
 
 	Usually, each independent program occupies one package, which is
 directly under 3global* in the hierarchy.  But large programs, such as
@@ -24503,7 +24490,7 @@ the 3macsyma* package.  Then, from anywehere inside Macsyma, the function
 would be called 3get-line*; from the 3owl* package and subpackages
 it could be referred to as 3macsyma:get-line*.
 
-.section "Initialization of the Package System"
+@section "Initialization of the Package System"
 
 	This section describes how the package system is initialized
 when generating a new software release of the Lisp Machine system;
@@ -24566,7 +24553,7 @@ moved into that package from all its subpackages, rather than into
 3global*.
 .end_defun
 
-.section "Initial Packages"
+@section "Initial Packages"
 
 The initially present packages include:
 
@@ -24617,10 +24604,10 @@ user  zwei  chaos    system     tv     format  fonts   (etc)
          system-internals    compiler
 .end_lisp
 
-.c Remainder of this chapter deleted since it is wrong
+@c Remainder of this chapter deleted since it is wrong
 .eof
 
-.section "Multiple Instantiations of a Program"
+@section "Multiple Instantiations of a Program"
 
 	This isn't finished yet, which is why we don't say how to do
 any of this.
@@ -24696,7 +24683,7 @@ experimental 3macsyma* into the machine: he would name the new obarray
 must contain 3test-macsyma* under the name 3macsyma*.  This, finally,
 is the reason why each package has a reference to itself on its refname-alist.
 
-.chapter Maintaining Large Systems
+@chapter Maintaining Large Systems
 .setq system-system section-page
 .cindex system
 .setq system-chapter chapter-number
@@ -24746,7 +24733,7 @@ explains the 2patch* facility, which lets you conveniently update a
 large program with incremental changes, and how to save away Lisp
 environments in disk partitions.
 
-.section Defining a System
+@section Defining a System
 
 .defspec defsystem name (keyword args...)...
 Defines a system named 2name*.  The options
@@ -24909,7 +24896,7 @@ file.  If 3make-system* is ever used on that system, the file whose
 name has been specified will be loaded automatically.
 .end_defun
 
-.section Transformations
+@section Transformations
 
 .cindex transformation
 Transformations are of two types, simple and complex.  A simple
@@ -25074,7 +25061,7 @@ or special variables defined in 3c*) you would write the transformations
 (:compile-load b (:fasload c))
 .end_lisp
 
-.section Making a System
+@section Making a System
 
 .defun make-system name &rest keywords
 The 3make-system* function does the actual work of compiling and
@@ -25163,7 +25150,7 @@ so that such programs can include forms like
 .end_lisp
 .end_table
 
-.section Adding New Keywords to make-system
+@section Adding New Keywords to make-system
 
 3make-system* keywords are defined as functions on the
 3si:make-system-keyword* property of the keyword.  The functions are
@@ -25254,7 +25241,7 @@ example, the right way would be to set
 might call 3si:do-file-transformations* with a possibly modified
 list.  That is how the 3:print-only* keyword works.
 
-.section Adding New Options for defsystem
+@section Adding New Options for defsystem
 
 Options to 3defsystem* are defined as macros on the
 3si:defsystem-macro* property of the option keyword.  Such a macro can
@@ -25320,7 +25307,7 @@ Complex transformations are just defined as normal macro expansions, for example
 	     ,load-dep ,load-cond))
 .end_lisp
 
-.section More Esoteric Transformations
+@section More Esoteric Transformations
 
 It is sometimes useful to specify a transformation upon which something
 else can depend, but which is not performed by default, but rather only
@@ -25400,7 +25387,7 @@ been changed, and will be loaded under the normal conditions.  In most
 of the same files as 3add-dep* specifies, so that all the files this
 one depends on would be loaded before compiling it.
 
-.section The Patch Facility
+@section The Patch Facility
 .setq patch-facility section-page
 .cindex patch
 .cindex system maintenance
@@ -25542,7 +25529,7 @@ the name 3System*, and the commas:
 .end_lisp
 .end_defun
 
-.subsection Defining a System
+@subsection Defining a System
 
 In order to use the patch facility, you must declare your system as
 patchable by giving the 3:patchable* option to 3defsystem* (see
@@ -25562,7 +25549,7 @@ the systems present in this world.  If the system version will not fit
 in the 16-character field allocated in the disk label, 3disk-save*
 will ask you to type in an abbreviated form.
 
-.subsection Patch files
+@subsection Patch files
 
 The patch system will maintain several different types of files in
 the directory associated with your system.  This directory is specified
@@ -25610,7 +25597,7 @@ On TOPS-20, the file names take the forms 3EE:PS:<PATDIR>2system*.PATCH-DIREC
 3EE:PS:<PATDIR>2system*-2nnn*-2mmm*.LISP* (or 3.QFASL*).  These file name
 conventions allow the patches for multiple systems to coexist in the same directory.
 
-.subsection Loading Patches
+@subsection Loading Patches
 
 .defun load-patches &rest options
 This function is used to bring the current world up to the latest minor
@@ -25649,7 +25636,7 @@ Currently 3load-patches* is not called automatically, but the system
 may be changed to offer to load patches when the user logs in, in order
 to keep things up to date.
 
-.subsection Making Patches
+@subsection Making Patches
 
 There are two editor commands that are used to create patch files.
 During a typical maintenance session on a system you will make several
@@ -25696,7 +25683,7 @@ You must manually edit the patch directory file for this major version,
 removing the line corresponding to the aborted patch.  It is OK for a
 minor version number to be skipped.
 
-.subsection System Status
+@subsection System Status
 .setq patch-system-status section-page
 .cindex status, of a patchable system
 
@@ -25732,13 +25719,13 @@ it defaults to the version currently loaded into the Lisp world.
 2status* should be one of the keywords above.
 .end_defun
 
-.section Saving New Versions: Disk Partitions
+@section Saving New Versions: Disk Partitions
 .setq disk-partition section-page
 .cindex band
 .cindex partition
 .cindex saving the Lisp world
 
-.subsection Concepts
+@subsection Concepts
 
 The 3make-system* and 3load-patches* functions, described above,
 load software into the Lisp world.  This takes time; it is wasteful for
@@ -25780,7 +25767,7 @@ is 3"65.8 ZMail 19.1"*, meaning that this band contains version
 365.8* of 3System* and version 319.1* of 3ZMail*.  The description
 is created when a Lisp world is saved away by 3disk-save* (see below).
 
-.subsection Manipulating the Label
+@subsection Manipulating the Label
 
 .defun print-disk-label &optional (unit 30*) (stream 3standard-output*)
 Print a description of the label of the disk specified by 2unit* onto
@@ -25844,7 +25831,7 @@ one, this does not provide a way to boot a different microcode image.
 3disk-restore* asks the user for confirmation before doing it.
 .end_defun
 
-.subsection Updating Software
+@subsection Updating Software
 
 Of all the procedures described in this section, the most common one
 is to take a partition containing a Lisp image, update it to have
@@ -25907,7 +25894,7 @@ a list of the user ID, the host logged into, the Lisp machine on which the
 world was being executed, and the date and time.
 .end_defvar
 
-.subsection Installing New Software
+@subsection Installing New Software
 
 The version numbers of the current microcode and system are announced to
 the INFO-LISPM mailing list.  When a new system becomes available, mail
@@ -25996,7 +25983,7 @@ follow the procedure given below under "installing new microcode".
 This can happen if someone hasn't installed the current microcode yet
 on that other machine.
 
-.subsection Installing New Microcode
+@subsection Installing New Microcode
 
 When an existing system is to be used with a new microcode, certain changes
 need to be made to the system, and it should then be dumped back out with
@@ -26027,7 +26014,7 @@ above.  Note that this operation does not change the system version number.
 Once the new band is verified to work, the old band can be removed from the
 label with 3si:edit-disk-label* if desired.
 
-.chapter Processes
+@chapter Processes
 .cindex process
 .cindex multiprocessing
 .setq process section-page
@@ -26114,7 +26101,7 @@ the messages you can send to a process, the functions you can apply to
 a process, and the functions and variables a program running in a process
 can use to manipulate its process.
 
-.section The Scheduler
+@section The Scheduler
 
 .setq scheduler section-page
 .cindex scheduler
@@ -26188,7 +26175,7 @@ to access global variables.  It could access variables bound by a process
 through the closure mechanism ((closure)), but more commonly any values
 needed by the wait function are passed to it as arguments.
 
-.c [Here need to discuss quantum and priority.]
+@c [Here need to discuss quantum and priority.]
 
 .defvar current-process
 The value of 3current-process* is the process which is currently
@@ -26330,9 +26317,9 @@ breaks entirely since it is the empty list), or a number which is the
 internal mask, not documented here.
 .end_defun
 
-.c with-real-time would be here except it's in the hacks package
+@c with-real-time would be here except it's in the hacks package
 
-.section Locks
+@section Locks
 'cindex "lock"
 
 	A 2lock* is a software construct used for synchronization
@@ -26385,7 +26372,7 @@ terms of a sub-primitive function called 3%store-conditional*
 (see (%store-conditional-fun)), which
 is sometimes useful in its own right.
 
-.section Creating a Process
+@section Creating a Process
 
 There are two ways of creating a process.  One is to create a "permanent"
 process which you will hold on to and manipulate as desired.  The other
@@ -26479,14 +26466,14 @@ Creates a process named 2name*, presets it so it will apply
 is booted, the process is reset and restarted.
 .end_defun
 
-.section Process Messages
+@section Process Messages
 
 .nopara
 These are the messages that can be sent to any flavor of process.
 Certain process flavors may define additional messages.  Not all possible
 messages are listed here, only those "of interest to the user".
 
-.subsection Process Attributes
+@subsection Process Attributes
 
 .defmethod process :name
 Returns the name of the process, which was the first argument to 3make-process*
@@ -26551,7 +26538,7 @@ no run reasons.
 Return or change the number of 60ths of a second this process is allowed to
 run without waiting before the scheduler will run someone else.  The quantum
 defaults to 1 second.
-.c [This feature doesn't really work very well.]
+@c [This feature doesn't really work very well.]
 .end_defmethod
 
 .defmethod process :quantum-remaining
@@ -26591,7 +26578,7 @@ See (simple-process).
 .end_defmethod
 
 
-.subsection Run and Arrest Reasons
+@subsection Run and Arrest Reasons
 
 .defmethod process :run-reasons
 Returns the list of run reasons, which are the reasons why this process should
@@ -26627,7 +26614,7 @@ active, i.e. it can run if its wait-function allows.  3nil* is returned
 if the process is stopped.
 .end_defmethod
 
-.subsection Bashing the Process
+@subsection Bashing the Process
 
 .defmethod process :preset function &rest args
 Sets the process's initial function to 2function* and initial arguments
@@ -26671,10 +26658,10 @@ process will not really get reset until it is activated later.
 Forces the process to wait forever.  A process may not 3:flush* itself.
 Flushing a process is different from stopping it, in that it is still active
 and hence if it is reset or preset it will start running again.
-.c A flushed process will be reset by the window system if it is a process
-.c controlled by process-mixin and the window is selected or exposed.
-.c Also it will be given a run-reason if it doesn't have one.
-.c But this is not the place to document that.
+@c A flushed process will be reset by the window system if it is a process
+@c controlled by process-mixin and the window is selected or exposed.
+@c Also it will be given a run-reason if it doesn't have one.
+@c But this is not the place to document that.
 .end_defmethod
 
 .defmethod process :kill
@@ -26693,7 +26680,7 @@ returns immediately, but if the process's stack group is in an unusual internal
 state it may have to wait for it to get out of that state.
 .end_defmethod
 
-.section Process Flavors
+@section Process Flavors
 .setq process-flavors section-page
 
 These are the flavors of process provided by the system.  It is possible for users
@@ -26749,11 +26736,11 @@ See the description of the 3si:simple-process* flavor (above) for
 more information.
 .end_defun
 
-.c [si:coroutining-process not documented here because it doesn't seem of general
-.c enough interest and what it does is too hard to explain.]
+@c [si:coroutining-process not documented here because it doesn't seem of general
+@c enough interest and what it does is too hard to explain.]
 
 
-.section Other Process Functions
+@section Other Process Functions
 
 .defun process-enable process
 Activates 2process* by revoking all its run and arrest reasons,
@@ -26811,7 +26798,7 @@ Gets the arguments to the current wait-function of a process, like the
 Gets the current who-line state string of a process, like the 3:whostate* message.
 .end_defun
 
-.chapter Errors and Debugging
+@chapter Errors and Debugging
 .cindex error system
 .cindex handling errors
 .setq error-chapter chapter-number
@@ -26846,9 +26833,9 @@ on any memory reference to a word (or a set of words) in memory.  If
 something is getting clobbered by agents unknown, this can help track
 down the source of the clobberage.
 
-.section The Error System
+@section The Error System
 
-.subsection Conditions
+@subsection Conditions
 .cindex conditions
 .setq condition section-page
 
@@ -26932,7 +26919,7 @@ disestablished.  This also means that condition handlers are established
 only within the current stack-group.
 .end_defspec
 
-.subsection Error Conditions
+@subsection Error Conditions
 
 [This section is incorrect.  The mechanism by which errors are
 signalled does not work.  It will be redesigned someday.]
@@ -27060,7 +27047,7 @@ exists, the error-handler asks the user for a form, evaluates it, and causes
 be used to change the prompt for this form, avoid asking the user, or change
 things in more far-reaching ways.
 
-.subsection Signalling Errors
+@subsection Signalling Errors
 .cindex signalling errors
 
 	Some error conditions are signalled by the Lisp system when it detects
@@ -27327,7 +27314,7 @@ the description will be the word "a" followed by the printed
 representation of 2type-name* in lower-case.
 .end_defmac
 
-.subsection Standard Condition Names
+@subsection Standard Condition Names
 
 	Some condition names are used by the kernel Lisp system, and are
 documented below; since they are of global interest, they are on
@@ -27394,7 +27381,7 @@ If the error is proceeded, then the value returned will be used instead
 of the (non-existent) value of 2variable-name*.
 .end_table
 
-.subsection "Errset"
+@subsection "Errset"
 
 As in Maclisp, there is an 3errset* facility which allows a very simple
 form of error handling.  If an error occurs inside an errset, and no condition
@@ -27452,7 +27439,7 @@ throw-tag error occurs.
 3(err 2form* 2flag*)*, which exists in Maclisp, is not supported.
 .end_defspec
 
-.section The Debugger
+@section The Debugger
 .cindex debugger
 .setq debugger section-page
 
@@ -27461,7 +27448,7 @@ handle the error, an interactive debugger is entered to allow the user to
 look around and see what went wrong, and to help him continue the program
 or abort it.  This section describes how to use the debugger.
 
-.subsection Entering the Debugger
+@subsection Entering the Debugger
 
 	There are two kinds of errors; those generated by the Lisp Machine's
 microcode, and those generated by Lisp programs (by using 3ferror* or
@@ -27516,7 +27503,7 @@ stack group will be examined.  The caller should ensure that no one tries
 to resume that stack group while the debugger is looking at it.
 .end_defun
 
-.subsection How to Use the Debugger
+@subsection How to Use the Debugger
 
 	Once inside the debugger, the user may give a wide variety
 of commands.  This section describes how to give the commands, and then
@@ -27589,7 +27576,7 @@ Note that the variable bindings are those in effect at the point of
 error, 2not* those of the current frame being looked at.  This may be
 changed in the future.
 
-.subsection "Debugger Commands"
+@subsection "Debugger Commands"
 
 All debugger commands are single characters, usually with the Control or
 Meta bits.  The single most useful command is 3ABORT* (or Control-Z),
@@ -27793,7 +27780,7 @@ Control-Meta-W calls the window error handler, a display-oriented debugger which
 is not documented in this manual.  It should, however, be usable without further
 documentation.
 
-.subsection "Summary of Commands"
+@subsection "Summary of Commands"
 
 .table 1 0 1500
 .item Control-A
@@ -27872,7 +27859,7 @@ Numeric arguments to the following command are specified by typing a decimal num
 with Control and/or Meta held down.
 .end_table
 
-.section Tracing Function Execution
+@section Tracing Function Execution
 .cindex tracing function execution
 .setq trace section-page
 
@@ -28118,7 +28105,7 @@ forms such as 3cond* without interfering with the execution of the
 tracing functions.  The default value of this flag is 3nil*.
 .end_defvar
 
-.section Advising a Function
+@section Advising a Function
 .setq advise section-page
 .cindex advice to functions
 
@@ -28241,7 +28228,7 @@ with the encapsulation mechanism's primitives.  See (encapsulate).
 A list of all functions which have been advised.
 .end_defvar
 
-.subsection Designing the Advice
+@subsection Designing the Advice
 
 For advice to interact usefully with the definition and intended
 purpose of the function, it must be able to interface to the data flow
@@ -28266,7 +28253,7 @@ will be returned as the values of the function.  No further advice
 will be executed.  If a piece of 3:before* advice does this, then the
 function's definition will not even be called.
 
-.subsection :around Advice
+@subsection :around Advice
 
 A piece of 3:before* or 3:after* advice is executed entirely before or
 entirely after the definition of the function.  3:around* advice is wrapped
@@ -28302,7 +28289,7 @@ something like
 .end_lisp
 will certainly work reasonably.
 
-.subsection Advising One Function Within Another
+@subsection Advising One Function Within Another
 
 It is possible to advise the function 3foo* only for when it is called
 directly from a specific other function 3bar*.  You do this by advising
@@ -28367,7 +28354,7 @@ called 3si:advise-within-1* and 3si:unadvise-within-1*.  3advise-within* a
 3unadvise-within* are macros which expand into calls to the other two.
 
 
-.section Stepping Through an Evaluation
+@section Stepping Through an Evaluation
 .setq stepper-section section-page
 .cindex stepping through evaluation
 
@@ -28477,7 +28464,7 @@ and try the stepper on it.  If you get a feel for what the stepper does
 and how it works, you will be able to tell when it is the right thing to use
 to find bugs.
 
-.section "Evalhook"
+@section "Evalhook"
 
 .setq evalhook-section section-page
 
@@ -28553,7 +28540,7 @@ value: c
 .end_lisp
 .end_defun
 
-.section "The MAR"
+@section "The MAR"
 .cindex MAR
 .setq mar section-page
 
@@ -28630,7 +28617,7 @@ write.  So when the MAR says that it trapped because of a read, this
 means a read at the hardware level, which may not look like a read in
 your program.
 
-.section Variable Monitoring
+@section Variable Monitoring
 .cindex monitoring the value of a variable
 
 .defun monitor-variable var &optional current-value-cell-only-p monitor-function
@@ -28659,7 +28646,7 @@ If 2var* is being monitored, it is restored to normal.  If no 2var* is speci
 all variables that have been monitored are unmonitored.
 .end_defun
 
-.chapter How to Read Assembly Language
+@chapter How to Read Assembly Language
 .cindex machine code
 .cindex compiled code
 .setq macro-code section-page
@@ -28678,7 +28665,7 @@ text does not assume any special knowledge about the Lisp Machine,
 although it sometimes assumes some general computer science background
 knowledge.
 
-.section Introduction
+@section Introduction
 
 Nobody looks at machine language code by trying to interpret octal
 numbers by hand.  Instead, there is a program called the Disassembler
@@ -28892,7 +28879,7 @@ and implicitly get their inputs from the stack.  We have seen two
 destinations (3D-PDL* and 3D-RETURN*), and two forms of address (3FEF*
 addressing and 3ARG* addressing).
 
-.section A More Advanced Example
+@section A More Advanced Example
 
 Here is a more complex Lisp function, demonstrating local variables,
 function calling, conditional branching, and some other new
@@ -28963,8 +28950,8 @@ from the result produced and/or stored by that instruction.  (In fact,
 the 3POP* in instruction 21 set the "indicators" properly, and so the
 3MOVE* at instruction 22 is superfluous.  However, the compiler is not
 clever enough to notice that.)
-.c We needn't explain that the "indicator" bits in CADR actually hold the
-.c entire datum, not just a summary of its atom/cons and nil/non-nil status.
+@c We needn't explain that the "indicator" bits in CADR actually hold the
+@c entire datum, not just a summary of its atom/cons and nil/non-nil status.
 
 The next instruction is a conditional branch; it changes the flow of
 control, based on the values in the "indicator" bits.  The instruction
@@ -29072,7 +29059,7 @@ second argument to 3b* is passed, by storing in 3D-LAST*; 3b* gets
 called, and its result is sent to 3D-RETURN* and is returned from
 3a*.
 
-.section The Rest of the Instructions
+@section The Rest of the Instructions
 
 Now that we've gotten some of the feel for what is going on, I will
 start enumerating the instructions in the instruction set.  The
@@ -29268,7 +29255,7 @@ converts a documented function with one name into an undocumented one
 with another name.
 
 
-.section Function Entry
+@section Function Entry
 
 When a function is first entered in the Lisp Machine, interesting
 things can happen because of the features that are invoked by use of the
@@ -29359,7 +29346,7 @@ values of any arguments or 3&aux* variables that are special.
 Thus, you won't see 3BIND* instructions doing this, but it
 is still being done.
 
-.section Special Class IV Instructions
+@section Special Class IV Instructions
 
 We said earlier that most of the Class IV instructions are miscellaneous
 hand-microcoded Lisp functions.  However, a few of them are not Lisp
@@ -29590,7 +29577,7 @@ cross between 3%CATCH-OPEN* and 3%CALL-MULT-VALUE*.
 3multiple-value-list* with 3*catch* is not supported.
 
 
-.section Estimating Run Time
+@section Estimating Run Time
 
 You may sometimes want to estimate the speed at which a function will
 execute by examination of the compiled code.  This section gives some
@@ -29749,7 +29736,7 @@ The 3cons* function takes 7 units if garbage collection is turned off.
 3(list a b c d)* takes 24 units, which includes 4 units for getting the
 local variables 3a*, 3b*, 3c*, and 3d*.
 
-.chapter "Querying the User"
+@chapter "Querying the User"
 .cindex querying the user
 .cindex yes-or-no
 .setq query-chapter chapter-number
@@ -29922,7 +29909,7 @@ containing one string, the message, as its third argument instead of just a stri
 this argument is passed along to 3format*, all the right things happen.
 .end_defun
 
-.chapter Initializations
+@chapter Initializations
 .cindex initialization
 .setq initialization section-page
 
@@ -30048,7 +30035,7 @@ them to get rerun the next time the function 3initializations* is called on
 the initialization list.
 .end_defun
 
-.section System Initialization Lists
+@section System Initialization Lists
 
      The special initialization lists that are known about by the above functions allow
 you to have your subsystems initialized at various critical times without
@@ -30105,7 +30092,7 @@ often just cold-boot the machine.
 at their own times.  Some system programs, such as the editor, have their own
 initialization list for their own purposes.
 
-.chapter Dates and Times
+@chapter Dates and Times
 .cindex dates and times
 .cindex times and dates
 .setq time section-page
@@ -30159,7 +30146,7 @@ microseconds; it is useful for measuring intervals of a few seconds or
 minutes with less accuracy.  Periodic housekeeping functions of the system
 are scheduled based on this timer.
 
-.section Getting and Setting the Time
+@section Getting and Setting the Time
 
 .defun time:get-time
 Get the current time, in decoded form.  Return seconds, minutes, hours, date,
@@ -30180,7 +30167,7 @@ you will not normally need to call this function; it is mainly useful when
 the timebase gets screwed up for one reason or another.
 .end_defun
 
-.subsection Elapsed Time in 60ths of a Second
+@subsection Elapsed Time in 60ths of a Second
 .cindex 60ths of a second
 
 The following functions deal with a different kind of time.  These are not
@@ -30206,7 +30193,7 @@ Assuming 2time1* is later than 2time2*, returns the number of 60ths
 of a second difference between them, compensating for wrap-around.
 .end_defun
 
-.subsection Elapsed Time in Microseconds
+@subsection Elapsed Time in Microseconds
 .cindex microseconds
 
 .defun time:microsecond-time
@@ -30229,7 +30216,7 @@ quickly and efficiently, so the overhead for creating the bignums is
 really not high.
 .end_defun
 
-.section Printing Dates and Times
+@section Printing Dates and Times
 
 The functions in this section create printed representations of times and
 dates in various formats, and send the characters to a stream.  To any
@@ -30279,7 +30266,7 @@ Thus the output will be in one of the following three forms:
 .end_defun
 
 
-.section Reading Dates and Times
+@section Reading Dates and Times
 
 These functions will accept most reasonable printed representations of date and time
 and convert them to the standard internal forms.  The following are
@@ -30330,7 +30317,7 @@ If the parse encounters an error, the first returned value is a string
 giving an error message.
 .end_defun
 
-.section Time Conversions
+@section Time Conversions
 
 .defun time:decode-universal-time universal-time &optional (timezone 3time:*timezone**)
 Convert 2universal-time* into its decoded representation.  The
@@ -30359,7 +30346,7 @@ zone is.  This value does not change to reflect daylight savings time; it
 tells you about standard time in your part of the world.
 .end_defvar
 
-.section Internal Functions
+@section Internal Functions
 
 These functions provide support for those listed above.  Some user programs
 may need to call them directly, so they are documented here.
@@ -30451,22 +30438,22 @@ Return the three-letter abbreviation for this time zone.  For example, if
 (Central Daylight Time) will be used, depending on 2daylight-savings-p*.
 .end_defun
 
-.c This file is all fucked and should be moved to other places such as the OPERAT document
+@c This file is all fucked and should be moved to other places such as the OPERAT document
 
-.c This file documents those functions which are totally random but
-.c which are in the global package and seem generally useful.
-.c It is not clear how to organize this, so we will do that later;
-.c this file is here so that the function descriptions can live
-.c somewhere until we sort them out.
+@c This file documents those functions which are totally random but
+@c which are in the global package and seem generally useful.
+@c It is not clear how to organize this, so we will do that later;
+@c this file is here so that the function descriptions can live
+@c somewhere until we sort them out.
 
-.chapter "Miscellaneous Useful Functions"
+@chapter "Miscellaneous Useful Functions"
 .setq misc-chapter chapter-number
 
 This chapter describes a number of functions which don't logically fit in anywhere else.
 Most of these functions are not normally used in programs, but are "commands", i.e.
 things that you type directly at Lisp.
 
-.section Poking Around in the Lisp World
+@section Poking Around in the Lisp World
 
 .defun who-calls x &optional package
 .defun1 who-uses x &optional package
@@ -30613,7 +30600,7 @@ not exceed the amount of main memory on the machine.
 .end_defun
 
 
-.section Utility Programs
+@section Utility Programs
 
 .defun ed &optional x
 3ed* is the main function for getting into the editor, Zwei.  Zwei
@@ -30738,7 +30725,7 @@ Type 3NETWORK* followed by 3HELP* for documentation.
 protocol, simulating a printing terminal rather than a display terminal.
 .end_defun
 
-.section "The Lisp Top Level"
+@section "The Lisp Top Level"
 
 	These functions constitute the Lisp top level,
 and its associated functions.
@@ -30876,7 +30863,7 @@ In most cases, the 2initialization* facility should be used rather than
 .end_defvar
 
 
-.section The Garbage Collector
+@section The Garbage Collector
 .cindex Garbage collector
 
 .defun gc-on
@@ -30911,7 +30898,7 @@ Pages below that one can be used by garbage collection; other pages cannot.
 The previous function sets this variable.
 .end_defvar
 
-.section "Logging In"
+@section "Logging In"
 .setq lispm-init-file section-page
 
 	Logging in tells the Lisp Machine who you are, so that
@@ -30985,7 +30972,7 @@ the result of the form 2x* to the 3logout-list*.
 .end_defun
 
 
-.section Dribble Files
+@section Dribble Files
 
 .defun dribble-start filename &optional editor-p
 3dribble-start* opens 2filename* as a "dribble file" (also
@@ -31002,7 +30989,7 @@ This closes the file opened by 3dribble-start* and resets
 the I/O streams.
 .end_defun
 
-.section Status and SStatus
+@section Status and SStatus
 
 	The 3status* and 3sstatus* special forms exist for compatibility
 with Maclisp.  Programs that wish to run in both Maclisp and Zetalisp

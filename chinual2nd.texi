@@ -29,6 +29,7 @@ This report describes research done at the Artificial Intelligence Laboratory
 of the Massachusetts Institute of Technology.  Support for the laboratory's artificial
 intelligence research is provided in part by the Advanced Research Projects Agency
 of the Department of Defense under Office of Naval Research Contract number N00014-75-C-0643.
+@page
 
 @vskip 0pt plus 1filll
 @copyright{} Copyright by the Massachusetts Institute of Technology; Cambridge, Mass. 02139
