@@ -1,0 +1,295 @@
+.c This file is part of the Lisp Machine manual.		-*-Bolio-*-
+
+.chapter "Closures"
+'cindex "closure"
+.setq closure section-page
+.setq closure-chapter chapter-number
+'cindex coroutine
+
+	A 2closure* is a type of Lisp functional object useful
+for implementing certain advanced access and control structures.
+Closures give you more explicit control over the
+environment, by allowing you to save the environment created
+by the entering of a dynamic contour (i.e. a 3lambda*, 3do*,
+3prog*, 3progv*, 3let*, or any of several other special
+forms), and then use that environment
+elsewhere, even after the contour has been exited.
+
+.section "What a Closure Is"
+
+	There is a view of lambda-binding which we will use in this
+section because it makes it easier to explain what closures do.  In
+this view, when a variable is bound, a new value cell is created for it.
+The old value cell is saved away somewhere and is inaccessible.  Any
+references to the variable will get the contents of the new value cell,
+and any 3setq*'s will change the contents of the new value cell.
+When the binding is undone, the new value cell goes away, and the old
+value cell, along with its contents, is restored.
+
+	For example, consider the following sequence of Lisp forms:
+.lisp
+(setq a 3)
+
+(let ((a 10))
+  (print (+ a 6)))
+
+(print a)
+.end_lisp
+Initially there is a value cell for 3a*, and the 3setq* form makes
+the contents of that value cell be 33*.  Then the
+3lambda*-combination is evaluated.  3a* is bound to 310*: the old
+value cell, which still contains a 33*, is saved away, and a new
+value cell is created with 310* as its contents.  The reference to
+3a* inside the 3lambda* expression evaluates to the current binding
+of 3a*, which is the contents of its current value cell, namely
+310*.  So 316* is printed.  Then the binding is undone, discarding
+the new value cell, and restoring the old value cell which still
+contains a 33*.  The final 3print* prints out a 33*.
+
+	The form 3(closure 2var-list* 2function*)*, where
+2var-list* is a list of variables and 2function* is any function,
+creates and returns a closure.  When this closure is applied to some
+arguments, all of the value cells of the variables on 2var-list* are
+saved away, and the value cells that those variables had 2at the time
+3closure* was called* (that is, at the time the closure was created)
+are made to be the value cells of the symbols.  Then 2function* is
+applied to the argument.  (This paragraph is somewhat complex, but it
+completely describes the operation of closures; if you don't understand
+it, come back and read it again after reading the next two paragraphs.)
+
+	Here is another, lower level explanation.  The closure object
+stores several things inside of it.  First, it saves the 2function*.
+Secondly, for each variable in 2var-list*, it remembers what that
+variable's value cell was when the closure was created.
+Then when the closure is called as a function, it first temporarily restores
+the value cells it has remembered inside the closure, and then applies 2function* to the
+same arguments to which the closure itself was applied.  When the function
+returns, the value cells are restored to be as they were before the closure
+was called.
+
+	Now, if we evaluate the form
+.lisp
+(setq a 
+      (let ((x 3))
+	(closure '(x) 'frob)))
+.end_lisp
+what happens is that a new value cell is created for 3x*, and its
+contents is a fixnum 33*.  Then a closure is created, which remembers
+the function 3frob*, the symbol 3x*, and that value cell.
+Finally the old value cell of 3x* is restored, and the closure is
+returned.  Notice that the new value cell is still around, because
+it is still known about by the closure.  When the closure is applied,
+say by doing 3(funcall a 7)*,
+this value cell will be restored and the value of 3x* will be 33*
+again.  If 3frob* uses 3x* as a free variable, it will see 33*
+as the value.
+
+	A closure can be made around any function, using any form
+which evaluates to a function.  The form could evaluate to a
+lambda expression, as in 3'(lambda () x)*, or to a compiled function,
+as would 3(function (lambda () x))*.  In the example above, the
+form is 3'frob* and it evaluates to the symbol 3frob*.  A
+symbol is also a good function.  It is usually better to close around
+a symbol which is the name of the desired function, so that the
+closure points to the symbol.  Then, if the symbol is redefined, the
+closure will use the new definition.  If you actually prefer that the
+closure continue to use the old definition which was current when the
+closure was made, then close around the definition of the symbol rather
+than the symbol itself.  In the above example, that would be done by
+.lisp
+(closure '(x) (function frob))
+.end_lisp
+
+	Because of the way closures are implemented, the variables to be
+closed over must not get turned into "local variables" by the compiler.
+Therefore, all such variables must be declared special.  This can be
+done with an explicit 3declare* (see (declare-fun)), with a special form
+such as 3defvar* ((defvar-fun)), or with 3let-closed*
+((let-closed-fun)).  In simple cases, a 3local-declare* around the
+binding will do the job.  Usually the compiler can tell when a special
+declaration is missing, but in the case of making a closure the compiler
+detects this after already acting on the assumption that the variable is
+local, by which time it is too late to fix things.  The compiler will
+warn you if this happens.
+
+	In Zetalisp's implementation of closures,
+lambda-binding never really allocates any storage to create new value
+cells.  Value cells are only created by the 3closure* function
+itself, when they are needed.  Thus, implementors of large systems need
+not worry about storage allocation overhead from this mechanism if they
+are not using closures.
+
+	Zetalisp closures are not closures in the true sense,
+as they do not save the whole variable-binding environment; however,
+most of that environment is irrelevant, and the explicit
+declaration of which variables are to be closed allows the
+implementation to have high efficiency.
+They also allow the programmer to explicitly choose for each variable
+whether it is to be bound at the point of call or
+bound at the point of definition (e.g. creation of the closure), a choice
+which is not conveniently available in other languages.  In addition the
+program is clearer because the intended effect of the closure is made
+manifest by listing the variables to be affected. 
+
+.cindex internal value cell
+.cindex external value cell
+The implementation of closures (which it not usually necessary for you
+to understand) involves two kinds of value cells.  Every symbol has an
+2internal value cell*, which is where its value is normally stored.
+When a variable is closed over by a closure, the variable gets an
+2external value cell* to hold its value.  The external value cells
+behave according to the lambda-binding model used earlier in this
+section.  The value in the external value cell is found through the
+usual access mechanisms (such as evaluating the symbol, calling
+3symeval*, etc.), because the internal value cell is made to contain
+an invisible pointer to the external value cell currently in effect.
+A symbol will use such an invisible pointer whenever its current value
+cell is a value cell that some closure is remembering; at other times,
+there won't be an invisible pointer, and the value will just reside in the
+internal value cell.
+
+.section "Examples of the Use of Closures"
+
+One thing we can do with closures is to implement a 2generator*, which
+is a kind of function which is called successively to obtain successive elements
+of a sequence.
+We will implement a function 3make-list-generator*, which takes a list,
+and returns a generator which will return successive
+elements of the list.  When it gets to the end it should return 3nil*.
+
+	The problem is that in between calls to the generator, the generator
+must somehow remember where it is up to in the list.  Since all of its
+bindings are undone when it is exited, it cannot save this information in
+a bound variable.  It could save it in a global variable, but the problem
+is that if we want to have more than one list generator at a time, they
+will all try to use the same global variable and get in each other's way.
+
+	Here is how we can use closures to solve the problem:
+.lisp
+(defun make-list-generator (l)
+    (declare (special l))
+    (closure '(l)
+	     (function (lambda ()
+			  (prog1 (car l)
+				 (setq l (cdr l)))))))
+.end_lisp
+Now we can make as many list generators as we like; they won't get
+in each other's way because each has its own (external) value cell for 3l*.
+Each of these value cells was created when the 3make-list-generator*
+function was entered, and the value cells are remembered by the closures.
+
+The following form uses closures to create an advanced accessing environment:
+.lisp
+(declare (special a b))
+
+(defun foo ()
+   (setq a 5))
+
+(defun bar ()
+   (cons a b))
+
+(let ((a 1)
+      (b 1))
+   (setq x (closure '(a b) 'foo))
+   (setq y (closure '(a b) 'bar)))
+.end_lisp
+When the 3let* is entered, new value cells are created for the symbols
+3a* and 3b*, and two closures are created that both point to those
+value cells.  If we do 3(funcall x)*, the function 3foo* will
+be run, and it will change the contents of the remembered value cell
+of 3a* to 35*.  If we then do 3(funcall y)*, the function 3bar*
+will return 3(5 . 1)*.  This shows that the value cell of 3a* seen
+by the closure 3y* is the same value cell seen by the closure 3x*.  The
+top-level value cell of 3a* is unaffected.
+
+.section Closure-Manipulating Functions
+
+.defun closure var-list function
+This creates and returns a closure of 2function* over the variables
+in 2var-list*.  Note that all variables on 2var-list*
+must be declared special if the function is to compile correctly.
+.end_defun
+
+To test whether an object is a closure, use the 3closurep* predicate
+(see (closurep-fun)).  The 3typep* function will return the symbol
+3closure* if given a closure.  3(typep 2x* 'closure)* is equivalent
+to 3(closurep 2x*)*.
+
+.defun symeval-in-closure closure symbol
+This returns the binding of 2symbol* in the environment of 2closure*;
+that is, it returns what you would get if you restored the value cells
+known about by 2closure* and then evaluated 2symbol*.
+This allows you to "look around inside" a closure.
+If 2symbol* is not closed over by 2closure*, this is just like 3symeval*.
+.end_defun
+
+.defun set-in-closure closure symbol x
+This sets the binding of 2symbol* in the environment of 2closure*
+to 2x*; that is, it does what would happen if you restored the value cells
+known about by 2closure* and then set 2symbol* to 2x*.
+This allows you to change the contents of the value cells known about
+by a closure.
+If 2symbol* is not closed over by 2closure*, this is just like 3set*.
+.end_defun
+
+.defun locate-in-closure closure symbol
+This returns the location of the place in 2closure* where the saved
+value of 2symbol* is stored.  An equivalent form is
+3(locf (symeval-in-closure 2closure* 2symbol*))*.
+.end_defun
+
+.defun closure-alist closure
+Returns an alist of 3(2symbol* . 2value*)* pairs describing the
+bindings which the closure performs when it is called.  This list is not
+the same one that is actually stored in the closure; that one contains
+pointers to value cells rather than symbols, and 3closure-alist*
+translates them back to symbols so you can understand them.  As a result,
+clobbering part of this list will not change the closure.
+.end_defun
+
+.defun closure-function closure
+Returns the closed function from 2closure*.  This is the function
+which was the second argument to 3closure* when the closure was
+created.
+.end_defun
+
+.defspec let-closed ((variable value)...) function
+When using closures, it is very common to bind a set of variables with
+initial values, and then make a closure over those variables.  Furthermore
+the variables must be declared as "special" for the compiler.  3let-closed*
+is a special form which does all of this.  It is best described by example:
+.lisp
+(let-closed ((a 5) b (c 'x))
+   (function (lambda () ...)))
+
+1macro-expands into*
+
+(local-declare ((special a b c))
+   (let ((a 5) b (c 'x))
+      (closure '(a b c)
+         (function (lambda () ...)))))
+.end_lisp
+.end_defspec
+
+.section "Entities"
+.setq entity section-page
+.cindex entity
+An entity is almost the same thing as a closure; the data type is
+nominally different but an entity behaves just like a closure when
+applied.  The difference is that some system functions, such as
+3print*, operate on them differently.  When 3print* sees a closure,
+it prints the closure in a standard way.  When 3print* sees an entity,
+it calls the entity to ask the entity to print itself.
+
+To some degree, entities are made obsolete by flavors (see (flavor)).
+The use of entities as message-receiving objects is explained in (flavor-entity).
+
+.defun entity variable-list function
+Returns a newly constructed entity.  This function is just like the
+function 3closure* except that it returns an entity instead of a
+closure.
+.end_defun
+
+To test whether an object is an entity, use the 3entityp* predicate
+(see (entityp-fun)).  The functions 3symeval-in-closure*,
+3closure-alist*, 3closure-function*, etc. also operate on entities.

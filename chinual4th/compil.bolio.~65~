@@ -1,0 +1,708 @@
+.c This file is part of the Lisp Machine manual.	-*-Bolio-*-
+
+.chapter "The Compiler"
+.setq compiler section-page
+.setq compiler-chapter chapter-number
+.cindex compiler
+
+.section "The Basic Operations of the Compiler"
+
+	The purpose of the Lisp compiler is to convert Lisp functions
+into programs in the Lisp Machine's instruction set, so that they
+will run more quickly and take up less storage.  Compiled functions
+are represented in Lisp by FEFs (Function
+Entry Frames), which contain machine code as well as various other information.
+The printed representation of a FEF is
+.lisp
+#<DTP-FEF-POINTER 2address* 2name*>
+.end_lisp
+
+	If you want to understand the output of the compiler, refer
+to (understanding-compiled-code).
+
+	There are three ways to invoke the compiler from the Lisp
+Machine.  First, you may have an interpreted function in the Lisp
+environment which you would like to compile.  The function 3compile*
+is used to do this.  Second, you may have code in an editor buffer
+which you would like to compile.  The Zwei editor has commands
+to read code into Lisp and compile it.
+Third, you may have a program (a group of function definitions and other forms) written in a
+file on the file system.  The compiler can translate this file into a
+QFASL file.  Loading in the QFASL file is almost the same as reading in the source
+file; the difference is that the functions defined in the file will be
+defined as compiled functions instead of interpreted functions.
+The 3qc-file* function is used for translating source files into QFASL files.
+
+.c Explain why the compiler expands macros.
+.c Explain specialness versus localness, etc.
+
+.section "How to Invoke the Compiler"
+
+.defun compile function-spec &optional definition
+If 2definition* is supplied, it should be a 3lambda*-expression.
+Otherwise 2function-spec* (this is usually a symbol, but see (function-spec) for details)
+should be defined as an interpreted function and
+its definition will be used as the 3lambda*-expression to be compiled.
+The compiler converts the 3lambda*-expression into a FEF, saves the
+3lambda*-expression as the 3:previous-expr-definition* and
+3:previous-definition* properties of 2function-spec* if it is a symbol, and changes
+2function-spec*'s definition to be the FEF.  (See 3fdefine*,
+(fdefine-fun)).  (Actually, if 2function-spec* is not defined as a
+3lambda*-expression, and 2function-spec* is a symbol,
+3compile* will try to find a 3lambda*-expression in
+the 3:previous-expr-definition* property of 2function-spec* and use that
+instead.)
+.end_defun
+
+.defun uncompile symbol
+If 2symbol* is not defined as an interpreted function and it
+has a 3:previous-expr-definition* property, then 3uncompile*
+will restore the function cell from the value of the property.
+(Otherwise, 3uncompile* does nothing and returns 3"Not compiled"*.)
+This "undoes" the effect of 3compile*.  See also 3undefun*, (undefun-fun).
+.end_defun
+
+.defun qc-file filename &optional output-file load-flag in-core-flag package functions-defined file-local-declarations dont-set-default-p read-then-process-flag
+This function takes a formidable number of arguments, but normally only one
+argument is supplied.
+The file 2filename* is given to the compiler, and the output of the
+compiler is written to a file whose name is 2filename* except with a
+file type of "QFASL".  The input format for files to the compiler is
+described on (compiler-input-section).
+Macro definitions, 3subst* definitions, and 3special* declarations created during
+the compilation are undone when the compilation is
+finished.
+
+The optional arguments allow certain modifications to the standard procedure.
+2output-file* lets you change where the output is written.
+2package* lets you specify in what package the source file is to
+be read.  Normally the system knows, or asks interactively,
+and you need not supply this argument.
+2load-flag* and 2in-core-flag* are incomprehensible; you don't
+want to use them.  2functions-defined* and 2file-local-declarations* are for compiling
+multiple files as if they were one.  2dont-set-default-p* suppresses the changing
+of the default file name to 2filename* that normally occurs.
+
+Normally, a form is read from the file and processed and then another
+form is read and processed, and so on.  But if
+2read-then-process-flag* is non-3nil*, the whole source file is read
+before any of it is processed.  This is not done by default; it has the
+problem that compile-time reader-macros defined in the file will not
+work properly.
+.end_defun
+
+.defun qc-file-load filename &optional output-file load-flag in-core-flag package functions-defined file-local-declarations dont-set-default-p read-then-process-flag
+3qc-file-load* compiles a file and then loads in the resulting QFASL file.
+.end_defun
+
+See also the 3disassemble* function ((disassemble-fun)), which lists the instructions
+of a compiled function in symbolic form.
+
+
+.section "Input to the Compiler"
+.setq compiler-input-section section-page
+.cindex input to the compiler
+
+	The purpose of 3qc-file* is to take a file and produce
+a translated version which does the same thing as the original except
+that the functions are compiled.  3qc-file* reads through the input
+file, processing the forms in it one by one.  For each form, suitable
+binary output is sent to the QFASL file so that when the QFASL file is
+loaded the effect of that source form will be reproduced.  The differences
+between source files and QFASL files are that QFASL files are in a compressed
+binary form which reads much faster (but cannot be edited), and that
+function definitions in QFASL files have been translated from Lisp forms
+to FEFs.
+
+	So, if the source contains a 3(defun ...)* form at top level,
+then when the QFASL file is loaded, the function will be defined as a
+compiled function.  If the source file contains a form which is not of a
+type known specially to the compiler, then that form (encoded in QFASL
+format) will be output "directly" into the QFASL file, so that when the
+QFASL file is loaded that form will be evaluated.  Thus, if the source
+file contains 3(setq x 3)*, then the compiler will put in the QFASL
+file instructions to set 3x* to 33* at load time (that is, when
+the QFASL file is loaded into the Lisp environment).  It happens that QFASL
+files have a specific way to 3setq* a symbol.  For a more general form,
+the QFASL file would contain instructions to recreate the list structure
+of a form and then call 3eval* on it.
+
+	Sometimes we want to put things in the file
+that are not merely meant to be translated into QFASL form.
+One such occasion is top level macro definitions; the macros
+must actually get defined within the compiler in order for the
+compiler to be able to expand them at compile time.  So when a macro
+form is seen, it should (sometimes) be evaluated at compile time,
+and should (sometimes) be put into the QFASL file.
+
+	Another thing we sometimes want to put in a file is
+compiler declarations.  These are forms which should be evaluated
+at compile time to tell the compiler something.  They should
+not be put into the QFASL file, unless they are useful for working
+incrementally on the functions in the file, compiling them one by one
+from the editor.
+
+	Therefore, a facility exists to allow the user to tell
+the compiler just what to do with a form.  One might want a form
+to be:
+.table 1 500
+.item Put into the QFASL file (compiled, of course), or not.
+.item Evaluated within the compiler, or not.
+.item Evaluated if the file is read directly into Lisp, or not.
+.end_table
+
+	Two forms are recognized by the compiler to allow this.  The less
+general, old-fashioned one is 3declare*; the completely
+general one is 3eval-when*.
+'cindex eval-when
+
+	An 3eval-when* form looks like
+.lisp
+(eval-when 2times-list*
+	   2form1*
+	   2form2*
+           ...)
+.end_lisp
+The 2times-list* may contain one or more of the symbols 3load*, 3compile*,
+or 3eval*.
+If 3load* is present, the 2forms* are written into the QFASL file
+to be evaluated when the QFASL file is loaded (except that 3defun* forms
+will put the compiled definition into the QFASL file instead).
+If 3compile* is present, the 2forms* are evaluated in the compiler.
+If 3eval* is present, the 2forms* are evaluated when read into Lisp;
+this is because 3eval-when* is defined as a special form in Lisp.  (The
+compiler ignores 3eval* in the 2times-list*.)
+For example,
+.lisp
+(eval-when (compile eval) (macro foo (x) (cadr x)))
+.end_lisp
+would define 3foo* as a macro in the compiler and when the file
+is read in interpreted, but not when the QFASL file is fasloaded.
+
+	For the rest of this section, we will use lists such as are
+given to 3eval-when*, e.g. 3(load eval)*, 3(load compile)*, etc.
+to describe when forms are evaluated.
+
+	A 3declare* form looks like 3(declare 2form1 form2* ...)*.
+3declare* is defined in Lisp as a special form which does nothing;
+so the forms within a 3declare* are not evaluated at 3eval* time.
+The compiler does the following upon finding 2form* within
+a 3declare*:  if 2form* is a call to either 3special*
+or 3unspecial*, 2form* is treated as 3(load compile)*;
+otherwise it is treated as 3(compile)*.
+
+	If a form is not enclosed in an 3eval-when* nor a 3declare*,
+then the times at which it will be evaluated depend on the form.
+The following table summarizes at what times evaluation will take
+place for any given form seen at top level by the compiler.
+.table 3
+.item (eval-when 2times-list* 2form1* ...)
+2times-list*
+
+.item (declare (special ...)) 1or* (declare (unspecial ...))
+3(load compile)*
+
+.item (declare 2anything-else*)
+3(compile)*
+
+'cindex special variable
+.item (special ...) 1or* (unspecial ...)
+3(load compile eval)*
+
+.item (macro ...) 1or* (defmacro ...) 1or* (defsubst ...)
+3(load compile eval)*
+
+.item (comment ...)
+Ignored at all times.
+
+.item (compiler-let ((2var val*) ...) 2body*...)
+Processes the 2body* in its normal fashion, but
+at 3(compile eval)* time, the indicated
+variable bindings are in effect.  These variables will typically
+affect the operation of the compiler or of macros.  See (compiler-let-discussion).
+
+.item (local-declare (2decl decl ...*) 2body*...)
+Processes the 2body* in its normal fashion, with the indicated
+declarations added to the front of the list which is the value
+of 3local-declarations*.
+
+.item (defflavor ...) 1or* (defstruct ...)
+3(load compile eval)*
+
+.item (defun ...) 1or* (defmethod ...) 1or* (defselect ...)
+3(load eval)*, but at load time what is processed is not this form
+itself, but the result of compiling it.
+
+.item 2anything-else*
+3(load eval)*
+.end_table
+
+	Sometimes a macro wants to return more than one form
+for the compiler top level to see (and to be evaluated).  The following
+facility is provided for such macros.  If a form
+.lisp
+(progn (quote compile) 2form1* 2form2* ...)
+.end_lisp
+is seen at the compiler top level, all of the 2forms* are processed as if they had been at
+compiler top level.  (Of course, in the interpreter they
+will all be evaluated, and the 3(quote compile)* will harmlessly
+evaluate to the symbol 3compile* and be ignored.)
+See (progn-quote-compile-discussion) for additional discussion of this.
+
+.defspec eval-when (time...) body...
+When seen by the interpreter, if one of the 2times* is the symbol 3eval*
+then the 2body* forms are evaluated; otherwise 3eval-when* does nothing.
+
+But when seen by the compiler, this special form does the special things described above.
+.end_defun
+
+.defspec declare declaration...
+3declare* does nothing, and returns the symbol 3declare*.
+
+But when seen by the compiler, this special form does the special things described above.
+
+There is also a different use of 3declare*, used in conjuction with the 3arglist*
+function (see (arglist-fun)).
+.end_defun
+
+
+.section "Compiler Declarations"
+
+'cindex declaration
+
+	This section describes functions meant to be called during
+compilation, and variables meant to be set or bound during compilation,
+by using 3declare* or 3local-declare*.
+
+.defspec local-declare (declaration...) body...
+A 3local-declare* form looks like
+.lisp
+(local-declare (2decl1* 2decl2* ...)
+   2form1*
+   2form2*
+   ...)
+.end_lisp
+Each 2decl* is consed onto the list 3local-declarations* while
+the 2forms* are being evaluated (in the interpreter) or compiled
+(in the compiler).  There are two uses for this.  First, it can be
+used to pass information from outer macros to inner macros.  Secondly,
+the compiler will specially interpret certain 2decls* as local
+declarations, which only apply to the compilations of the 2forms*.
+It understands the following forms:
+.table 3
+.item (special 2var1 var2 ...*)
+The variables 2var1*, 2var2*, etc. will be treated as special
+variables during the compilation of the 2forms*.
+
+.item (unspecial 2var1 var2 ...*)
+The variables 2var1*, 2var2*, etc. will be treated as local
+variables during the compilation of the 2forms*.
+
+.item (arglist . 2arglist*)
+Putting this local declaration around a 3defun* saves 2arglist* as the
+argument list of the function, to be used instead of its 3lambda*-list if
+anyone asks what its arguments are.  This is purely documentation.
+
+.item (return-list . 2values*)
+Putting this local declaration around a 3defun* saves 2values* as the
+return values list of the function, to be used if anyone asks what values
+it returns.  This is purely documentation.
+
+.item (def 2name*  . 2definition*)
+2name* will be defined for the compiler during the compilation
+of the 2forms*.  The compiler uses this to keep track of macros and
+open-codable functions (3defsubst*s) defined in the file being compiled.
+Note that the 3cddr* of this item is a function.
+.end_table
+.end_defspec
+
+.defspec special variable...
+Declares each 2variable* to be "special" for the compiler. 
+.end_defun
+
+.defspec unspecial variable...
+Removes any "special" declarations of the 2variables* for the compiler.
+.end_defun
+
+.nopara
+The next three declarations are primarily for Maclisp compatibility.
+
+.defspec *expr symbol...
+Declares each 2symbol*
+to be the name of a function.  In addition it prevents these functions from appearing
+in the list of functions referenced but not defined printed at the end of the compilation.
+.end_defspec
+
+.defspec *lexpr symbol...
+Declares each 2symbol*
+to be the name of a function.  In addition it prevents these functions from appearing
+in the list of functions referenced but not defined printed at the end of the compilation.
+.end_defspec
+
+.defspec *fexpr symbol...
+Declares each 2symbol*
+to be the name of a special form.  In addition it prevents these names from appearing
+in the list of functions referenced but not defined printed at the end of the compilation.
+.end_defspec
+
+	There are some advertised variables whose compile-time values affect
+the operation of the compiler.  The user may set these variables by
+including in his file forms such as
+.lisp
+(declare (setq open-code-map-switch t))
+.end_lisp
+
+.defvar run-in-maclisp-switch
+If this variable is non-3nil*, the compiler will try to warn the
+user about any constructs which will not work in Maclisp.  By no means
+will all Lisp Machine system functions not built in to Maclisp be
+cause for warnings;  only those which could not be written by the user
+in Maclisp (for example, 3make-array*, 3value-cell-location*, etc.).
+Also, lambda-list keywords such as
+3&optional* and initialized 3prog* variables will be
+mentioned.  This switch also inhibits the warnings for obsolete Maclisp functions.
+The default value of this variable is 3nil*.
+.end_defvar
+
+.defvar obsolete-function-warning-switch
+If this variable is non-3nil*, the compiler will try to warn
+the user whenever an "obsolete" Maclisp-compatibility function such as
+3maknam* or 3samepnamep* is used.  The default value is 3t*.
+.end_defvar
+
+.defvar allow-variables-in-function-position-switch
+If this variable is non-3nil*, the compiler allows the use of
+the name of a variable in function position to mean that the
+variable's value should be 3funcall*'d.  This is for compatibility
+with old Maclisp programs.  The default value of this variable is
+3nil*.
+.end_defvar
+
+.defvar open-code-map-switch
+If this variable is non-3nil*, the compiler will attempt
+to produce inline code for the mapping functions (3mapc*, 3mapcar*, etc.,
+but not 3mapatoms*) if the function being mapped is an anonymous
+lambda-expression.  This allows that function to reference
+the local variables of the enclosing function without the need for special
+declarations.
+The generated code is also more efficient.  The default value is 3t*.
+.end_defvar
+
+.defvar all-special-switch
+If this variable is non-3nil*, the compiler regards all variables
+as special, regardless of how they were declared.  This provides
+compatibility with the interpreter at the cost of efficiency.
+The default is 3nil*.
+.end_defvar
+
+.defvar inhibit-style-warnings-switch
+If this variable is non-3nil*, all compiler style-checking is
+turned off.  Style checking is used to issue obsolete function
+warnings and won't-run-in-Maclisp warnings, and other sorts of
+warnings.  The default value is 3nil*.  See also the
+3inhibit-style-warnings* macro, which acts on one level only of an
+expression.
+.end_defvar
+
+.defmac compiler-let ((variable value)...) body...
+Syntactically identical to 3let*, 3compiler-let* allows
+compiler switches to be bound locally at compile time, during the
+processing of the 2body* forms.
+.lisp
+.exdent 96 Example:
+(compiler-let ((open-code-map-switch nil))
+          (map (function (lambda (x) ...)) foo))
+.end_lisp
+will prevent the compiler from open-coding the 3map*.
+When interpreted, 3compiler-let* is equivalent to 3let*.  This
+is so that global switches which affect the behavior of macro
+expanders can be bound locally.
+.end_defmac
+
+.section Controlling Compiler Warnings
+.cindex warnings from the compiler
+.cindex compiler warnings
+
+By controlling the compile-time values of the variables 3run-in-maclisp-switch*,
+3obsolete-function-warning-switch*, and 3inhibit-style-warning-switch* (explained
+above), you can enable or disable some of the warning messages of the compiler.
+The following special form is also useful:
+
+.defmac inhibit-style-warnings form
+Prevents the compiler from performing style-checking on the top level
+of 2form*.  Style-checking will still be done on the arguments of 2form*.
+Both obsolete function warnings and won't-run-in-Maclisp warnings are
+done by means of the style-checking mechanism, so, for example,
+.lisp
+(setq bar (inhibit-style-warnings (value-cell-location foo)))
+.end_lisp
+will not warn that 3value-cell-location* will not work in Maclisp,
+but
+.lisp
+(inhibit-style-warnings (setq bar (value-cell-location foo)))
+.end_lisp
+will warn, since 3inhibit-style-warnings* applies only to the top
+level of the form inside it (in this case, to the 3setq*).
+.end_defmac
+
+Sometimes functions take argument that they deliberately do not use.
+Normally the compiler warns you if your program binds a variable that it
+never references.  In order to disable this warning for variables that
+you know you are not going to use, there are two things you can do.  The
+first thing is to name the variables 3ignore* or 3ignored*.  The
+compiler will not complain if a variable by one of these names is not
+used.  Furthermore, by special dispensation, it is all right to have
+more than one variable in a lambda-list that has one of these names.
+The other thing you can do is simply use the variable, for effect
+(ignoring its value), at the front of the function.  Example:
+.lisp
+(defun the-function (list fraz-name fraz-size)
+  fraz-size       ; This argument is not used.
+  ...)
+.end_lisp
+This has the advantage that 3arglist* (see (arglist-fun)) will return
+a more meaningful argument list for the function, rather than returning
+something with 3ignore*s in it.
+.vindex ignore
+.cindex ignored arguments
+
+The following function is useful for requesting compiler warnings in
+certain esoteric cases.  Normally, the compiler notices whenever any
+function 2x* uses (calls) any other function 2y*; it makes notes of
+all these uses, and then warns you at the end of the compilation if the
+function 2y* got called but was neither defined nor declared (by
+3*expr*, see (*expr-fun)).  This usually does what you want, but
+sometimes there is no way the compiler can tell that a certain function is being
+used.  Suppose that instead of 2x*'s containing any forms that call
+2y*, 2x* simply stores 2y* away in a data structure somewhere, and
+someplace else in the program that data structure is accessed and
+3funcall* is done on it.  There is no way that the compiler can see
+that this is going to happen, and so it can't notice the function usage,
+and so it can't create a warning message.  In order to make such
+warnings happen, you can explicitly call the following function at
+compile-time.
+
+.defun compiler:function-referenced what by
+2what* is a symbol that is being used as a function.  2by* may be any function spec.  
+3compiler:function-referenced* must be
+called at compile-time while a compilation is in progress.  It tells the
+compiler that the function 2what* is referenced by 2by*.  When the compilation
+is finished, if the function 2what* has not been defined, the compiler will
+issue a warning to the effect that 2by* referred to the function 2what*,
+which was never defined.
+.end_defun
+
+.defspec compiler:make-obsolete function reason
+This special form declares a function to be obsolete; code that calls it
+will get a compiler warning, under the control of 3obsolete-function-warning-switch*.
+This is used by the compiler to mark as obsolete some Maclisp functions which exist in
+Zetalisp but should not be used in new programs.  It can also
+be useful when maintaining a large system, as a reminder that a function has
+become obsolete and usage of it should be phased out.  An example of an
+obsolete-function declaration is:
+.lisp
+(compiler:make-obsolete create-mumblefrotz
+	"use MUMBLIFY with the :FROTZ option instead")
+.end_lisp
+.end_defspec
+
+
+.section "Compiler Source-Level Optimizers"
+'cindex optimizer, compiler
+
+The compiler stores optimizers for source code on property lists so as
+to make it easy for the user to add them.  An optimizer can be used to
+transform code into an equivalent but more efficient form (for
+example, 3(eq 2obj* nil)* is transformed into 3(null 2obj*)*,
+which can be compiled better).  An optimizer can also be used to
+tell the compiler how to compile a special form.  For example,
+in the interpreter 3do* is a special form, implemented by a function
+which takes quoted arguments and calls 3eval*.  In the compiler,
+3do* is expanded in a macro-like way by an optimizer, into
+equivalent Lisp code using 3prog*, 3cond*, and 3go*, which
+the compiler understands.
+
+The compiler finds the optimizers to apply to a form by looking for
+the 3compiler:optimizers* property of the symbol which is the
+3car* of the form.  The value of this property should be a list of
+optimizers, each of which must be a function of one argument.  The
+compiler tries each optimizer in turn, passing the form to be
+optimized as the argument.  An optimizer which returns the original
+form unchanged (3eq* to the argument) has "done nothing", and
+the next optimizer is tried.  If the optimizer returns anything else,
+it has "done something", and the whole process starts over again.
+Only after all the optimizers
+have been tried and have done nothing is an ordinary macro definition
+processed.  This is so that the macro definitions, which will be seen
+by the interpreter, can be overridden for the compiler by optimizers.
+
+Optimizers should not be used to define new language features, because
+they only take effect in the compiler; the interpreter (that is, the
+evaluator) doesn't know about optimizers.  So an optimizer should not
+change the effect of a form; it should produce another form that does
+the same thing, possibly faster or with less memory or something.  That
+is why they are called optimizers.  If you want to actually change
+the form to do something else, you should be using macros.
+
+.defspec compiler:add-optimizer function optimizer optimized-into...
+Puts 2optimizer* on 2function*'s optimizers list if it isn't there already.
+2optimizer* is the name of an optimization function, and 2function*
+is the name of the function calls which are to be processed.  Neither
+is evaluated.
+
+3(compiler:add-optimizer 2function* 2optimizer* 2optimize-into-1*
+2optimize-into-2...*)* also remembers 2optimize-into-1*, etc., as
+names of functions which may be called in place of 2function* as a result
+of the optimization.
+.end_defspec
+
+
+.section "Files that Maclisp Must Compile"
+
+Certain programs are intended to be run both in Maclisp and in
+Zetalisp.  Their source files need some special conventions.  For
+example, all 3special* declarations must be enclosed in 3declare*s,
+so that the Maclisp compiler will see them.  The main issue is that many
+functions and special forms of Zetalisp do not exist in
+Maclisp.  It is suggested that you turn on 3run-in-maclisp-switch* in
+such files, which will warn you about a lot of problems that your program
+may have if you try to run it in Maclisp.
+
+The macro-character combination "#Q" causes the object that follows it
+to be visible only when compiling for Zetalisp.  The combination
+"#M" causes the  following object to be visible only when compiling for
+Maclisp.  These work both on subexpressions of the objects in the file,
+and at top level in the file.  To conditionalize top-level objects,
+however, it is better to put the macros 3if-for-lispm* and
+3if-for-maclisp* around them.  (You can only put these around a single
+object.)  The 3if-for-lispm* macro turns off 3run-in-maclisp-switch*
+within its object, preventing spurious warnings from the compiler.  The
+3#Q* macro-character cannot do this, since it can be used to
+conditionalize any S-expression, not just a top-level form.
+
+To allow a file to detect what environment it is being compiled in,
+the following macros are provided:
+
+.defmac if-for-lispm form
+If 3(if-for-lispm 2form*)* is seen at the top level of
+the compiler, 2form* is passed to the compiler top level if
+the output of the compiler is a QFASL file intended for Zetalisp.
+If the Zetalisp interpreter sees this it will evaluate 2form*
+(the macro expands into 2form*).
+.end_defmac
+
+.defmac if-for-maclisp form
+If 3(if-for-maclisp 2form*)* is seen at the top level of
+the compiler, 2form* is passed to the compiler top level if
+the output of the compiler is a FASL file intended for Maclisp
+(e.g. if the compiler is COMPLR).
+If the Zetalisp interpreter sees this it will ignore it
+(the macro expands into 3nil*).
+.end_defmac
+
+.defmac if-for-maclisp-else-lispm maclisp-form lispm-form
+If 3(if-for-maclisp-else-lispm 2form1* 2form2*)* is seen at the top level of
+the compiler, 2form1* is passed to the compiler top level if
+the output of the compiler is a FASL file intended for Maclisp;
+otherwise 2form2* is passed to the compiler top level.
+.end_defmac
+
+.defmac if-in-lispm form
+In Zetalisp, 3(if-in-lispm 2form*)* causes 2form*
+to be evaluated; in Maclisp, 2form* is ignored.
+.end_defmac
+
+.defmac if-in-maclisp form
+In Maclisp, 3(if-in-maclisp 2form*)* causes 2form*
+to be evaluated; in Zetalisp, 2form* is ignored.
+.end_defmac
+
+	When you have two definitions of one function, one
+conditionalized for one machine and one for the other, put them next to
+each other in the source file with the second "3(defun*" indented by
+one space, and the editor will put both function definitions on the
+screen when you ask to edit that function.
+
+	In order to make sure that those macros are
+defined when reading the file into the Maclisp compiler, you must
+make the file start with a prelude, which should look like:
+.lisp
+(declare (cond ((not (status feature lispm))
+                (load '|AI: LISPM2; CONDIT|))))
+.end_lisp
+This will do nothing when you compile the program on the Lisp Machine.
+If you compile it with the Maclisp compiler, it will load in definitions
+of the above macros, so that they will be available to your
+program.  The form 3(status feature lispm)* is generally useful in
+other ways; it evaluates to 3t* when evaluated on the Lisp machine and
+to 3nil* when evaluated in Maclisp.
+
+.section Putting Data in QFASL Files
+.cindex fasdump
+.setq fasdump section-page
+
+It is possible to make a QFASL file containing data, rather than a compiled program.
+This can be useful to speed up loading of a data structure into the machine, as
+compared with reading in printed representations.
+Also, certain data structures such as arrays
+do not have a convenient printed representation as text, but can be saved in
+QFASL files.  For example, the system stores fonts this way.  Each font is in
+a QFASL file (on the LMFONT directory) which contains the data structures for that
+font.  When the file is loaded, the symbol which is the name of the font gets set
+to the array which represents the font.  Putting data into a QFASL file is often
+referred to as "2fasdumping* the data".
+
+In compiled programs, the constants are saved in the QFASL file in this way.
+The compiler optimizes by making constants which are 3equal* become 3eq*
+when the file is loaded.  This does not happen when you make a data file yourself;
+identity of objects is preserved.  Note that when a QFASL file is loaded,
+objects that were 3eq* when the file was written are still 3eq*; this does not
+normally happen with text files.
+
+The following types of objects can be represented in QFASL files:  Symbols (but
+uninterned symbols will be interned when the file is loaded),  numbers of all kinds,
+lists,  strings,  arrays of all kinds,  instances, and FEFs.
+
+When an instance is fasdumped (put into a QFASL file), it is sent a 3:fasd-form*
+message, which must return a Lisp form which, when evaluated, will recreate the
+equivalent of that instance.  This is because instances are often part of a large
+data structure, and simply fasdumping all of the instance variables and making
+a new instance with those same values is unlikely to work.  Instances remain
+3eq*; the 3:fasd-form* message is only sent the first time a particular instance
+is encountered during writing of a QFASL file.  If the instance does
+not accept the 3:fasd-form* message, it cannot be fasdumped.
+
+.defun compiler:fasd-symbol-value filename symbol
+Writes a QFASL file named 2filename* which contains the value of 2symbol*.
+When the file is loaded, 2symbol* will be 3setq*'ed to the same value.
+2filename* is parsed with the same defaults that 3load* and 3qc-file* use.
+The file type defaults to 3"qfasl"*.
+.end_defun
+
+.defun compiler:fasd-font name
+Writes the font named 2name* into a QFASL file with the appropriate name
+(on the LMFONT directory).
+.end_defun
+
+.c I wonder if this works?  I never heard of it until I found it in the file.
+.defun compiler:fasd-file-symbols-properties filename symbols properties dump-values-p dump-functions-p new-symbol-function
+This is a way to dump a complex data structure into a QFASL file.  The values,
+the function definitions, and some of the properties of certain symbols are put into
+the QFASL file in such a way that when the file is loaded the symbols will
+be 3setq*ed, 3fdefine*d, and 3putprop*ed appropriately.  The user can
+control what happens to symbols discovered in the data structures being fasdumped.
+
+2filename* is the name of the file to be written.  It is parsed with
+the same defaults that 3load* and 3qc-file* use.  The file type
+defaults to 3"qfasl"*.
+
+2symbols* is a list of symbols to be processed.  2properties* is a list
+of properties which are to be fasdumped if they are found on the symbols.
+2dump-values-p* and 2dump-functions-p* control whether the values and
+function definitions are also dumped.
+
+2new-symbol-function* is called whenever a new symbol is found in the
+structure being dumped.  It can do nothing, or it can add the symbol to the
+list to be processed by calling 3compiler:fasd-symbol-push*.  The value
+returned by 2new-symbol-function* is ignored.
+.end_defun

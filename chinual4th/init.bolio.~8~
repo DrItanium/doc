@@ -1,0 +1,184 @@
+.c This file is part of the Lisp machine manual   -*-Bolio-*-
+
+.chapter Initializations
+.cindex initialization
+.setq initialization section-page
+
+There are a number of programs and facilities in the Lisp Machine which require
+that "initialization routines" be run either when the facility is first loaded, or when
+the system is booted, or both.  These initialization routines may set up data structures,
+start processes running, open network connections, and so on.
+
+An initialization that needs to be done once, when a file is loaded, can be done simply
+by putting the Lisp forms to do it in that file; when the file is loaded the
+forms will be evaluated.  However, some initializations need to be done each time
+the system is booted, and some initializations depend on several files having been loaded
+before they can work.
+
+The system provides a consistent scheme for managing these initializations.  Rather
+than having a magic function which runs when the system is started and knows everything
+that needs to be initialized, each thing that needs initialization contains its own
+initialization routine.  The system keeps track of all the initializations through
+a set of functions and conventions, and executes all the initialization routines when
+necessary.  The system also avoids re-executing initializations if a program file
+is loaded again after it has already been loaded and initialized.
+
+There is something called an 2initialization list*.  This is a symbol
+whose value is an ordered list of 2initializations*.  Each
+initialization has a name, a form to be evaluated, a flag saying whether
+the form has yet been evaluated, and the source file of the
+initialization, if any.  When the time comes, initializations are
+evaluated in the order that they were added to the list.  The name is a
+string and lies in the 3car* of an initialization; thus 3assoc* may
+be used on initialization lists.  All initialization lists also have a
+3si:initialization-list* property of 3t*.  This is mainly for
+internal use.
+
+.defun add-initialization name form &optional list-of-keywords initialization-list-name
+Adds an initialization called 2name* with the form 2form* to the initialization list
+specified either by 2initialization-list-name* or by keyword.  If the initialization
+list already contains an initialization called 2name*, change its form to 2form*.
+
+2initialization-list-name*, if specified, is a symbol that has as its
+value the initialization list.  If it is unbound, it is initialized (!)
+to 3nil*, and is given a 3si:initialization-list* property of 3t*.
+If a keyword specifies an initialization list,
+2initialization-list-name* is ignored and should not be specified.
+
+The keywords allowed in 2list-of-keywords* are of two kinds.  These specify
+what initialization list to use:
+.table 3
+.item :cold
+'kindex :cold add-initialization
+Use the standard cold-boot list (see below).
+.item :warm
+'kindex :warm add-initialization
+Use the standard warm-boot list (see below).  This is the default.
+.item :before-cold
+'kindex :before-cold add-initialization
+Use the standard before-disk-save list (see below).
+.item :once
+'kindex :once add-initialization
+Use the once-only list (see below).
+.item :system
+'kindex :system add-initialization
+Use the system list (see below).
+.item :login
+'kindex :login add-initialization
+Use the login list (see below).
+.item :logout
+'kindex :logout add-initialization
+Use the logout list (see below).
+.end_table
+
+These specify when to evaluate 2form*:
+.table 3
+.item :normal
+'kindex :normal add-initialization
+Only place the form on the list.  Do not evaluate it until the time comes to do
+this kind of initialization.  This is the default unless 3:system* or 3:once*
+is specified.
+.item :now
+'kindex :now add-initialization
+Evaluate the form now as well as adding it to the list.
+.item :first
+'kindex :first add-initialization
+Evaluate the form now if it is not flagged as having been evaluated before.
+This is the default if 3:system* or 3:once* is specified.
+.item :redo
+'kindex :redo add-initialization
+Do not evaluate the form now, but set the flag to 3nil* even if the initialization
+is already in the list and flagged 3t*.
+.end_table
+
+Actually, the keywords are compared with 3string-equal* and may be in any
+package.  If both kinds of keywords are used, the list keyword should come
+2before* the when keyword in 2list-of-keywords*; otherwise the list keyword
+may override the when keyword.
+
+The 3add-initialization* function keeps each list ordered so that
+initializations added first are at the front of the list.  Therefore, by
+controlling the order of execution of the additions, explicit dependencies on
+order of initialization can be controlled.  Typically, the order of additions is
+controlled by the loading order of files.  The system list (see below) is the
+most critically ordered of the pre-defined lists.
+.end_defun
+
+.defun delete-initialization name &optional keywords initialization-list-name
+Removes the specified initialization from the specified initialization list.
+Keywords may be any of the list options allowed by 3add-initialization*.
+.end_defun
+
+.defun initializations initialization-list-name &optional redo-flag flag-value
+Perform the initializations in the specified list.  2redo-flag* controls
+whether initializations that have already been performed are re-performed;
+3nil* means no, non-3nil* is yes, and the default is 3nil*.  2flag-value* is the
+value to be bashed into the flag slot of an entry.  If it is unspecified, it
+defaults to 2t*, meaning that the system should remember that the initialization
+has been done.  The reason that there is no convenient way for you to
+specify one of the specially-known-about lists is that you shouldn't
+be calling 3initializations* on them.
+.end_defun
+
+.defun reset-initializations initialization-list-name
+Bashes the flag of all entries in the specified list to 3nil*, thereby causing
+them to get rerun the next time the function 3initializations* is called on
+the initialization list.
+.end_defun
+
+.section System Initialization Lists
+
+     The special initialization lists that are known about by the above functions allow
+you to have your subsystems initialized at various critical times without
+modifying any system code to know about your particular subsystems.  This also allows
+only a subset of all possible subsystems to be loaded without necessitating
+either modifying system code (such as 3lisp-reinitialize*) or such kludgy methods
+as using 3fboundp* to check whether or not something is loaded.
+
+     The 3:once* initialization list is used for initializations that
+need to be done only once when the subsystem is loaded and must never be
+done again.  For example, there are some databases that need to be
+initialized the first time the subsystem is loaded, but should not be
+reinitialized every time a new version of the software is loaded into a
+currently running system.  This list is for that purpose.  The
+3initializations* function is never run over it; its "when" keyword
+defaults to 3:first* and so the form is normally only evaluated at
+load-time, and only if it has not been evaluated before.  The 3:once*
+initialization list serves a similar purpose to the 3defvar* special
+form (see (defvar-fun)), which sets a variable only if it is unbound.
+
+     The 3:system* initialization list is for things that need to be done before
+other initializations stand any chance of working.  Initializing the process and
+window systems, the file system, and the ChaosNet NCP falls in this category.
+The initializations on this list are run every time the machine is cold or warm
+booted, as well as when the subsystem is loaded unless explicitly overridden by
+a 3:normal* option in the keywords list.  In general, the system list should not be
+touched by user subsystems, though there may be cases when it is necessary to do
+so.
+
+     The 3:cold* initialization list is used for things which must be run once at cold-boot
+time.  The initializations on this list are run after the ones on 3:system* but before the
+ones on the 3:warm* list.  They are run only once, but are reset by 3disk-save*
+thus giving the appearance of being run only at cold-boot time.
+
+     The 3:warm* initialization list is used for things which must be
+run every time the machine is booted, including warm boots.  The
+function that prints the greeting, for example, is on this list.  Unlike
+the 3:cold* list, the 3:warm* list initializations are run
+regardless of their flags.
+
+	The 3:before-cold* initialization list is a variant of the 3:cold* list.  These
+initializations are run before the world is saved out by 3disk-save*.  Thus they
+happen essentially at cold boot time, but only once when the world is saved, not each
+time it is started up.
+
+.setq login-init-list page
+
+	The 3:login* and 3:logout* lists are run by the 3login* and
+3logout* functions (see (login-fun)) respectively.  Note that 3disk-save*
+calls 3logout*.  Also note that often people don't call 3logout*; they
+often just cold-boot the machine.
+
+	User programs are free to create their own initialization lists to be run
+at their own times.  Some system programs, such as the editor, have their own
+initialization list for their own purposes.

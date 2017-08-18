@@ -1,0 +1,312 @@
+.c  This file is part of the Lisp Machine Manual.  -*-Bolio-*-
+.c  Function Description: Data Type Predicates. >
+
+.chapter Primitive Object Types
+.setq predicate-chapter chapter-number
+.setq object-chapter chapter-number
+
+.section "Data Types"
+
+This section enumerates some of the various different primitive types of
+objects in Zetalisp.  The types explained below include
+symbols, conses, various types of numbers, two kinds of compiled code
+objects, locatives, arrays, stack groups, and closures.  With each is
+given the associated symbolic name, which is returned by the function
+3data-type* ((data-type-fun)).
+'cindex "symbol"
+'cindex "print name"
+'cindex "binding"
+'cindex "definition"
+'cindex "property list"
+
+	A 2symbol* (these are sometimes called "atoms" or "atomic
+symbols" by other texts) has a 2print name*, a 2binding*, a
+2definition*, a 2property list*, and a 2package*.
+
+	The print name is a string, which may be obtained by the
+function 3get-pname* ((get-pname-fun)).  This string serves as the
+2printed representation* (see (printer)) of the symbol.  Each symbol
+has a 2binding* (sometimes also called the "value"), which may be any
+Lisp object.  It is also referred to sometimes as the "contents of the
+value cell", since internally every symbol has a cell called the 2value
+cell* which holds the binding.  It is accessed by the 3symeval*
+function ((symeval-fun)), and updated by the 3set* function
+((set-fun)).  (That is, given a symbol, you use 3symeval* to find out
+what its binding is, and use 3set* to change its binding.)  Each
+symbol has a 2definition*, which may also be any Lisp object.  It is
+also referred to as the "contents of the function cell", since
+internally every symbol has a cell called the 2function cell* which
+holds the definition.  The definition can be accessed by the
+3fsymeval* function ((fsymeval-fun)), and updated with 3fset*
+((fset-fun)), although usually the functions 3fdefinition* and
+3fdefine* are employed ((fdefine-fun)).
+The property list is a list of an even number of
+elements; it can be accessed directly by 3plist* ((plist-fun)), and
+updated directly by 3setplist* ((setplist-fun)), although usually the
+functions 3get*, 3putprop*, and 3remprop* ((get-fun)) are used.
+The property list is used to associate any number of additional
+attributes with a symbol--attributes not used frequently enough to
+deserve their own cells as the value and definition do.  Symbols also have a
+package cell, which indicates which "package" of names the symbol
+belongs to.  This is explained further in the section on packages
+(chapter (package-chapter)) and can be disregarded by the casual user.
+
+	The primitive function for creating symbols is
+3make-symbol* ((make-symbol-fun)), although most symbols
+are created by 3read*, 3intern*, or
+3fasload* (which call 3make-symbol* themselves.)
+
+	A 2cons* is an object that cares about two
+other objects, arbitrarily named the 2car* and the 2cdr*.
+These objects can be accessed with 3car* and 3cdr* ((car-fun)), and updated
+with 3rplaca* and 3rplacd* ((rplaca-fun)).  The primitive function for creating
+conses is 3cons* ((cons-fun)).
+
+	There are several kinds of numbers in Zetalisp.
+2Fixnums* represent integers in the range of -2^23 to 2^23-1.
+2Bignums* represent integers of arbitrary size, but they are more expensive
+to use than fixnums because they occupy storage and are slower.
+The system automatically converts between fixnums and bignums as required.
+2Flonums* are floating-point numbers.  2Small-flonums* are another
+kind of floating-point numbers, with less range and precision, but less 
+computational overhead.
+Other types of numbers are likely to be added in the future.
+See (number) for full details of these types and the conversions
+between them.
+
+'cindex "FEF"
+	The usual form of compiled, executable code is a Lisp object
+called a "Function Entry Frame" or "FEF".  A FEF contains the code
+for one function.  This is analogous to what Maclisp calls a "subr pointer".
+FEFs are produced by the Lisp Compiler ((compiler)), and are usually found
+as the definitions of symbols.  The printed representation of a FEF
+includes its name, so that it can be identified.
+	Another Lisp object which represents executable code is
+a "micro-code entry".
+These are the microcoded primitive functions of the Lisp system,
+and user functions compiled into microcode.
+
+	About the only useful thing to do with any of these compiled code objects
+is to 2apply* it to arguments.  However, some functions are
+provided for examining such objects, for user convenience.  See
+3arglist* ((arglist-fun)),
+3args-info* ((args-info-fun)),
+3describe* ((describe-fun)),
+and 3disassemble* ((disassemble-fun)).
+
+	A 2locative* (see (locative)) is a kind of a pointer to a single memory cell
+anywhere in the system.  The contents of this cell can be accessed by 3cdr*
+(see (cdr-fun)) and updated by 3rplacd* (see (rplacd-fun)).
+
+	An 2array* (see (array))
+is a set of cells indexed by a tuple of integer subscripts.
+The contents of the cells may be accessed and changed individually.  There are several
+types of arrays.  Some have cells which may contain any object, while others (numeric
+arrays) may only contain small positive numbers.  Strings are a type of array;
+the elements are 8-bit unsigned numbers which encode characters.
+
+	A 2list* is not a primitive data type, but rather a data structure
+made up out of conses and the symbol 3nil*.  See (list-and-tree).
+
+.section Predicates
+'cindex "predicate"
+	A 2predicate* is a function which tests for some condition involving
+its arguments and returns the symbol 3t* if the condition is true, or
+the symbol 3nil* if it is not true.  Most of the following predicates are for
+testing what data type an object has; some other general-purpose predicates
+are also explained.
+
+	By convention, the names of predicates usually end in the letter "p" (which
+stands for "predicate").
+'c (See [section on naming conventions]).
+'cindex "naming convention"
+
+	The following predicates are for testing data types.  These predicates
+return 3t* if the argument is of the type indicated by the name of the function,
+3nil* if it is of some other type.
+'cindex "data type"
+
+.defun symbolp arg
+'cindex "symbol"
+3symbolp* returns 3t* if its argument is a symbol, otherwise 3nil*.
+.end_defun
+
+.defun nsymbolp arg
+3nsymbolp* returns 3nil* if its argument is a symbol, otherwise 3t*.
+.end_defun
+
+.defun listp arg
+'cindex "cons"
+3listp* returns 3t* if its argument is a cons, otherwise 3nil*.
+Note that this means 3(listp nil)* is 3nil* even though 3nil* is the empty list.
+[This may be changed in the future.]
+.end_defun
+
+.defun nlistp arg
+3nlistp* returns 3t* if its argument is anything besides a cons,
+otherwise 3nil*.
+3nlistp* is identical to 3atom*, and so 3(nlistp nil)*
+returns 3t*.
+[This may be changed in the future, if and when 3listp* is changed.]
+.end_defun
+
+.defun atom arg
+'cindex "atom"
+The predicate 3atom* returns 3t* if its argument is not a cons,
+otherwise 3nil*.
+.end_defun
+
+.defun numberp arg
+'cindex "number"
+3numberp* returns 3t* if its argument is any kind of number,
+otherwise 3nil*.
+.end_defun
+
+.defun fixp arg
+3fixp* returns 3t* if its argument is a fixed-point number, i.e. a
+fixnum or a bignum, otherwise 3nil*.
+.end_defun
+
+.defun floatp arg
+3floatp* returns 3t* if its argument is a floating-point number,
+i.e. a flonum or a small flonum, otherwise 3nil*.
+.end_defun
+
+.defun fixnump arg
+3fixnump* returns 3t* if its argument is a fixnum, otherwise 3nil*.
+.end_defun
+
+.defun bigp arg
+3bigp* returns 3t* if 2arg* is a bignum, otherwise 3nil*.
+.end_defun
+
+.defun flonump arg
+3flonump* returns 3t* if 2arg* is a (large) flonum, otherwise 3nil*.
+.end_defun
+
+.defun small-floatp arg
+3small-floatp* returns 3t* if 2arg* is a small flonum, otherwise 3nil*.
+.end_defun
+
+.defun stringp arg
+'cindex "string"
+3stringp* returns 3t* if its argument is a string, otherwise 3nil*.
+.end_defun
+
+.defun arrayp arg
+'cindex "array"
+3arrayp* returns 3t* if its argument is an array, otherwise 3nil*.
+Note that strings are arrays.
+.end_defun
+
+.defun functionp arg &optional allow-special-forms
+'cindex "function"
+'cindex "applicable function"
+3functionp* returns 3t* if its argument is a function (essentially, something
+that is acceptable as the first argument to 3apply*), otherwise it returns 3nil*.
+In addition to interpreted, compiled, and microcoded functions, 3functionp*
+is true of closures, select-methods (see (select-method)), and symbols whose function
+definition is 3functionp*.  3functionp* is not true of objects which can be called
+as functions but are not normally thought of as functions: arrays, stack groups, entities,
+and instances.  If 2allow-special-forms* is specified and non-3nil*, then 3functionp*
+will be true of macros and special-form functions (those with quoted arguments).  Normally
+3functionp* returns 3nil* for these since they do not behave like functions.
+As a special case, 3functionp* of a symbol whose function definition is an array
+returns 3t*, because in this case the array is being used as a function rather than
+as an object.
+.end_defun
+
+.defun subrp arg
+3subrp* returns 3t* if its argument is any compiled code object,
+otherwise 3nil*.  The Lisp Machine system doesn't use the term "subr",
+but the name of this function comes from Maclisp.
+.end_defun
+
+.defun closurep arg
+'cindex "closure"
+3closurep* returns 3t* if its argument is a closure, otherwise 3nil*.
+.end_defun
+
+.defun entityp arg
+'cindex "entity"
+3entityp* returns 3t* if its argument is an entity, otherwise 3nil*.
+See (entity) for information about "entities".
+.end_defun
+
+.defun locativep arg
+'cindex "locative"
+3locativep* returns 3t* if its argument is a locative, otherwise 3nil*.
+.end_defun
+
+.defun typep arg &optional type
+3typep* is really two different functions.  With one argument,
+3typep* is not really a predicate; it returns a symbol describing the
+type of its argument.  With two arguments, 3typep* is a predicate which
+returns 3t* if 2arg* is of type 2type*, and 3nil* otherwise.
+Note that an object can be "of" more than one type, since one type can
+be a subset of another.
+
+The symbols that can be returned by 3typep* of one argument are:
+.table 3
+.item :symbol
+2arg* is a symbol.
+.item :fixnum
+2arg* is a fixnum (not a bignum).
+.item :bignum
+2arg* is a bignum.
+.item :flonum
+2arg* is a flonum (not a small-flonum).
+.item :small-flonum
+2arg* is a small flonum.
+.item :list
+2arg* is a cons.
+.item :locative
+2arg* is a locative pointer (see (locative)).
+.item :compiled-function
+2arg* is the machine code for a compiled function (sometimes called a FEF).
+.item :microcode-function
+2arg* is a function written in microcode.
+.item :closure
+2arg* is a closure (see (closure)).
+.item :select-method
+2arg* is a select-method table (see (select-method)).
+.item :stack-group
+2arg* is a stack-group (see (stack-group)).
+.item :string
+2arg* is a string.
+.item :array
+2arg* is an array that is not a string.
+.item :random
+Returned for any built-in data type that does not fit into one of the above categories.
+.item 2foo*
+An object of user-defined data type 2foo* (any symbol).  The primitive type
+of the object could be array, instance, or entity.
+See Named Structures, (named-structure), and Flavors, (flavor).
+.end_table
+
+The 2type* argument to 3typep* of two arguments can be any of the above
+keyword symbols (except for 3:random*), the name of a user-defined data type
+(either a named structure or a flavor), or one of the following additional
+symbols:
+.table 3
+.item :atom
+Any atom (as determined by the 3atom* predicate).
+.item :fix
+Any kind of fixed-point number (fixnum or bignum).
+.item :float
+Any kind of floating-point number (flonum or small-flonum).
+.item :number
+Any kind of number.
+.item :instance
+An instance of any flavor.  See (flavor).
+.item :entity
+An entity.  3typep* of one argument returns the name of the particular
+user-defined type of the entity, rather than 3:entity*.
+.end_table
+
+See also 3data-type*, (data-type-fun).
+
+Note that 3(typep nil) => :symbol*, and 3(typep nil ':list) => nil*; the
+latter may be changed.
+.end_defun
+

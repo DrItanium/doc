@@ -1,0 +1,2510 @@
+.c This file is part of the Lisp Machine manual.	-*-Bolio-*-
+.c The I/O System Chapter.
+.c Need to add examples in the section on read, maybe print too.
+
+.chapter "The I/O System"
+.cindex input and output
+.setq io-chapter chapter-number
+	Zetalisp provides a powerful and flexible system for
+performing input and output to peripheral devices.  To allow device
+independent I/O (that is, to allow programs to be written in a general
+way so that the program's input and output may be connected with any
+device), the Zetalisp I/O system provides the concept of an "I/O
+stream".  What streams are, the way they work, and the functions to create and
+manipulate streams, are described in this chapter.  This chapter also
+describes the Lisp "I/O" operations 3read* and 3print*, and the
+printed representation they use for Lisp objects.
+
+.section "The Character Set"
+'cindex character set
+.setq character-set section-page
+
+	Zetalisp represents characters as fixnums.
+The Lisp Machine's mapping between these numbers and the characters is listed here.
+The mapping is similar to ASCII, but somewhat modified to allow the use
+of the so-called SAIL extended graphics, while avoiding certain
+ambiguities present in ITS.  For a long time ITS treated the Backspace,
+Control-H, and Lambda keys on the keyboard identically as
+character code 10 octal; this problem is avoided from the start in
+the Lisp Machine's mapping.
+
+	It is worth pointing out that although the Zetalisp character set
+is different from the pdp-10 character set, when files are transferred between
+Lisp Machines and pdp-10's the characters are automatically converted.  Details
+of the mapping are explained below.
+
+	Fundamental characters are eight bits wide.  Those less than
+200 octal (with the 200 bit off) and only those are printing graphics;
+when output to a device they are assumed to print a character and move
+the "cursor" one character position to the right.  (All software provides
+for variable-width fonts, so the term "character position" shouldn't
+be taken too literally.)
+
+	Characters in the range of 200 to 236 inclusive are used for special
+characters.  Character 200 is a "null character", which does not correspond to
+any key on the keyboard.  The null character is not used for anything much;
+3fasload* uses it internally.  Characters 201 through 236 correspond to the special
+function keys on the keyboard such as Return and Call.  The remaining characters
+are reserved for future expansion.
+
+	It should never be necessary for a user or a source program to know these numerical
+values.  Indeed, they are likely to be changed in the future.  There are
+symbolic names for all characters; see below.
+
+	Most of the special characters do not normally appear in files (although
+it is not forbidden for files to contain them).  These characters exist mainly
+to be used as "commands" from the keyboard.
+
+	A few special characters, however, are "format effectors" which are just
+as legitimate as printing characters in text files.  The names and meanings of
+these characters are:
+.table
+.item Return
+The "carriage return" character which separates lines of text.  Note that the
+pdp-10 convention that lines are ended by a pair of characters, "carriage return" and
+"line feed", is not used.
+
+.item Page
+The "page separator" character which separates pages of text.
+
+.item Tab
+The "tabulation" character which spaces to the right until the next "tab stop".
+Tab stops are normally every 8 character positions.
+.end_table
+The space character is considered to be a printing character whose printed image
+happens to be blank, rather than a format effector.
+
+	In some contexts, a fixnum can hold both a character code
+and a font number for that character.  The following byte
+specifiers are defined:
+
+.defvar %%ch-char
+The value of 3%%ch-char* is a byte specifier for the field
+of a fixnum character which holds the character code.
+.end_defvar
+
+.defvar %%ch-font
+The value of 3%%ch-font* is a byte specifier for the field
+of a fixnum character which holds the font number.
+.end_defvar
+
+.cindex keyboard character
+	Characters read in from the keyboard include a character code and
+control bits.  A character cannot contain both a font number and control bits,
+since these data are both stored in the same bits.  The following byte
+specifiers are provided:
+.setq %%kbd page
+.cindex %%kbd fields
+
+.defvar %%kbd-char
+The value of 3%%kbd-char* is a byte specifier for the field
+of a keyboard character which holds the normal eight-bit character code.
+.end_defvar
+
+.defvar %%kbd-control
+The value of 3%%kbd-control* is a byte specifier for the field
+of a keyboard character which is 1 if either Control key was held down.
+.end_defvar
+
+.defvar %%kbd-meta
+The value of 3%%kbd-meta* is a byte specifier for the field
+of a keyboard character which is 1 if either Meta key was held down.
+.end_defvar
+
+.defvar %%kbd-super
+The value of 3%%kbd-super* is a byte specifier for the field
+of a keyboard character which is 1 if either Super key was held down.
+.end_defvar
+
+.defvar %%kbd-hyper
+The value of 3%%kbd-hyper* is a byte specifier for the field
+of a keyboard character which is 1 if either Hyper key was held down.
+
+This bit is also set if Control and/or Meta is typed in combination with
+Shift and a letter.  Shift is much easier than Hyper to reach with the left hand.
+.end_defvar
+
+.defvar %%kbd-control-meta
+The value of 3%%kbd-control-meta* is a byte specifier for the four-bit field
+of a keyboard character which contains the above control bits.  The least-significant
+bit is Control.  The most significant bit is Hyper.
+.end_defvar
+
+The following fields are used by some programs that encode signals from
+the mouse in a the format of a character.  Refer to the window system
+documentation for an explanation of how these characters are generated.
+
+.defvar %%kbd-mouse
+The value of 3%%kbd-mouse* is a byte specifier for the bit in a keyboard character
+which indicates that the character is not really a character,
+but a signal from the mouse.
+.end_defvar
+
+.defvar %%kbd-mouse-button
+The value of 3%%kbd-mouse-button* is a byte specifier for the field in a mouse signal
+which says which button was clicked.  The value is 30*, 31*, or 32* for
+the left, middle, or right button, respectively.
+.end_defvar
+
+.defvar %%kbd-mouse-n-clicks
+The value of 3%%kbd-mouse-n-clicks* 
+is a byte specifier for the field in a mouse signal
+which says how many times the button was clicked.
+The value is one less than the number of times the button was clicked.
+.end_defvar
+
+	When any of the control bits (Control, Meta, Super, or Hyper) is
+set in conjunction with a letter, the letter will always be upper-case.
+The character codes which consist of a lower-case letter and non-zero control
+bits are "holes" in the character set which are never used for anything.
+Note that when Shift is typed in conjuction with Control and/or Meta and
+a letter, it means Hyper rather than Shift.
+
+	Since the control bits are not part of the fundamental 8-bit character
+codes, there is no way to express keyboard input in terms of simple
+character codes.  However, there is a convention which the relevant programs
+accept for encoding keyboard input into a string of characters:  if a
+character has its Control bit on, prefix it with an Alpha.  If a
+character has its Meta bit on, prefix it with a Beta.  If a character
+has both its Control and Meta bits on, prefix it with an Epsilon.
+If a character has its Super bit on, prefix it with a Pi.  If
+a character has its Hyper bit on, prefix it with a Lambda.
+To get an Alpha, Beta, Epsilon, Pi, Lambda, or Equivalence into the string,
+quote it by prefixing it with an Equivalence.
+
+.setq character-set-differences page
+
+	When characters are written to a file server computer that
+normally uses the ASCII character set to store text, Lisp Machine
+characters are mapped into an encoding that is reasonably close to an
+ASCII transliteration of the text.  When a file is written, the
+characters are converted into this encoding, and the inverse
+transformation is done when a file is read back.  No information is
+lost.  Note that the length of a file, in characters, will not be the
+same measured in original Lisp Machine characters as it will measured in
+the encoded ASCII characters.  In the currently implemented ASCII file
+servers, the following encoding is used.  All printing characters and
+any characters not mentioned explicitly here are represented as
+themselves.  Codes 010 (lambda), 011 (gamma), 012 (delta), 014
+(plus-minus), 015 (circle-plus), 177 (integral), 200 through 207
+inclusive, 213 (delete/vt), and 216 and anything higher, are preceeded
+by a 177; that is, 177 is used as a "quoting character" for these codes.
+Codes 210 (overstrike), 211 (tab), 212 (line), and 214 (page), are
+converted to their ASCII cognates, namely 010 (backspace), 011
+(horizontal tab), 012 (line feed), and 014 (form feed) respectively.
+Code 215 (return) is converted into 015 (carriage return) followed by
+012 (line feed).  Code 377 is ignored completely, and so cannot be
+stored in files.
+7
+.group
+.nofill
+000 center-dot ( )             040 space       100 @           140 `
+001 down arrow ()             041 !           101 A           141 a
+002 alpha ()                  042 "           102 B           142 b
+003 beta ()                   043 #           103 C           143 c
+004 and-sign ()               044 $           104 D           144 d
+005 not-sign ()               045 %           105 E           145 e
+006 epsilon ()                046 &           106 F           146 f
+007 pi ()                     047 '           107 G           147 g
+010 lambda ((ctl-h))                 050 (           110 H           150 h
+011 gamma (	)                  051 )           111 I           151 i
+012 delta ()                  052 *           112 J           152 j
+013 uparrow ()                053 +           113 K           153 k
+014 plus-minus ()             054 ,           114 L           154 l
+015 circle-plus ((ctl-m))            055 -           115 M           155 m
+016 infinity ()               056 .           116 N           156 n
+017 partial delta ()          057 /           117 O           157 o
+020 left horseshoe ()         060 0           120 P           160 p
+021 right horseshoe ()        061 1           121 Q           161 q
+022 up horseshoe ()           062 2           122 R           162 r
+023 down horseshoe ()         063 3           123 S           163 s
+024 universal quantifier ()   064 4           124 T           164 t
+025 existential quantifier () 065 5           125 U           165 u
+026 circle-X ()               066 6           126 V           166 v
+027 double-arrow ()           067 7           127 W           167 w
+030 left arrow ()             070 8           130 X           170 x
+031 right arrow ()            071 9           131 Y           171 y
+032 not-equals ()             072 :           132 Z           172 z
+033 diamond (altmode) ()      073 ;           133 [           173 {
+034 less-or-equal ()          074 <           134 \           174 |
+035 greater-or-equal ()       075 =           135 ]           175 }
+036 equivalence ()            076 >           136 ^           176 ~
+037 or ()                     077 ?           137 _           177 (ctl-qm)
+200 null character     210 overstrike    220 stop-output   230 roman-iv
+201 break              211 tab           221 abort         231 hand-up
+202 clear              212 line          222 resume        232 hand-down
+203 call               213 delete/vt     223 status        233 hand-left
+204 terminal escape    214 page          224 end           234 hand-right
+205 macro/backnext     215 return        225 roman-i       235 system
+206 help               216 quote         226 roman-ii      236 network
+207 rubout             217 hold-output   227 roman-iii
+237-377 reserved for the future
+
+
+                    The Lisp Machine Character Set
+.fill
+.apart
+*
+.section "Printed Representation"
+
+	People cannot deal directly with Lisp objects, because the
+objects live inside the machine.  In order to let us get at and talk
+about Lisp objects, Lisp provides a representation of objects in the
+form of printed text; this is called the 2printed representation*.
+This is what you have been seeing in the examples throughout this manual.
+Functions such as 3print*, 3prin1*,  and 3princ* take a Lisp
+object, and send the characters of its printed representation to a
+stream.  These functions (and the internal functions they call) are
+known as the 2printer*.  The 3read* function takes characters from a stream,
+interprets them as a printed representation of a Lisp object, builds a
+corresponding object and returns it; it and its subfunctions are known as the 2reader*.
+(Streams are explained in (streams).)
+
+	This section describes in detail what the printed
+representation is for any Lisp object, and just what 3read* does.
+For the rest of the chapter, the phrase "printed representation" will
+usually be abbreviated as "p.r.".
+
+.subsection "What the Printer Produces"
+.setq printer section-page
+.cindex printer
+	The printed representation of an object depends on its
+type.  In this section, we will consider each type of object
+and explain how it is printed.
+
+.setq slashification page
+.cindex slashification
+	Printing is done either with or without 2slashification*.
+The non-slashified version is nicer looking in general, but
+if you give it to 3read* it won't do the right thing.
+The slashified version is carefully set up so that 3read*
+will be able to read it in.  The primary effects of slashification
+are that special characters used with other than their
+normal meanings (e.g. a parenthesis appearing in the name
+of a symbol) are preceeded by slashes or cause the name of the
+symbol to be enclosed in vertical bars, and that symbols which
+are not from the current package get printed out with their
+package prefixes (a package prefix looks like a symbol followed
+by a colon).
+
+	For a fixnum or a bignum: if the number is negative, the printed representation
+begins with a minus sign ("3-*").  Then, the value of the variable 3base*
+is examined.  If 3base* is a positive fixnum, the number is printed
+out in that base (3base* defaults to 8); if it is a symbol with
+a 3si:princ-function* property, the value of the property will be
+applied to two arguments: 3minus* of the number to be printed,
+and the stream to which to print it
+(this is a hook to allow output in Roman numerals and the like);
+otherwise the value of 3base* is invalid and an error is signalled
+Finally, if 3base* equals 10. and the variable 3*nopoint* is
+3nil*, a decimal point is printed out.  Slashification does
+not affect the printing of numbers.
+
+.defvar base
+The value of 3base* is a number which is the radix in which fixnums
+are printed, or a symbol with a 3si:princ-function* property.
+The initial value of 3base* is 8.
+.end_defvar
+
+.defvar *nopoint
+If the value of 3*nopoint* is 3nil*, a trailing decimal point
+is printed when a fixnum is printed out in base 10.  This allows
+the numbers to be read back in correctly even if 3ibase*
+is not 10. at the time of reading.  If 3*nopoint* is non-3nil*,
+the trailing decimal points are suppressed.  The initial value of
+3*nopoint* is 3nil*.
+.end_defvar
+
+	For a flonum: the printer first decides whether to use ordinary
+notation or exponential notation.  If the magnitude of the number is too large
+or too small, such that the ordinary notation would require an unreasonable
+number of leading or trailing zeroes, then exponential notation will be used.
+The number is printed as an optional leading minus sign, one or more digits,
+a decimal point, one or more digits, and an optional trailing exponent,
+consisting of the letter "e", an optional minus sign, and the power of ten.
+The number of digits printed is the "correct" number; no information present
+in the flonum is lost, and no extra trailing digits are printed that do not represent
+information in the flonum.  Feeding the p.r. of a flonum back to the reader
+is always supposed to produce an equal flonum.
+Flonums are always printed in decimal; they are not affected by
+slashification nor by 3base* and 3*nopoint*.
+
+	For a small flonum: the printed representation is very similar to that
+of a flonum, except that exponential notation is always used and the exponent
+is delimited by "s" rather than "e".
+
+	For a symbol: if slashification is off, the p.r. is simply the successive
+characters of the print-name of the symbol. If slashification is on,
+two changes must be made.  First, the symbol might require a package prefix
+in order that 3read* work correctly, assuming that the package into which
+3read* will read the symbol is the one in which it is being printed.
+See the section on packages ((package)) for an explanation
+of the package name prefix.
+Secondly, if the p.r. would not read in as a symbol at all (that is, if
+the print-name looks like a number, or contains special characters),
+then the p.r. must have some quoting for those characters, either
+by the use of slashes ("/") before each special character,
+or by the use of vertical bars ("|") around the whole name.
+The decision whether quoting is required is done using the readtable
+(see (readtable)),
+so it is always accurate provided that 3readtable* has the same value when
+the output is read back in as when it was printed.
+
+	For a string: if slashification is off, the p.r. is simply the
+successive characters of the string.  If slashification is on, the
+string is printed between double quotes, and any characters inside the
+string which need to be preceeded by slashes will be.   Normally these
+are just double-quote and slash.  Compatibly with Maclisp, carriage
+return is 2not* ignored inside strings and vertical bars.
+
+	For an instance or an entity: if the object has a method for the
+3:print-self* message, that message is sent with three arguments:  the stream to
+print to, the current 2depth* of list structure (see below), and whether
+slashification is enabled.  The object should print a suitable p.r. on the stream.
+See (flavor) for documentation on instances.  Most such objects print like
+"any other data type" below, except with additional information such as a name.
+Some objects print only their name when slashification is not in effect
+(when 3princ*'ed).
+
+	For an array which is a named structure: if the array has a
+named structure symbol with a 3named-structure-invoke* property
+which is the name of a function, then that
+function is called on five arguments: the symbol 3:print-self*, the
+object itself, the stream to print to, the current 2depth* of list
+structure (see below), and whether slashification is enabled.  A
+suitable printed representation should be sent to the stream.  This
+allows a user to define his own p.r. for his named structures;
+more information can be found in the named structure section (see
+(named-structure)).  If the named structure symbol does not have a
+3named-structure-invoke* property, the printed-representation is like that for
+random data-types: a number sign and a less than sign, the named
+structure symbol, the numerical address of the array, and a greater
+than sign.
+
+	Other arrays: the p.r. starts with a number sign and
+a less-than sign.  Then the "3art-*" symbol for the array
+type is printed.  Next the dimensions of the array are printed, separated 
+by hyphens.  This is followed by a space, the machine address of the
+array, and a greater-than sign.
+
+	Conses:  The p.r. for conses tends to favor 2lists*.  It
+starts with an open-parenthesis.  Then, the 2car* of the cons is
+printed, and the 2cdr* of the cons is examined.  If it is 3nil*, a
+close parenthesis is printed.  If it is anything else but a cons, space
+dot space followed by that object is printed.  If it is a cons, we
+print a space and start all over (from the point 2after* we printed
+the open-parenthesis) using this new cons.  Thus, a list is printed as
+an open-parenthesis, the p.r.'s of its elements separated by spaces, and a
+close-parenthesis.
+
+	This is how the usual printed representations such as 3(a b (foo bar) c)*
+are produced.
+
+	The following additional feature is provided for the p.r. of conses:
+as a list is printed, 3print* maintains the length of the list so far,
+and the depth of recursion of printing lists.  If the length exceeds the
+value of the variable 3prinlength*, 3print* will terminate the printed
+representation of the list with an ellipsis (three periods) and a close-parenthesis.
+If the depth of recursion exceeds the value of the variable 3prinlevel*,
+then the list will be printed as "**".  These two features allow a kind of abbreviated
+printing which is more concise and suppresses detail.  Of course, neither
+the ellipsis nor the "**" can be interpreted by 3read*, since the relevant information
+is lost.
+
+.defvar prinlevel
+3prinlevel* can be set to the maximum number of nested
+lists that can be printed before the printer will give up and just print a
+"**".  If it is 3nil*, which it is initially, any number of nested
+lists can be printed.  Otherwise, the value of 3prinlevel* must be a fixnum.
+.end_defvar
+
+.defvar prinlength
+3prinlength* can be set to the maximum number of elements of a list
+that will be printed before the printer will give up and print a "3...*".
+If it is 3nil*, which it is initially, any length list may be
+printed.  Otherwise, the value of 3prinlength* must be a fixnum.
+.end_defvar
+
+	For any other data type: the p.r. starts with a number sign and
+a less-than sign ("3<*"), the "3dtp-*" symbol for this datatype, a space, and
+the octal machine address of the object.  Then, if the object is a microcoded
+function, compiled function, or stack group, its name
+is printed.  Finally a greater-than sign ("3>*") is printed.
+
+Including the machine address in the p.r. makes it possible to tell two objects of this
+kind apart without explicitly calling 3eq* on them.  This can be very useful during
+debugging.  It is important to know that if garbage collection is turned on, objects
+will occasionally be moved, and therefore their octal machine addresses will be
+changed.  It is best to shut off garbage collection temporarily when depending on
+these numbers.
+
+	None of the p.r.'s beginning with a number sign can be read back in,
+nor, in general, can anything produced by instances, entities, and named structures.
+(Just what 3read* accepts is the topic of the next section.)
+This can be a problem if, for example, you are printing a structure into a
+file with the intent of reading it in later.  The following feature allows
+you to make sure that what you are printing may indeed be read with the reader.
+
+.defvar si:print-readably
+When 3si:print-readably* is bound to 3t*, the printer will signal an error
+if there is an attempt to print an object which cannot be interpreted by 3read*.
+When the printer sends a 3:print-self* or a 3:print* message, it assumes
+that this error checking is done for it.  Thus it is possible for these messages
+2not* to signal an error, if they see fit.
+.end_defvar
+
+.defmac si:printing-random-object (object stream . keywords) &body body
+The vast majority of objects which define 3:print-self* messages have much
+in common.  This macro is provided for convenience, so that users do not
+have to write out that repetitious code.  It is also the preferred interface
+to 3si:print-readably*.  With no keywords, 3si:printing-random-object*
+checks the value of 3si:print-readably* and signals an error if it is not
+3nil*.  It then prints a number sign and a less than sign, evaluates the
+forms in 2body*, then prints a space, the octal machine address
+of the object and
+a greater-than sign.  A typical use of this macro might look like:
+.lisp
+(si:printing-random-object (ship stream)
+  (princ (typep ship) stream)
+  (tyo #\space stream)
+  (prin1 (ship-name ship) stream))
+.end_lisp
+This might print 3#<ship "ralph" 23655126>*.
+.end_defmac
+
+The following keywords may be used to modify the behaviour of 3si:printing-random-object*:
+
+.table 3
+.kitem :no-pointer
+This supresses printing of the octal address of the object.
+
+.kitem :typep
+This prints the result of 3(typep 2object*)* after the less-than sign.
+In the example above, this option could have been used instead of
+the first two forms in the body.
+.end_table
+.setq customizing-the-printer section-page
+
+If you want to control the printed representation of some object,
+usually the right way to do it is to make the object an array which is a
+named structure (see (named-structure)), or an instance of a flavor
+(see (flavor)).  However, occasionally it is desirable to get control
+over all printing of objects, in order to change, in some way, how they
+are printed.  If you need to do this, the best way to proceed is to
+customize the behavior of 3si:print-object* (see
+(si:print-object-fun)), which is the main internal function of the
+printer.  All of the printing functions, such as 3print* and
+3princ*, as well as 3format*, go through this function.  The way to
+customize it is by using the "advice" facility (see (advise)).
+
+.subsection "What The Reader Accepts"
+.setq reader section-page
+.cindex reader
+	The purpose of the reader is to accept characters,
+interpret them as the p.r. of a Lisp object, and return
+a corresponding Lisp object.  The reader cannot accept
+everything that the printer produces; for example, the
+p.r.'s of arrays (other than strings), compiled code
+objects, closures, stack groups etc. cannot be read in.
+However, it has many features which are not seen in the
+printer at all, such as more flexibility, comments, and
+convenient abbreviations for frequently-used unwieldy constructs.
+
+	This section shows what kind of p.r.'s the reader understands,
+and explains the readtable, reader macros, and various features
+provided by 3read*.
+
+	In general, the reader operates by recognizing tokens in the input
+stream.  Tokens can be self-delimiting or can be separated by delimiters such as
+whitespace.  A token is the p.r. of an atomic object such as a symbol or a
+number, or a special character such as a parenthesis.  The reader reads one
+or more tokens until the complete p.r. of an object has been seen, and then
+constructs and returns that object.
+
+	The reader understands the p.r.'s of fixnums in a way
+more general than is employed by the printer.  Here is a complete
+description of the format for fixnums.
+
+	Let a 2simple fixnum* be a string of digits, optionally
+preceeded by a plus sign or a minus sign, and optionally followed by a
+trailing decimal point.  A simple fixnum will be interpreted by
+3read* as a fixnum.  If the trailing decimal point is present, the
+digits will be interpreted in decimal radix; otherwise, they will be
+considered as a number whose radix is the value of the variable
+3ibase*.
+
+.defvar ibase
+The value of 3ibase* is a number which is the radix in which
+fixnums are read.  The initial value of 3ibase* is 8.
+.end_defvar
+
+	3read* will also understand a simple fixnum,
+followed by an underscore (3"_"*) or a circumflex (3"^"*),
+followed by another simple fixnum.  The two simple fixnums
+will be interpreted in the usual way,
+then the character in between indicates an operation to be
+performed on the two fixnums.  The underscore indicates a binary
+"left shift"; that is, the fixnum to its left is doubled the
+number of times indicated by the fixnum to its right.  The circumflex
+multiplies the fixnum to its left by 3ibase* the number of
+times indicated by the fixnum to its right.  (The second simple
+fixnum is not allowed to have a leading minus sign.)  Examples:  3645_6*
+means 364500* (in octal) and 3645^3* means 3645000*.
+	Here are some examples of valid representations
+of fixnums to be given to 3read*:
+.lisp
+4
+23456.
+-546
++45^+6
+2_11
+.end_lisp
+
+The syntax for bignums is identical to the syntax for fixnums.  A number
+is a bignum rather than a fixnum if and only if it is too large to be represented
+as a fixnum.  Here are some examples of valid representations of bignums:
+.lisp
+72361356126536125376512375126535123712635
+-123456789.
+105_1000
+105_1000.
+.end_lisp
+
+.setq flonum-examples page
+The syntax for a flonum is an optional plus or minus sign, optionally some digits,
+a decimal point, and one or more digits.  Such a flonum or a simple fixnum, followed
+by an "e" (or "E") and a simple fixnum, is also a flonum; the fixnum after the "e"
+is the exponent of 10 by which the number is to be scaled.  (The exponent is
+not allowed to have a trailing decimal point.)  If the exponent is
+introduced by "s" (or "S") rather than "e", the number is a small-flonum.
+Here are some examples of printed-representations that read as flonums:
+.lisp
+0.0
+1.5
+14.0
+0.01
+.707
+-.3
++3.14159
+6.03e23
+1E-9
+1.e3
+.end_lisp
+
+Here are some examples of printed-representations that read as small-flonums:
+.lisp
+0s0
+1.5s9
+-42S3
+1.s5
+.end_lisp
+
+	A string of letters, numbers, and "extended alphabetic"
+characters is recognized by the reader as a symbol, provided
+it cannot be interpreted as a number.  Alphabetic case is ignored
+in symbols; lower-case letters are translated to upper-case.
+When the reader sees the p.r. of a symbol, it 2interns* it on a 2package*
+(see (package) for an explanation of interning and the package system).
+Symbols may start with digits; you could even
+have one named "-345T"; 3read* will accept this as a symbol
+without complaint.  If you want to put strange characters (such as
+lower-case letters, parentheses, or reader macro characters) inside the name of a symbol,
+put a slash before each strange character.  If you want to have a symbol
+whose print-name looks like a number, put a slash before some character
+in the name.  You can also enclose the name of a symbol in vertical bars,
+which quotes all characters inside, except vertical bars and slashes, which
+must be quoted with slash.
+.lisp
+.exdent 96 Examples of symbols:
+foo
+bar/(baz/)
+34w23
+|Frob Sale|
+.end_lisp
+
+	The reader will also recognize strings, which should be
+surrounded by double-quotes.  If you want to put a double-quote or
+a slash inside a string, preceed it by a slash.
+.lisp
+.exdent 96 Examples of strings:
+"This is a typical string."
+"That is known as a /"cons cell/" in Lisp."
+.end_lisp
+
+	When 3read* sees an open parenthesis, it knows that
+the p.r. of a cons is coming, and calls itself recursively to
+get the elements of the cons or the list that follows.  Any of
+the following are valid:
+.lisp
+(foo . bar)
+(foo bar baz)
+(foo . (bar . (baz . nil)))
+(foo bar . quux)
+.end_lisp
+The first is a cons, whose car and cdr are both symbols.  The second
+is a list, and the third is exactly the same as the second (although
+3print* would never produce it).  The fourth is a "dotted list";
+the cdr of the last cons cell (the second one) is not 3nil*, but
+3quux*.
+'cindex dotted list
+
+	Whenever the reader sees any of the above, it creates new cons
+cells; it never returns existing list structure.  This contrasts
+with the case for symbols, as very often 3read* returns symbols
+that it found interned in the package rather than creating new symbols
+itself.  Symbols are the only thing that work this way.
+
+	The dot that separates the two elements of a dotted-pair p.r.
+for a cons is only recognized if it is surrounded by delimiters
+(typically spaces).  Thus dot may be freely used within print-names of
+symbols and within numbers.  This is not compatible with Maclisp; in
+Maclisp 3(a.b)* reads as a cons of symbols 3a* and 3b*, whereas in
+Zetalisp it reads as a list of a symbol 3a.b*.
+
+	If the circle-X (7""*) character is encountered, it is an octal
+escape, which may be useful for including weird characters in the input.  The
+next three characters are read and interpreted as an octal number, and the
+character whose code is that number replaces the circle-X and the digits in the
+input stream.  This character is always taken to be an alphabetic character,
+just as if it had been preceded by a slash.
+
+.subsection "Macro Characters"
+.cindex macro character
+
+	Certain characters are defined to be macro characters.  When the reader
+sees one of these, it calls a function associated with the character.  This
+function reads whatever syntax it likes and returns the object represented by
+that syntax.  Macro characters are always token delimiters; however, they are not
+recognized when quoted by slash or vertical bar, nor when inside a string.
+Macro characters are a syntax-extension mechanism available to the user.  Lisp
+comes with several predefined macro characters:
+
+Quote (3'*) is an abbreviation to make it easier to put
+constants in programs.  3'2foo** reads the same as 3(quote 2foo*)*.
+
+Semicolon (3;*) is used to enter comments.  The semicolon and everything 
+up through the next carriage return are ignored.  Thus a comment can be put at
+the end of any line without affecting the reader.
+
+Backquote (3`*) makes it easier to write programs to construct lists and trees
+by using a template.
+See (backquote) for details.
+
+Comma (3,*) is part of the syntax of backquote and is invalid if used other
+than inside the body of a backquote.  See (backquote) for details.
+
+Sharp sign (3#*) introduces a number of other syntax extensions.  See the
+following section.  Unlike the preceding characters, sharp sign is not a
+delimiter.  A sharp sign in the middle of a symbol is an ordinary character.
+
+The function 3set-syntax-macro-char* (see (set-syntax-macro-char-fun))
+can be used to define your own macro characters.
+
+
+.subsection "Sharp-sign Abbreviations"
+.cindex sharp sign reader macros
+.cindex # reader macros
+
+The reader's syntax includes several abbreviations introduced by sharp sign
+(3#*).  These take the general form of a sharp sign, a second character
+which identifies the syntax, and following arguments.  Certain abbreviations
+allow a decimal number or certain special "modifier" characters between the
+sharp sign and the second character.  Here are the currently-defined sharp
+sign constructs; more are likely to be added in the future.
+
+.table 3 0 500
+.setq sharp-slash page
+.item #/
+3#/2x** reads in as the number which is the character code for the
+character 2x*.  For example, 3#/a* is equivalent to 3141* but clearer
+in its intent.  This is the recommended way to include character constants
+in your code.  Note that the slash causes this construct to be parsed correctly
+by the editors, Emacs and Zwei.
+
+As in strings, upper and lower-case letters are distinguished after 3#/*.
+Any character works after 3#/*, even those that are normally special to
+3read*, such as parentheses.  Even non-printing characters may be used,
+although for them 3#\* is preferred.
+
+The character can be modified with control and meta bits by inserting one or more special
+characters between the 7#* and the 7/*.  This syntax is obsolete since
+it is not mnemonic and it generally unclear; it is superseded by the 3\#*
+syntax (see below).  However, it is used in some old programs, so here is
+how it is defined.  7#/2x** generates Control-2x*.
+7#/2x** generates Meta-2x*.  7#/2x** generates Super-2x*.
+7#(ctl-h)/2x** generates Hyper-2x*.  These can be combined, for instance
+7#/&* generates Super-Meta-ampersand.  Also, 7#/2x** is an abbreviation
+for 7#/2x**.  When control bits are specified, and 2x* is
+a lower-case alphabetic character, the character code for the upper-case
+version of the character is produced.
+
+.item #\
+3#\2name** reads in as the number which is the character code for the
+non-printing character symbolized by 2name*.  A large number of character
+names are recognized; these are documented below
+((xr-special-character-names)).  For example, 3#\return* reads in as
+a fixnum, being the character code for the "return" character in the Lisp Machine
+character set.  In general, the names that are written on the
+keyboard keys are accepted.  The abbreviations 3cr* for 3return* and 3sp* for
+3space* are accepted and generally preferred, since these characters are
+used so frequently.  The page separator character is
+called 3page*, although 3form* and 3clear-screen* are also accepted since
+the keyboard has one of those legends on the page key.  The rules for reading
+2name* are the same as those for symbols; thus upper and lower-case letters
+are not distinguished, and the name must be terminated by a delimiter such as a
+space, a carriage return, or a parenthesis.
+
+When the system types out the name of a special character, it uses the same table
+as the 3#\* reader; therefore any character name typed out is acceptable as input.
+
+3#\* can also be used to read in the names of characters that have
+control and meta bits set.  The syntax looks like 3#\control-meta-b*
+to get a "B" character with the control and meta bits set.  You can use
+any of the prefix bit names 3control*, 3meta*, 3hyper*, and
+3super*.  They may be in any order, and upper and lower-case letters
+are not distinguished.  Also, 3control* may be spelled 3ctrl* as
+it is on the keyboards.  The last hyphen may be followed by a single
+character, or by any of the special character names normally recognized
+by 3#\*.  If it is a single character, it is treated the same way the
+reader normally treats characters in symbols; if you want to use a lower-case
+character or a special character such as a parenthesis, you must preceed
+it by a slash character.  Examples: 3#\Hyper-Super-A*, 3\meta-hyper-roman-i*,
+3#\CTRL-META-/(*.
+
+The character can also be modified with control and meta bits by
+inserting special Greek characters as with 7#/*, but this is less
+clear than spelling them out, and should be avoided in new programs.
+
+.item #^
+3#^2x** is exactly like 7#/2x** if the input is being
+read by Zetalisp; it generates Control-2x*.
+In Maclisp 2x* is converted to upper case and then exclusive-or'ed with 100 (octal).
+Thus 3#^2x** always generates the character returned by 3tyi* if
+the user holds down the control key and types 2x*.
+(In Maclisp 7#/2x** sets the bit set by the Control key when the TTY is
+open in 3fixnum* mode.)
+
+.item #'
+3#'2foo** is an abbreviation for 3(function 2foo*)*.
+2foo* is the p.r. of any object.  This abbreviation can be remembered by
+analogy with the 3'* macro-character, since the 3function* and 3quote*
+special forms are somewhat analogous.
+
+.item #,
+3#,2foo** evaluates 2foo* (the p.r. of a Lisp form) at read
+time, unless the compiler is doing the reading, in which case it is arranged
+that 2foo* will be evaluated when the QFASL file is loaded.  This is a way,
+for example, to include in your code complex list-structure constants which cannot
+be written with 3quote*.  Note that the reader does not put 3quote*
+around the result of the evaluation.  You must do this yourself if you
+want it, typically by using the 3'* macro-character.  An example of 
+a case where you do not want 3quote* around it is when this object is
+an element of a constant list.
+
+.item #.
+3#.2foo** evaluates 2foo* (the p.r. of a lisp form) at read
+time, regardless of who is doing the reading.
+
+.item #O
+3#O 2number** reads 2number* in octal regardless of the
+setting of 3ibase*.  Actually, any expression can be prefixed
+by 3#O*; it will be read with 3ibase* bound to 8.
+
+.item #X
+3#X 2number** reads 2number* in radix 16. (hexadecimal)
+regardless of the setting of 2ibase*.  As with 3#O*,
+any expression can be prefixed by 3#X*.
+.br
+[Unfortunately 3#X* does not completely work, currently, since
+it does not cause the letters A through F to be recognized as numbers.
+This does not seem to have bothered anyone yet.]
+
+.item #R
+3#2radix*R 2number** reads 2number* in radix 2radix* regardless
+of the setting of 3ibase*.  As with 3#O*, any expression
+can be prefixed by 3#2radix*R*; it will be read with 3ibase*
+bound to 2radix*.  2radix* must consist of only digits, and
+it is read in decimal.
+
+For example, 3#3R102* is another way of writing 311.*
+and 3#11R32* is another way of writing 335.*
+Bases larger than ten do not work completely, since there are only
+ten digit characters.
+
+.cindex conditionalization, read-time
+.item #Q
+3#Q 2foo** reads as 2foo* if the input is being read by
+Zetalisp, otherwise it reads as nothing (whitespace).
+
+.item #M
+3#M 2foo** reads as 2foo* if the input is being read into Maclisp,
+otherwise it reads as nothing (whitespace).
+
+.item #N
+3#N 2foo** reads as 2foo* if the input is being read into NIL
+or compiled to run in NIL, otherwise it reads as nothing (white space).
+Also, during the reading of 2foo*,
+the reader temporarily defines various NIL-compatible sharp-sign
+abbreviations (such as 3#!* and 3#"*) in order to parse
+the form correctly, even though its not going to be evaluated.
+.c This doesn't work, but I doubt that anyone cares.  If anyone
+.c squawks it can easily be fixed.
+
+.item #+
+'setq sharp-plus page
+This abbreviation provides a read-time conditionalization facility similar
+to, but more general than, that provided by 3#M*, 3#N*, and 3#Q*.  It is used
+as 3#+2feature* 2form**.  If 2feature* is a symbol, then this is
+read as 2form* if 3(status feature 2feature*)* is 3t*.
+If 3(status feature 2feature*)* is 3nil*, then this is read as whitespace.
+Alternately, 2feature* may be a boolean expression composed of 3and*, 3or*, and
+3not* operators and symbols representing items which may appear on the 
+3(status features)* list.
+3(or lispm amber)* represents evaluation of the predicate
+3(or (status feature lispm) (status feature amber))*
+in the read-time environment.
+
+For example, 3#+lispm 2form** makes 2form* exist if being read by Zetalisp,
+and is thus equivalent to 3#Q 2form**.  Similarly, 3#+maclisp 2form** is equivalent
+to 3#M 2form**.  3#+(or lispm nil) 2form** will make 2form* exist on either
+Zetalisp or in NIL.  Note that items may be added to the 3(status features)*
+list by means of 3(sstatus feature 2feature*)*, thus allowing the user to selectively
+interpret or compile pieces of code by parameterizing this list.  See (sstatus-fun).
+
+.item #-
+3#-2feature* 2form** is equivalent to 3#+(not 2feature*) 2form**.
+
+.item #<
+This is not legal reader syntax.  It is used in the p.r. of objects which cannot
+be read back in.  Attempting to read a 3#<* will cause an error.
+.end_table
+
+The function 3set-syntax-#-macro-char* (see (set-syntax-#-macro-char-fun)) can be
+used to define your own sharp sign abbreviations.
+
+
+.subsection Special Character Names
+.setq xr-special-character-names section-page
+.cindex special character
+
+The following are the recognized special character names, in alphabetical order except
+with synonyms together and linked with equal signs.  These names can be used after
+a 3"#\"* to get the character code for that character.  Most of these characters
+type out as this name enclosed in a lozenge.
+First we list the special function keys.
+.lisp
+3abort		break		call		clear-input=clear
+delete=vt		end		hand-down	hand-left
+hand-right	hand-up		help		hold-output
+roman-i		roman-ii		roman-iii		roman-iv
+line=lf		macro=back-next	network
+overstrike=backspace=bs		page=clear-screen=form
+quote		resume		return=cr		rubout
+space=sp		status		stop-output	system
+tab		terminal=esc*
+.end_lisp
+
+These are printing characters which also have special names because they may be hard
+to type on a pdp-10.
+.lisp
+3altmode		circle-plus	delta		gamma
+integral		lambda		plus-minus	uparrow*
+.end_lisp
+
+The following are special characters sometimes used to represent single and double
+mouse clicks.  The buttons can be called either 3l*, 3m*, 3r* or
+31*, 32*, 33* depending on stylistic preference.  These characters all contain
+the 3%%kbd-mouse* bit.
+.lisp
+3mouse-l-1=mouse-1-1		mouse-l-2=mouse-1-2
+mouse-m-1=mouse-2-1		mouse-m-2=mouse-2-2
+mouse-r-1=mouse-3-1		mouse-r-2=mouse-3-2*
+.end_lisp
+
+.subsection "The Readtable"
+.setq readtable section-page
+.cindex readtable
+
+	There is a data structure called the 2readtable* which is
+used to control the reader.  It contains information about the syntax of
+each character.  Initially it is set up to give the standard Lisp
+meanings to all the characters, but the user can change the meanings of
+characters to alter and customize the syntax of characters.  It is also
+possible to have several readtables describing different syntaxes and to
+switch from one to another by binding the symbol 3readtable*.
+
+.defvar readtable
+The value of 3readtable* is the current readtable.  This starts
+out as the initial standard readtable.  You can bind this variable
+to temporarily change the readtable being used.
+.end_defvar
+
+.defvar si:initial-readtable
+The value of 3si:initial-readtable* is the initial standard readtable.
+You should not ever change the contents of this readtable; only examine
+it, by using it as the 2from-readtable* argument to 3copy-readtable*
+or 3set-syntax-from-char*.
+.end_defvar
+
+The user can program the reader by changing the readtable in any of three ways.
+The syntax of a character can be set to one of several predefined possibilities.
+A character can be made into a 2macro character*, whose interpretation
+is controlled by a user-supplied function which is called when the character is read.
+The user can create a completely new readtable, using the readtable compiler
+(3sys: io; rtc*) to define new kinds of syntax and to assign syntax classes to
+characters.  Use of the readtable compiler is not documented here.
+
+.defun copy-readtable &optional from-readtable to-readtable
+2from-readtable*, which defaults to the current readtable, is copied.
+If 2to-readtable* is unsupplied or 3nil*, a fresh copy is made.  Otherwise
+2to-readtable* is clobbered with the copy.
+Use 3copy-readtable* to get a private readtable before using the following
+functions to change the syntax of characters in it.  The value of 3readtable*
+at the start of a Lisp Machine session is the initial standard readtable, which
+usually should not be modified.
+.end_defun
+
+.defun set-syntax-from-char to-char from-char &optional to-readtable from-readtable
+Makes the syntax of 2to-char* in 2to-readtable* be the same as the syntax of
+2from-char* in 2from-readtable*.  2to-readtable* defaults to the current readtable,
+and 2from-readtable* defaults to the initial standard readtable.
+.end_defun
+
+.defun set-character-translation from-char to-char &optional readtable
+Changes 2readtable* so that 2from-char* will be translated to 2to-char* upon
+read-in, when 2readtable* is the current readtable.
+This is normally used only for translating lower case letters to upper case.
+Character translations are turned off by slash, string quotes, and vertical bars.
+2readtable* defaults to the current readtable.
+.end_defun
+
+.defun set-syntax-macro-char char function &optional readtable
+Changes 2readtable* so that 2char* is a macro character.  When
+2char* is read, 2function* is called.  2readtable* defaults to the
+current readtable.
+
+2function* is called with two arguments: 2list-so-far* and the input stream.
+When a list is being read, 2list-so-far* is that list (3nil* if this is the
+first element).  At the "top level" of 3read*, 2list-so-far* is the symbol
+3:toplevel*.  After a dotted-pair dot, 2list-so-far* is the symbol 3:after-dot*.
+2function* may read any number of characters from the input stream and process
+them however it likes.
+
+2function* should return three values, called 2thing*, 2type*, and 2splice-p*.
+2thing* is the object read.  If 2splice-p* is 3nil*, 2thing* is the result.
+If 2splice-p* is non-3nil*, then when reading a list 2thing* replaces
+the list being read--often it will be 2list-so-far* with something else 
+3nconc*'ed onto the end.  At top-level and after a dot if 2splice-p* is non-3nil*
+the 2thing* is ignored and the macro-character does not contribute anything to
+the result of 3read*.
+2type* is a historical artifact and is not really used; 3nil* is a safe value.
+Most macro character functions return just one value and let the other two
+default to 3nil*.
+
+2function* should not have any side-effects other than on the stream and 2list-so-far*.
+Because of the way the rubout-handler works, 2function* can be called several times
+during the reading of a single expression in which the macro character only appears once.
+
+2char* is given the same syntax that single-quote, backquote, and comma have
+in the initial readtable (it is called 3:macro* syntax).
+.end_defun
+
+.defun set-syntax-#-macro-char char function &optional readtable
+Causes 2function* to be called when 3#2char** is read.
+2readtable* defaults to the current readtable.
+The function's arguments and return values are the same as for normal macro
+characters, documented above.  When 2function* is called, the special variable
+3si:xr-sharp-argument* contains 3nil* or a number which is the
+number or special bits between the 3#* and 2char*.
+.end_defun
+
+.defun set-syntax-from-description char description &optional readtable
+Sets the syntax of 2char* in 2readtable* to be that described by the
+symbol 2description*.  The following descriptions are defined in the
+standard readtable:
+.table 3 0 1500
+.item si:alphabetic
+An ordinary character such as 3"A"*.
+.item si:break
+A token separator such as 3"("*.  (Obviously left parenthesis has other
+properties besides being a break.
+.item si:whitespace
+A token separator which can be ignored, such as 3" "*.
+.item si:single
+'cindex single-character symbol
+A self-delimiting single-character symbol.  The initial readtable does not
+contain any of these.
+.item si:slash
+The character quoter.  In the initial readtable this is 3"/"*.
+.item si:verticalbar
+The symbol print-name quoter.  In the initial readtable this is 3"|"*.
+.item si:doublequote
+The string quoter.  In the initial readtable this is 3`"'*.
+.item si:macro
+A macro character.  Don't use this, use 3set-syntax-macro-char*.
+.item si:circlecross
+The octal escape for special characters.  In the initial readtable this is 3""*.
+.end_table
+
+These symbols will probably be moved to the standard keyword package at some point.
+2readtable* defaults to the current readtable.
+.end_defun
+
+.defun setsyntax character arg2 arg3
+This exists only for Maclisp compatibility.  The above functions are preferred in new
+programs.  The syntax of 2character* is altered in the current readtable, according
+to 2arg2* and 2arg3*.  2character* can be a fixnum, a symbol, or a string,
+i.e. anything acceptable to the 3character* function.
+2arg2* is usually a keyword; it can be in any package since this is a Maclisp
+compatibility function.  The following values are allowed for 2arg2*:
+.table 3
+.kitem :macro
+The character becomes a macro character.  2arg3* is the name of a function to be
+invoked when this character is read.  The function takes no arguments, may 3tyi* or
+3read* from 3standard-input* (i.e. may call 3tyi* or 3read* without
+specifying a stream),
+and returns an object which is taken as the result of the read.
+
+.kitem :splicing
+Like 3:macro* but the object returned by the macro function is a list which
+is 3nconc*ed into the list being read.  If the character is read not inside a list
+(at top level or after a dotted-pair dot), then it may return 3()* which means it
+is ignored, or 3(2obj*)* which means that 2obj* is read.
+
+.kitem :single
+The character becomes a self-delimiting single-character symbol.  If 2arg3* is
+a fixnum, the character is translated to that character.
+
+.item nil
+The syntax of the character is not changed, but if 2arg3* is
+a fixnum, the character is translated to that character.
+
+.item 1a symbol*
+The syntax of the character is changed to be the same as that of
+the character 2arg2* in the standard initial readtable.  2arg2*
+is converted to a character by taking the first character of its print name.
+Also if 2arg3* is
+a fixnum, the character is translated to that character.
+.end_table
+.end_defun
+
+.defun setsyntax-sharp-macro character type function &optional readtable
+This exists only for Maclisp compatibility.  3set-syntax-#-macro-char* is preferred.
+If 2function* is 3nil*, 3#2character** is turned off, otherwise it
+becomes a macro which calls 2function*.  2type* can be 3:macro*, 3:peek-macro*,
+3:splicing*, or 3:peek-splicing*.  The splicing part controls whether 2function* returns
+a single object or a list of objects.  Specifying peek causes 2character*
+to remain in the input stream when 2function* is called; this is useful if
+2character* is something like a left parenthesis.  2function* gets one
+argument, which is 3nil* or the number between the 3#* and the 2character*.
+.end_defun
+
+
+.section "Input Functions"
+
+Most of these functions take optional arguments called 2stream* and 2eof-option*.
+2stream* is the stream from which the input is to be read; if unsupplied it
+defaults to the value of 3standard-input*.  The special pseudo-streams 3nil* and
+3t* are also accepted, mainly for Maclisp compatibility.  3nil* means
+the value of 3standard-input* (i.e. the default) and 3t* means the
+value of 3terminal-io* (i.e. the interactive terminal).  This is all more-or-less
+compatible with Maclisp, except that instead of the variable 3standard-input*
+Maclisp has several variables and complicated rules.  For detailed documentation
+of streams, refer to (streams).
+
+2eof-option* controls what happens if input is from a file (or any other
+input source that has a definite end) and the end of the file is reached.  If
+no 2eof-option* argument is supplied, an error will be signalled.  If there
+is an 2eof-option*, it is the value to be returned.  Note that an
+2eof-option* of 3nil* means to return 3nil* if the end of the file is
+reached; it is 2not* equivalent to supplying no 2eof-option*.
+
+Functions such as 3read* which read an "object" rather than a single
+character will always signal an error, regardless of 2eof-option*, if
+the file ends in the middle of an object.  For example, if a file does
+not contain enough right parentheses to balance the left parentheses in
+it, 3read* will complain.  If a file ends in a symbol or a number
+immediately followed by end-of-file, 3read* will read the symbol or
+number successfully and when called again will see the end-of-file and
+obey 2eof-option*.  If a file contains ignorable text at the end, such
+as blank lines and comments, 3read* will not consider it to end in the
+middle of an object and will obey 2eof-option*.
+
+These end-of-file conventions are not completely compatible with Maclisp.
+Maclisp's deviations from this are generally considered to be bugs rather than features.
+
+The functions below that take 2stream* and 2eof-option* arguments
+can also be called with the stream and eof-option in the other order.
+This functionality is only for compatibility with old Maclisp programs,
+and should never be used in new programs.  The functions attempt to
+figure out which way they were called by seeing whether each argument is
+a plausible stream.  Unfortunately, there is an ambiguity with symbols:
+a symbol might be a stream and it might be an eof-option.  If there are
+two arguments, one being a symbol and the other being something that is
+a valid stream, or only one argument, which is a symbol, then these
+functions will interpret the symbol as an eof-option instead of as a
+stream.  To force them to interpret a symbol as a stream, give the
+symbol an 3si:io-stream-p* property whose value is 3t*.
+
+Note that all of these functions will echo their input if used on an
+interactive stream (one which supports the 3:rubout-handler*
+operation; see below.)  The functions that input more than one
+character at a time (3read*, 3readline*) allow the input to be
+edited using rubout.  3tyipeek* echoes all of the characters that
+were skipped over if 3tyi* would have echoed them; the character not
+removed from the stream is not echoed either.
+
+.defun read &optional stream eof-option
+3read* reads in the printed representation of a Lisp object
+from 2stream*, builds a corresponding Lisp object, and returns
+the object.  The details have been explained above.
+(This function can take its arguments in the other order, for Maclisp
+compatibility only; see the note above.)
+.end_defun
+
+.defvar read-preserve-delimiters
+Certain printed representations given to 3read*, notably those of symbols
+and numbers, require a delimiting character after them.  (Lists do not, because
+the matching close parenthesis serves to mark the end of the list.)
+Normally 3read* will throw away the delimiting character if it is "whitespace",
+but will preserve it (with a 3:untyi* stream operation) if the character is
+syntactically meaningful, since it may be the start of the next expression.
+
+If 3read-preserve-delimiters* is bound to 3t* around a call to 3read*,
+no delimiting characters will be thrown away, even if they are whitespace.
+This may be useful for certain reader macros or special syntaxes.
+.end_defvar
+
+.defun tyi &optional stream eof-option
+3tyi* inputs one character from 2stream* and returns it.
+The character is echoed if 2stream* is interactive,
+except that Rubout is not echoed.
+The Control, Meta, etc. shifts echo as prefix alpha, beta, etc.
+
+The 3:tyi* stream operation is preferred over the 3tyi* function for
+some purposes.  Note that it does not echo.  See (general-stream-ops).
+
+(This function can take its arguments in the other order, for Maclisp
+compatibility only; see the note above.)
+.end_defun
+
+.defun read-for-top-level &optional stream eof-option
+This is a slightly different version of 3read*.  It differs from 3read*
+only in that it ignores close parentheses seen at top level,
+and it returns the symbol 3si:eof* if the stream reaches end-of-file
+if you have not supplied an 2eof-option* (instead of signalling
+an error as 3read* would).  This version of 3read* is used in
+the system's "read-eval-print" loops.
+
+(This function can take its arguments in the other order, for uniformity
+with 3read* only; see the note above.)
+.end_defun
+
+.defun readline &optional stream eof-option options
+3readline* reads in a line of text, terminated by a return.  It
+returns the line as a character string, 2without* the return
+character.  This function is usually used to get a line of input from
+the user.  If rubout processing is happening, then 2options* is passed
+as the list of options to the rubout handler.  One option that is
+particularly useful is the 3:do-not-echo* option (see
+(:do-not-echo-option)), which you can use to make the 3return*
+character that terminates the line not be echoed.  (This function can
+take its arguments in the other order, for Maclisp compatibility only;
+see the note above.)
+.end_defun
+
+.defun readch &optional stream eof-option
+This function is provided only for Maclisp compatibility, since
+in the Zetalisp characters are always represented as fixnums.
+3readch* is just like 3tyi*, except that instead of returning
+a fixnum character, it returns a symbol whose print name is the character
+read in.  The symbol is interned in the current package.
+'cindex character object
+This is just like a Maclisp "character object".
+(This function can take its arguments in the other order, for Maclisp
+compatibility only; see the note above.)
+.end_defun
+
+.defun tyipeek &optional peek-type stream eof-option
+This function is provided mainly for Maclisp compatibility;
+the 3:tyipeek* stream operation is usually clearer (see (:tyipeek-stream-operation)).
+
+What 3tyipeek* does depends on the 2peek-type*, which
+defaults to 3nil*.  With a 2peek-type* of 3nil*,
+3tyipeek* returns the next character to be read from 
+2stream*, without actually removing it from the input stream.
+The next time input is done from 2stream* the character will still
+be there; in general, 3(= (tyipeek) (tyi))* is 3t*.  (See the
+description of the 3:tyipeek* stream operation ((:tyipeek-stream-operation))
+for details.)
+
+If 2peek-type* is a fixnum less than 1000 octal, then 3tyipeek*
+reads characters from 2stream* until it gets one equal to 2peek-type*.
+That character is not removed from the input stream.
+
+If 2peek-type* is 3t*, then 3tyipeek* skips over input characters
+until the start of the printed representation of a Lisp object is reached.
+As above, the last character (the one that starts an object)
+is not removed from the input stream.
+
+The form of 3tyipeek* supported by Maclisp in which 2peek-type*
+is a fixnum not less than 1000 octal is not supported, since the readtable
+formats of the Maclisp reader and the Zetalisp reader are quite different.
+
+Characters passed over by 3tyipeek* are echoed if 2stream* is interactive.
+.end_defun
+
+.nopara
+The following functions are related functions which do not operate on streams.
+Most of the text at the beginning of this section does not apply to them.
+
+.defun read-from-string string &optional eof-option (idx 0)
+The characters of 2string* are given successively
+to the reader, and the Lisp object built by the reader is returned.
+Macro characters and so on will all take effect.  If 2string*
+has a fill-pointer it controls how much can be read.
+
+2eof-option* is what to return if the end of the string is reached,
+as with other reading functions.  2idx* is the index in the string
+of the first character to be read.
+
+3read-from-string* returns two values; the first is the object read
+and the second is the index of the first character in the string not read.
+If the entire string was read, this will be either the length of the string
+or 1 more than the length of the string.
+
+.lisp
+.exdent 96 Example:
+(read-from-string "(a b c)") => (a b c) 1and* 7
+.end_lisp
+.end_defun
+
+.defun readlist char-list
+This function is provided mainly for Maclisp compatibility.
+2char-list* is a list of characters.  The characters may
+be represented by anything that the function 3character* accepts:
+fixnums, strings, or symbols.  The characters are given successively
+to the reader, and the Lisp object built by the reader is returned.
+Macro characters and so on will all take effect.
+
+If there are more characters in 2char-list* beyond those needed to
+define an object, the extra characters are ignored.  If there are not
+enough characters, an "eof in middle of object" error is signalled.
+.end_defun
+
+See also the 3with-input-from-string* special form ((with-input-from-string-fun)).
+
+
+.section "Output Functions"
+
+These functions all take an optional argument called 2stream*, which is
+where to send the output.  If unsupplied 2stream* defaults to the value of
+3standard-output*.  If 2stream* is 3nil*, the value of
+3standard-output* (i.e. the default) is used.  If it is 3t*, the value of
+3terminal-io* is used (i.e. the interactive terminal).  If 2stream* is a
+list of streams, then the output is performed to all of the streams (this is
+not implemented yet, and an error is signalled in this case).  This is all
+more-or-less compatible with Maclisp, except that instead of the
+variable 3standard-output* Maclisp has several variables and complicated rules.
+For detailed documentation of streams, refer to (streams).
+
+.defun prin1 x &optional stream
+3prin1* outputs the printed representation of 2x* to
+2stream*, with slashification (see (slashification)).
+2x* is returned.
+.end_defun
+
+.defun prin1-then-space x &optional stream
+3prin1-then-space* is like 3prin1* except that output
+is followed by a space.
+.end_defun
+
+.defun print x &optional stream
+3print* is just like 3prin1* except that output
+is preceeded by a carriage return and followed by a space.
+2x* is returned.
+.end_defun
+
+.defun princ x &optional stream
+3princ* is just like 3prin1* except that the
+output is not slashified.
+2x* is returned.
+.end_defun
+
+.defun tyo char &optional stream
+3tyo* outputs the character 2char* to 2stream*.
+.end_defun
+
+.defun terpri &optional stream
+3terpri* outputs a carriage return character to 3stream*.
+.end_defun
+
+	The 3format* function (see (format-fun)) is very useful for producing
+nicely formatted text.  It can do anything any of the above functions
+can do, and it makes it easy to produce good looking messages and such.
+3format* can generate a string or output to a stream.
+
+The 3grindef* function (see (grindef-fun)) is useful for formatting Lisp programs.
+
+See also the 3with-output-to-string* special form ((with-output-to-string-fun)).
+
+.defun stream-copy-until-eof from-stream to-stream &optional leader-size
+3stream-copy-until-eof* inputs characters from 2from-stream*
+and outputs them to 2to-stream*, until it reaches the end-of-file
+on the 2from-stream*.  For example, if 3x* is bound to a stream
+for a file opened for input, then 3(stream-copy-until-eof x terminal-io)*
+will print the file on the console.
+
+If 2from-stream* supports the 3:line-in* operation and 2to-stream* 
+supports the 3:line-out* operation, then 3stream-copy-until-eof* will
+use those operations instead of 3:tyi* and 3:tyo*, for greater
+efficiency.  2leader-size*  will be passed as the argument to the
+3:line-in* operation.
+.end_defun
+
+.defun beep &optional beep-type (stream 3terminal-io*)
+This function is intended to attract the user's attention by causing
+an audible beep, or flashing the screen, or something similar.  If
+the stream supports the 3:beep* operation, then this function sends
+it a 3:beep* message, passing 2type* along as an argument.  Otherwise
+it just causes an audible beep on the terminal.
+2type* is a keyword selecting among several different beeping noises.
+The allowed types have not yet been defined; 2type* is currently ignored
+and should always be 3nil*.  (The 3:beep* message is described
+on (:beep-message).)
+.end_defun
+
+.defun cursorpos &rest args
+This function exists primarily for Maclisp compatibility.  Usually it is
+preferable to send the appropriate messages (see the window system
+documentation).
+
+3cursorpos* normally operates on the 3standard-output* stream;
+however, if the last argument is a stream or 3t* (meaning 3terminal-io*)
+then 3cursorpos* uses that stream and ignores it when doing the operations
+described below.  Note that 3cursorpos* only works on streams
+which are capable of these operations, for instance windows.
+A stream is taken to be any argument which is not a number and not a symbol,
+or a symbol other than 3nil* with a name more than one character long.
+
+3(cursorpos) => (2line* . 2column*)*, the current
+cursor position.
+
+3(cursorpos 2line* 2column*)* moves the cursor to that position.
+It returns 3t* if it succeeds and 3nil* if it doesn't.
+
+3(cursorpos 2op*)* performs a special operation coded by 2op*,
+and returns 3t* if it succeeds and 3nil* if it doesn't.
+2op* is tested by string comparison, it is not a keyword symbol
+and may be in any package.
+.table 3 500 250 0 0
+.item F
+Moves one space to the right.
+.item B
+Moves one space to the left.
+.item D
+Moves one line down.
+.item U
+Moves one line up.
+.item T
+Homes up (moves to the top left corner).  Note that 3t* as the last
+argument to 3cursorpos* is interpreted as a stream, so a stream 2must*
+be specified if the 3T* operation is used.
+.item Z
+Home down (moves to the bottom left corner).
+.item A
+Advances to a fresh line.  See the 3:fresh-line* stream operation.
+.item C
+Clears the window.
+.item E
+Clear from the cursor to the end of the window.
+.item L
+Clear from the cursor to the end of the line.
+.item K
+Clear the character position at the cursor.
+.item X
+B then K.
+.end_table
+.end_defun
+
+.defun exploden x
+3exploden* returns a list of characters (as fixnums) which
+are the characters that would be typed out by 3(princ 2x*)*
+(i.e. the unslashified printed representation of 2x*).
+.lisp
+.exdent 96 Example:
+(exploden '(+ /12 3)) => (50 53 40 61 62 40 63 51)
+.end_lisp
+.end_defun
+
+.defun explodec x
+3explodec* returns a list of characters represented by symbols
+which are the characters that would be typed out by 
+3(princ 2x*)* (i.e. the unslashified printed representation of 2x*).
+.lisp
+.exdent 96 Example:
+(explodec '(+ /12 3)) => ( /( + /  /1 /2 /  /3 /) )
+.end_lisp
+(Note that there are slashified spaces in the above list.)
+.end_defun
+
+.defun explode x
+3explode* returns a list of characters represented by symbols
+which are the characters that would be typed out by 
+3(prin1 2x*)* (i.e. the slashified printed representation of 2x*).
+.lisp
+.exdent 96 Example:
+(explode '(+ /12 3)) => ( /( + /  // /1 /2 /  /3 /) )
+.end_lisp
+(Note that there are slashified spaces in the above list.)
+.end_defun
+
+.defun flatsize x
+3flatsize* returns the number of characters in the slashified printed representation
+of 2x*.
+.end_defun
+
+.defun flatc x
+3flatc* returns the number of characters in the unslashified printed representation
+of 2x*.
+.end_defun
+
+.page
+.c section on I/O streams
+.insert lmman;stream >
+
+
+
+.c sections on FORMAT and OUTPUT
+.insert lmman;fd.fio >
+
+
+.section "Rubout Handling"
+.setq rubout-handler section-page
+.setq rubout-handling section-page
+.cindex rubout handler
+
+The rubout handler is a feature of all interactive streams, that is, streams
+which connect to terminals.  Its purpose is to allow the user to edit
+minor mistakes in typein.  At the same time, it is not supposed to
+get in the way; input is to be seen by Lisp as soon as a syntactically complete
+form has been typed.  The definition of "syntactically complete form"
+depends on the function that is reading from the stream; for 3read*, it
+is a Lisp expression.
+
+Some interactive streams ("editing Lisp listeners") have a rubout handler
+which allows input to be edited with the full power of the Zwei editor.
+Other streams have a simple rubout handler which just allows rubbing out
+of single characters, and a few simple commands like clearing the screen
+and erasing the entire input typed so far.  This section describes the
+general protocol used to deal with any rubout handler, and it also discusses
+the simple rubout handler and what commands it deals with.
+
+The tricky thing about the rubout handler is the need for it to figure
+out when you are all done.  The idea of a rubout handler is that you can
+type in characters, and they are saved up in a buffer so that if you
+change your mind, you can rub them out and type different characters.
+However, at some point, the rubout handler has to decide that the time
+has come to stop putting characters into the buffer, and let the
+function, such as 3read*, start processing the characters.  This is
+called "activating".  The right time to activate depends on the function
+calling the rubout handler, and may be very complicated (if the function
+is 3read*, figuring out when one Lisp expression has been typed
+requires knowledge of all the various printed representations, what all
+currently-defined reader macros do, and so on).  Rubout handlers should
+not have to know how to parse the characters in the buffer to
+figure out what the caller is reading and when to activate; only the
+caller should have to know this.  The rubout handler interface is
+organized so that the calling function can do all the parsing, while the
+rubout handler does all the handling of rubouts, and the two are kept
+completely separate.
+
+The basic way that the rubout handler works is as follows.  When
+an input function that reads an "object", such as 3read* or 3readline*
+(but not 3tyi*), is called to read from a stream which has 3:rubout-handler*
+in its 3:which-operations* list, that function "enters" the rubout handler.
+It then goes ahead 3:tyi*'ing characters from the stream.  Because control
+is inside the rubout handler, the stream will echo these characters so the user
+can see what he is typing.  (Normally echoing is considered to be a higher-level
+function outside of the province of streams, but when the higher-level function
+tells the stream to enter the rubout handler it is also handing it the responsibility
+for echoing).  The rubout handler is also saving all these characters in a buffer,
+for reasons disclosed in the following paragraph.
+When the function, 3read* or whatever, decides it has enough
+input, it returns and control "leaves" the rubout handler.  That was the easy case.
+
+If the user types a rubout, a 3*throw* is done, out of all recursive levels
+of 3read*, reader macros, and so forth, back to the point where the rubout
+handler was entered.  Also the rubout is echoed by erasing from the screen
+the character which was rubbed out.  Now the 3read* is tried over again,
+re-reading all the characters which had been typed and not rubbed out, not echoing
+them this time.  When the saved characters have been exhausted, additional input is read
+from the user in the usual fashion.
+
+The effect of this is a complete separation of the functions of rubout
+handling and parsing, while at the same time mingling the execution of
+these two functions in such a way that input is always "activated" at
+just the right time.  It does mean that the parsing function (in the
+usual case, 3read* and all macro-character definitions) must be
+prepared to be thrown through at any time and should not have
+non-trivial side-effects, since it may be called multiple times.
+
+If an error occurs while inside the rubout handler, the error message is printed
+and then additional characters are read.  When the user types a rubout,
+it rubs out the error message as well as the character that caused the error.
+The user can then proceed to type the corrected expression;
+the input will be reparsed from the beginning in the usual fashion.
+
+The simple rubout handler also recognizes the special characters Clear-Input, Clear-Screen,
+and Delete.  (These are Clear, Form, and VT on old keyboards.)
+Clear-Screen clears the screen and echoes back the buffered input.  Clear-Input is like
+hitting enough rubouts to flush all the buffered input.  Delete is like Clear-Screen
+in that it echoes back the input, but it does not clear the screen.  [It should be
+moved to a different key, shouldn't it?]
+
+If a character with control shifts (Control, Meta, Super, or Hyper) is
+typed at a rubout handler that does not support the full set of editing
+commands, such as the simple rubout handler, it beeps and ignores the
+character.  These characters are reserved in this context for editing
+use.  The rubout handler based on the Zwei editor interprets control
+characters in the usual Zwei way: as editing commands, allowing you to
+edit your buffered input.  When not inside the rubout handler, and when
+typing at a program that uses control characters for its own purposes,
+control characters are treated the same as ordinary characters.
+
+The following explanation tells you how to write your own function
+that invokes the rubout handler.  The functions 3read* and 3readline*
+both work this way.  You should use the 3readline1* example, below,
+as a template for writing your own function.
+
+The way that the rubout handler is entered is complicated, since a
+3*catch* must be established.  The variable 3rubout-handler* is
+non-3nil* if the current process is inside the rubout handler.  This is
+used to handle recursive calls to 3read* from inside reader macros and the
+like.  If 3rubout-handler* is 3nil*, and the stream being read from
+has 3:rubout-handler* in its 3:which-operations*, functions such as
+3read* send the 3:rubout-handler* message to the stream with arguments
+of a list of options, the function, and its arguments.  The rubout handler
+initializes itself and establishes its 3*catch*, then calls back to the
+specified function with 3rubout-handler* bound to 3t*.  User-written input
+reading functions should follow this same protocol, to get the same input
+editing benefits as 3read* and 3readline*.
+
+.defvar rubout-handler
+3t* if control is inside the rubout handler in this process.
+.end_defvar
+
+As an example of how to use the rubout handler, here is a simplified
+version of the 3readline* function.  It doesn't bother about end-of-file
+handling, use of 3:line-in* for efficiency, etc.
+.lisp
+(defun readline1 (stream)
+  ;; If stream does rubout handling, get inside rubout handler
+  (cond ((and (not rubout-handler)
+	      (memq ':rubout-handler
+		    (funcall stream ':which-operations)))
+	 (funcall stream ':rubout-handler '() #'readline1 stream))
+	;; Accumulate characters until return
+	(t (do ((ch (funcall stream ':tyi)
+		    (funcall stream ':tyi))
+		(len 100)
+		(string (make-array 100 ':type 'art-string))
+		(idx 0))
+	       ((or (null ch) (= ch #\cr))
+		(adjust-array-size string idx)
+		string)
+	     (if (= idx len)
+		 (adjust-array-size string (setq len (+ len 40))))
+	     (aset ch string idx)
+	     (setq idx (1+ idx))))))
+.end_lisp
+
+The first argument to the 3:rubout-handler* message is a list of
+options.  The second argument is the function that the rubout handler
+should call to do the reading, and the rest of the arguments are passed
+to that function.  Note that in the example above, 3readline1* is
+sending the 3:rubout-handler* message passing itself as the function,
+and its own arguments as the arguments.  This is the usual thing to do.
+It isn't passing any options.  The returned values of the message are
+normally the returned values of the function (except sometimes when the
+3:full-rubout* option is used; see below).
+
+Each option in the list of options given as the first argument to the 3:rubout-handler*
+message consists of a list whose first element is a
+keyword and whose remaining elements are "arguments" to that keyword.  Note
+that this is not the same format as the arguments to a typical function
+that takes keyword arguments; rather this is an a-list of options.
+The standard options are:
+.table 3 500
+.item (:full-rubout 2val*)
+If the user rubs out all the characters he typed, then control will be returned
+from the rubout handler immediately.  Two values are returned; the first is
+3nil* and the second is 2val*.  (if the user doesn't rub out all the
+characters, then the rubout handler propagates multiple values back
+from the function that it calls, as usual.)  In the absence of this option, the rubout
+handler would simply wait for more characters to be typed in, and would ignore
+any additional rubouts.
+
+.item (:pass-through 2char1* 2char2*...)
+The characters 2char1*, 2char2*, etc. are not to be treated as special by
+the rubout handler.  You can use this to override the default processing of
+characters such as Clear-Input and to receive control characters.  Any function
+that reads input and uses non-printing characters for anything should list them
+in a 3:pass-through* option.  This way, if input is being rubout-handled by
+the editor, those non-printing characters will get their desired meaning rather
+than their meaning as editor commands.
+
+.item (:prompt 2function*)
+.item1 (:reprompt 2function*)
+When it is time for the user to be prompted, 2function* is called with
+two arguments.  The first is a stream it may print on; the second is the
+character which caused the need for prompting, e.g. 3#\clear-input*
+or 3#\clear-screen*, or 3nil* if the rubout handler was just entered.
+
+The difference between 3:prompt* and 3:reprompt* is that the latter does
+not call the prompt function when the rubout handler is first entered, but only
+when the input is redisplayed (e.g. after a screen clear).  If both options
+are specified then 3:reprompt* overrides 3:prompt* except when the rubout
+handler is first entered.
+
+.item (:initial-input 2string*)
+Pretends that the user typed 2string*.  When the rubout handler is entered,
+2string* is typed out.  The user can add more characters to it or rubout
+characters from it.
+
+.setq :do-not-echo-option page
+
+.item (:do-not-echo 2char-1* 2char-2*...)
+The characters 2char-1*, 2char-2*, etc. are not to be echoed when
+the user types them.  The comparison is done with 3=*, not
+3char-equal*.  You can use this to suppress echoing of the 3return*
+character that terminated a 3readline*, for example.
+.end_table
+
+
+.section The :read and :print Stream Operations
+
+A stream can specially handle the reading and printing of objects by
+handling the 3:read* and 3:print* stream operations.  Note that these
+operations are optional and most streams do not support them.
+
+If the 3read* function is given a stream which has 3:read* in its
+which-operations, then instead of reading in the normal way it sends the
+3:read* message to the stream with one argument, 3read*'s
+2eof-option* if it had one or a magic internal marker if it didn't.
+Whatever the stream returns is what 3read* returns.
+If the stream wants to implement the 3:read* operation by internally
+calling 3read*, it must use a different stream which does not have
+3:read* in its which-operations.
+
+If a stream has 3:print* in its which-operations, it may intercept all
+object printing operations, including those due to the 3print*, 3prin1*,
+and 3princ* functions, those due to 3format*, and those used internally,
+for instance in printing the elements of a list.  The stream receives the
+3:print* message with three arguments: the object being printed, the
+2prindepth* (for comparison against the 3prinlevel* variable), and
+2slashify-p* (3t* for 3prin1*, 3nil* for 3princ*).  If the stream
+returns 3nil*, then normal printing takes place as usual.  If the stream
+returns non-3nil*, then 3print* does nothing; the stream is assumed to have
+output an appropriate printed representation for the object.
+The two following functions are useful in this connection; however, they are
+in the 3system-internals* package and may be changed without much notice.
+
+.defun si:print-object object prindepth slashify-p stream &optional which-operations
+Outputs the printed-representation of 2object* to 2stream*, as modified
+by 2prindepth* and 2slashify-p*.  This is the internal guts of the Lisp printer.
+When a stream's 3:print* handler calls this function, it should supply
+the list 3(:string-out)* for 2which-operations*, to prevent itself from
+being called recursively.  Or it can supply 3nil* if it does not want to
+receive 3:string-out* messages.
+
+If you want to customize the behavior of all printing of Lisp objects,
+advising (see (advise)) this function is the way to do it.  See
+(customizing-the-printer).
+.end_defun
+
+.defun si:print-list list prindepth slashify-p stream which-operations
+This is the part of the Lisp printer that prints lists.  A stream's
+3:print* handler can call this function, passing along its own arguments
+and its own which-operations, to arrange for a list to be printed the
+normal way and the stream's 3:print* hook to get a chance at each of the
+list's elements.
+.end_defun
+
+.section "Accessing Files"
+.setq file-stream section-page
+.cindex file
+
+The Lisp Machine can access files on a variety of remote file servers,
+which are typically (but not necessarily) accessed through the Chaosnet,
+as well as accessing files on the Lisp Machine itself, if the machine
+has its its own file system.  This section tells you how to get a stream
+which reads or writes a given file, and what the device-dependent
+operations on that stream are.  Files are named with 2pathnames*.
+Since pathnames are quite complex they have their own chapter; see
+(pathname).
+
+.defspec with-open-file (stream pathname options...) body...
+Evaluates the 2body* forms with the variable 2stream* bound to a stream which
+reads or writes the file named by the value of 2pathname*.  The 2options*
+forms evaluate to the file-opening options to be used; see (file-opening-options).
+
+When control leaves the body, either normally or abnormally (via 3*throw*),
+the file is closed.  If a new output file is being written, and control leaves
+abnormally, the file is aborted and it is as if it were never written.  Because
+it always closes the file, even when an error exit is taken, 3with-open-file*
+is preferred over 3open*.  Opening a large number of files and forgetting to
+close them tends to break some remote file servers, ITS's for example.
+
+2pathname* is the name of the file to be opened; it can be a pathname object,
+a string, a symbol, or a Maclisp-compatible "namelist".  It can be anything
+acceptable to 3fs:parse-pathname*; the complete rules for parsing pathnames
+are explained in (pathname).
+
+If an error, such as file not found, occurs the user is asked to supply an
+alternate pathname, unless this is overridden by 2options*.
+At that point he can quit out or enter the error handler, if the error was not
+due to a misspelled pathname.
+.end_defspec
+
+.defun open pathname &rest options
+Returns a stream which is connected to the specified file.  Unlike
+Maclisp, the 3open* function only creates streams for 2files*;
+streams for other devices are created by other functions.  The 2pathname*
+and 2options* arguments are the same as in 3with-open-file*; see above.
+If an error, such as file not found, occurs, the user is asked to supply an
+alternate pathname, unless this is overridden by 2options*.
+
+When the caller is finished with the stream, it should close the file by using
+the 3:close* operation or the 3close* function.  The 3with-open-file*
+special form does this automatically, and so is usually preferred.  3open*
+should only be used when the control structure of the program necessitates opening
+and closing of a file in some way more complex than the simple way provided
+by 3with-open-file*.  Any program that uses 3open* should set up
+3unwind-protect* handlers (see (unwind-protect-fun)) to close its files
+in the event of an abnormal exit.
+.end_defun
+
+.defun close stream
+The 3close* function simply sends the 3:close* message to 2stream*.
+.end_defun
+
+.defun renamef file new-name &optional (error-p 3t*)
+2file* can be a pathname or a stream which is open to a file.  The specified
+file is renamed to 2new-name* (a pathname).  If 2error-p* is 3t*, then
+if an error occurs it will be signalled as a Lisp error.  If 2error-p* is 3nil*
+and an error occurs, the error message will be returned as a string, otherwise
+3t* will be returned.
+.end_defun
+
+.defun deletef file &optional (error-p 3t*)
+2file* can be a pathname or a stream which is open to a file.  The specified
+file is deleted.  If 2error-p* is 3t*, then
+if an error occurs it will be signalled as a Lisp error.  If 2error-p* is 3nil*
+and an error occurs, the error message will be returned as a string, otherwise
+3t* will be returned.
+.end_defun
+
+.defun probef pathname
+Returns 3nil* if there is no file named 2pathname*, otherwise returns a
+pathname which is the true name of the file, which can be different from
+2pathname* because of file links, version numbers, etc.
+.end_defun
+
+.defun fs:close-all-files
+Closes all open files.  This is useful when a program has run wild opening
+files and not closing them.  It closes all the files in 3:abort* mode
+(see (close-message)), which means that files open for output will be
+deleted.  Using this function is dangerous, because you may close files
+out from under various programs like Zmacs and Zmail; only use it if you
+have to and if you feel that you know what you're doing.
+.end_defun
+
+.setq file-opening-options page
+The 2options* used when opening a file are normally alternating keywords and
+values, like any other function that takes keyword arguments.  In addition,
+for compatibility with the Maclisp 3open* function, if only a single option
+is specified it is either a keyword or a list of keywords (not alternating with
+values).
+
+The file-opening options control things like whether the stream is for input
+from a existing file or output to a new file, whether the file is text or binary, etc.
+
+The following option keywords are standardly recognized; additional keywords
+can be implemented by particular file system hosts.
+
+[Are all these keywords supported by all file systems?]
+
+.table 3
+.item :direction
+'kindex :direction open
+The possible values are 3:input* (the default), 3:output*, and 3nil*.
+The first two should be self-explanatory.
+3nil* means that this is a "probe" opening; no data are to be transferred,
+the file is only being opened to access or change its properties.
+
+.item :characters
+'kindex :characters open
+The possible values are 3t* (the default), 3nil*, which means that the
+file is a binary file, and 3:default*, which means that the file system should
+decide whether the file contains characters or binary data and open it in the
+appropriate mode.
+
+.item :byte-size
+'kindex :byte-size open
+The possible values are 3nil* (the default), a number, which is the number
+of bits per byte, and 3:default*, which means that the file system should
+choose the byte size based on attributes of the file.  If the file is being
+opened as characters, 3nil* selects the appropriate system-dependent byte
+size for text files; it is usually not useful to use a different byte size.
+If the file is being opened as binary, 3nil* selects the default byte size
+of 16 bits.
+
+.item :error
+'kindex :error open
+The possible values are 3t* (the default) and 3nil*.  If an error occurs,
+this option controls whether the error is signalled to the user (3t*) or
+a string containing an error message is returned instead of a stream (3nil*).
+
+.item :new-file
+'kindex :new-file open
+If the value is 3t*, the file system is allowed to create a new file.
+If the value is 3nil*, an existing file must be opened.
+The default is 3t* if 3:direction* 3:output* is specified, otherwise 3nil*.
+
+.item :new-version
+'kindex :new-version open
+This controls what happens if the version field of the pathname being opened
+is 3:newest*.  If the value is 3nil*, the newest existing version of the
+file is found.  If the value is 3t* (the default when 3:direction* 3:output*
+is specified), then the next-higher-numbered version of the file is to be created.
+
+.item :old-file
+'kindex :old-file open
+This keyword controls what happens if a file with the specified name already
+exists, when 3:direction* 3:output* is specified.  Possible values are:
+.table 3
+.item nil 1or3 :replace
+The existing file is to be replaced when the new file is closed (providing
+3:abort* is not specified when closing.)  This is the default
+if 3:new-file* is specified as, or defaults to, 3t*.
+
+.item t 1or3 :rewrite
+The existing file is to be clobbered with the new data.  This is the default
+if 3:new-file* is specified as 3nil*.
+
+.item :append
+Append new data to the end of the file.
+
+.item :error
+Signal an error (file already exists).
+
+.item :rename
+The old file is to be renamed to some other name, to get it out of the way.
+
+.item :rename-and-delete
+The old file is renamed, and deleted when the new file is closed.
+
+.item :new-version
+Create a new version, instead of opening the version number specified in the pathname.
+.end_table
+
+.item :inhibit-links
+'kindex :inhibit-links open
+The default is 3nil*.  If the pathname is the name of a file-system link,
+and this option is 3t*, the link itself is opened rather than the file it
+points to.  This is only useful with probe openings, since links contain
+no data.
+
+.item :deleted
+'kindex :deleted open
+The default is 3nil*.  If 3t* is specified, and the file system has the
+concept of deleted but not expunged files, it is possible to open a deleted
+file.  Otherwise deleted files are invisible.
+
+.item :temporary
+'kindex :temporary open
+The default is 3nil*.  If 3t* is specified, the file is marked as
+temporary, if the file system has that concept.
+
+.item :preserve-dates
+'kindex :preserve-dates open
+The default is 3nil*.  If 3t* is specified, the file's reference and
+modification dates are not updated.
+
+.item :flavor
+'kindex :flavor open
+This controls the kind of file to be opened.  The default is 3nil*, a
+normal file.  Other possible values are 3:directory* and 3:link*.
+
+.item :link-to
+'kindex :link-to open
+When creating a file with 3:flavor* 3:link*, this keyword must be
+specified; its value is a pathname which becomes the target of the link.
+
+.item :estimated-size
+'kindex :estimated-size open
+The value may be 3nil* (the default), which means there is no estimated
+size, or a number of bytes.  Some file systems use this to optimize disk
+allocation.
+
+.item :physical-volume
+'kindex :physical-volume open
+The value may be 3nil* (the default), or a string which is the name
+of a physical volume on which the file is to be stored.  This is not meaningful
+for all file systems.
+
+.item :logical-volume
+'kindex :logical-volume open
+The value may be 3nil* (the default), or a string which is the name
+of a logical volume on which the file is to be stored.  This is not meaningful
+for all file systems.
+
+.item :incremental-update
+'kindex :incremental-update open
+The value may be 3nil* (the default), or 3t* to cause the file system
+to take extra pains to write data onto the disk more often.
+
+.item :super-image
+'kindex :super-image open
+The value may be 3nil* (the default), or 3t* which
+disables the special treatment of rubout in ascii files.  Normally rubout is
+an escape which causes the following character to be interpreted specially,
+allowing all characters from 0 through 376 to be stored.  This applies to
+pdp-10 file servers only.
+
+.item :raw
+'kindex :raw open
+The value may be 3nil* (the default), or 3t* which
+disables all character set translation in ascii files.  This applies to pdp-10
+file servers only.
+
+.end_table
+
+In the Maclisp compatibility mode, there is only one 2option*, and it
+is either a symbol or a list of symbols.  These symbols are recognized no
+matter what package they are in, since Maclisp does not have packages.
+The following symbols are recognized:
+.table 3
+.item in, read
+Select opening for input (the default).
+
+.item out, write, print
+Select opening for output; a new file is to be created.
+
+.item binary, fixnum
+Select binary mode, otherwise character mode is used.  Note that fixnum mode
+uses 16-bit binary words and is not compatible with Maclisp fixnum mode which
+uses 36-bit words.  On the pdp-10, fixnum files are stored with two 16-bit words
+per pdp-10 word, left-justified and in pdp-10 byte order.
+
+.item character, ascii
+The opposite of fixnum.  This is the default.
+
+.item single, block
+Ignored for compatibility with the Maclisp 3open* function.
+
+.item byte-size
+Must be followed by a number in the options list, and must be used in combination
+with 3fixnum*.  The number is the number of bits per byte, which can be from
+1 to 16.  On a pdp-10 file server these bytes will be packed into words in the
+standard way defined by the 3ILDB* instruction.  The 3:tyi* stream operation
+will (of course) return the bytes one at a time.
+
+.item probe, error, noerror, raw, super-image, deleted, temporary
+These are not available in Maclisp.  The corresponding keywords in the
+normal form of file-opening options are preferred over these.
+
+.end_table
+
+
+.subsection Loading Files
+.cindex loading
+.cindex program source file
+
+To 2load* a file is to read through the file, evaluating each form
+in it.  Programs are typically stored in files; the expressions in the file are mostly
+special forms such as 3defun* and 3defvar* which define the functions and
+variables of the program.
+
+Loading a compiled (or QFASL) file is similar, except that the file does not
+contain text but rather pre-digested expressions created by the
+compiler which can be loaded more quickly.
+
+These functions are for loading single files.  There is a system for keeping track
+of programs which consist of more than one file; for further information refer
+to (system-system).
+
+.defun load pathname &optional pkg nonexistent-ok dont-set-default
+This function loads the file named by 2pathname* into the Lisp environment.
+If the file is a QFASL file, it calls 3fasload*; otherwise
+it calls 3readfile*.  Normally the file is read into its "home" package,
+but if 2pkg* is supplied it is the package in which the file is to be read.
+2pkg* can be either a package or the name of a package as a string or a symbol.
+If 2pkg* is not specified, 3load* prints a message saying what package
+the file is being loaded into.
+If 2nonexistent-ok* is specified, 3load* just returns if the file cannot
+be opened.
+
+2pathname* can be anything acceptable to 3fs:parse-pathname*;
+pathnames and the complete rules for parsing them are explained
+in (pathname).  2pathname* is defaulted from 3fs:load-pathname-defaults*
+(see (fs:load-pathname-defaults-var)), which is the set
+of defaults used by 3load*, 3qc-file*, and similar functions.
+Normally 3load* updates the pathname defaults from 2pathname*,
+but if 2dont-set-default* is specified this is suppressed.
+
+If 2pathname* contains an FN1 but no FN2, 3load* will first look for
+the file with an FN2 of QFASL, then it will look for an FN2 of >.  For non-ITS
+file systems, this generalizes to:  if 2pathname* specifies a type and/or a version,
+3load* loads that file.  Otherwise it first looks for a type-QFASL file, then
+a type-LISP file, in both cases looking for the newest version.
+.end_defun
+
+.defun readfile pathname &optional pkg no-msg-p
+3readfile* is the version of 3load* for text files.  It reads and evaluates
+each expression in the file.  As with 3load*, 2pkg* can specify what package
+to read the file into.  Unless 2no-msg-p* is 3t*, a message is printed
+indicating what file is being read into what package.  The defaulting of
+2pathname* is the same as in 3load*.
+.end_defun
+
+.defun fasload pathname &optional pkg no-msg-p
+3fasload* is the version of 3load* for QFASL files.  It defines
+functions and performs other actions as directed by the specifications
+inserted in the file by the compiler.  As with 3load*, 2pkg* can
+specify what package to read the file into.  Unless 2no-msg-p* is
+3t*, a message is printed indicating what file is being read into what
+package.  The defaulting of 2pathname* is the same as in 3load*.
+.end_defun
+
+
+.subsection File Property Lists
+.cindex file property list
+.cindex property list, file
+.setq file-property-list section-page
+
+Any text file can contain a "property list" which specifies several attributes
+of the file.  The above loading functions, the compiler, and the editor look
+at this property list.  File property lists are especially useful in program
+source files, i.e.  a file that is intended to be loaded (or compiled and
+then loaded).
+
+If the first non-blank line in the file contains the three characters 7"-*-"*,
+some text, and 7"-*-"* again, the text is recognized as the file's property list.
+Each property consists of the property name, a colon, and the property value.
+If there is more than one property they are separated by semicolons.  An example
+of such a property list is:
+.lisp
+; -*- Mode:Lisp; Package:Cellophane; Base:10 -*-
+.end_lisp
+The semicolon makes this line look like a comment rather than a Lisp expression.
+This defines three properties: mode, package, and base.
+Another example is:
+.lisp
+.c This is part of the Lisp machine manual.  -*- Mode:Bolio -*-
+.end_lisp
+
+A property name is made up of letters, numbers, and otherwise-undefined
+punctuation characters such as hyphens.  A property value can be such a
+name, or a decimal number, or several such items separated by commas.
+Spaces may be used freely to separate tokens.  Upper and lower-case
+letters are not distinguished.  There is 2no* quoting convention for
+special characters such as colons and semicolons.  Thus file property
+lists are similar in spirit to Lisp property lists.
+
+The file property list format actually has nothing to do with Lisp; it
+is just a convention for placing some information into a file that is
+easy for a program to interpret.  The Emacs editor on the pdp-10 knows
+how to interpret these property lists (primarily in order to look at the
+3Mode* property).
+
+Within the Lisp Machine, there exists a parser for file property lists
+that creates some Lisp data structure that corresponds to the file
+property list.  When a file property list is read in and given
+to the parser (the 3fs:file-read-property-list* function, see below),
+it is converted
+into Lisp objects as follows:  Property names are interpreted as Lisp
+symbols, and interned on the keyword package.  Numbers are interpreted
+as Lisp fixnums, and are read in decimal.
+If a property value contains any commas,
+then the commas separate several expressions which are formed into a
+list.
+
+When a file is edited, loaded, or compiled, its file property list is
+read in and the properties are stored on the property list of the
+generic pathname (see (generic-pathname)) for that file, where they can
+be retrieved with the 3:get* and 3:plist* messages.  So the way you
+examine the properties of a file is usually to use messages to a
+pathname object that represents the generic pathname of a file.  Note
+that there other properties there, too.  The function
+3fs:file-read-property-list* (see below)
+reads the file property list of a file and sets up the properties on the
+generic pathname; editing, loading, or compiling a file will call
+this function, but you can call it yourself if you want to examine
+the properties of an arbitrary file.
+
+If the property list text contains no colons, it is an old Emacs format, containing only
+the value of the 3Mode* property.
+
+The following are some of the property names allowed and what they mean.
+.table
+.item Mode
+The editor major mode to be used when editing this file.  This is typically
+the name of the language in which the file is written.  The most common values
+are Lisp and Text.
+
+.item Package
+The name of the package into which the file is to be loaded.  See (package)
+for information about packages.
+
+.item Base
+The number base in which the file is written.  This affects both 3ibase*
+and 3base*, since it is confusing to have the input and output bases be different.
+The most common values are 8 and 10.
+
+.item Lowercase
+If the property value is not 3nil*, the file is written in lower-case letters
+and the editor does not translate to upper case.  (The editor does not translate
+to upper case by default unless the user selects "Electric Shift Lock" mode.)
+
+.item Fonts
+The property value is a list of font names, separated by commas.  The editor
+uses this for files which are written in more than one font.
+
+.item Backspace
+If the property value is not 3nil*, the file may contain backspaces which cause
+characters to overprint on each other.  The default is to disallow overprinting
+and display backspaces the way other special function keys are displayed.  This
+default is to prevent the confusion that can be engendered by overstruck text.
+
+.item Patch-File
+If the property value is not 3nil*, the file is a "patch file".  When it is loaded
+the system will not complain about function redefinitions.  Furthermore, the remembered
+source file names for functions defined in this file will not be changed to this file,
+but will be left as whatever file the function came from originally.  In a patch
+file, the 3defvar* special-form turns into 3defconst*; thus patch files will
+always reinitialize variables.
+
+.end_table
+
+You are free to define additional file properties of your own.  Howver,
+you should choose names that are different from all the names above, and
+from any names likely to be defined by anybody else's programs, to avoid
+accidental name conflicts.
+
+The following function is the parser for file property lists.
+
+.defun fs:file-read-property-list pathname stream
+2pathname* should be a pathname object (2not* a string or namelist,
+but an actual pathname); usually it is a generic pathname (see
+(generic-pathname)).  2stream* should be a stream that has been
+opened and is pointing to the beginning of the file whose file property
+list is to be parsed.  This function reads from the stream until it gets
+the file property list, parses it, puts corresponding properties onto
+the property list of 2pathname*, and finally sets the stream back to
+the beginning of the file by using the 3:set-pointer* file
+stream operation (see (:set-pointer-message)).
+.end_defun
+
+[Is the above function really supposed to be called FS:READ-SYNTAX-PLIST?]
+
+The fundamental way that programs in the Lisp Machine react to the
+presence of properties on a file's file property list is to examine the
+property list in the generic pathname.  However, there is another way
+that is more convenient for some applications.  File properties can
+cause special variables to be bound whenever Lisp expressions are being
+read from the file--when the file is being loaded, when it is being
+compiled, when it is being read from by the editor, and when its QFASL
+file is being loaded.  This is how the Package and Base properties work.
+You can also deal with properties this way, by using the following function:
+
+.defun fs:file-property-bindings pathname
+This function examines the property list of 2pathname*, and finds all
+those property names that have 3fs:file-property-bindings* properties.
+Each such property name specifies a set of variables to bind, and
+a set of values to which to bind them.  This function returns two values:
+a list of all the variables, and a list of all the corresponding values.
+Usually you use this function by calling it on a generic pathname
+what has had 3fs:file-read-property-list* done on it, and then
+you use the two returned values as the first two subforms to a 3progv*
+special form (see (progv-fun)).  Inside the body of the 3progv* the
+specified bindings will be in effect.
+
+Usually 2pathname* is a generic pathname.  It can also be a locative,
+in which case it is interpreted to be the property list itself.
+
+Of the standard property names, the following ones have
+3fs:file-property-bindings*, with the following effects.  3Package*
+binds the variable 3package* (see (package-var)) to the package.
+3Base* binds the variables 3base* (see (base-var)) and 3ibase*
+(see (ibase-var)) to the value.  3Patch-file* binds
+3fs:this-is-a-patch-file* to the value.
+
+Any properties whose names do not have a 3fs:file-property-bindings*
+property are ignored completely.
+
+You can also add your own property names that affect bindings.  If
+an indicator symbol has an 3fs:file-property-bindings* property, the
+value of that property is a function which is called when a file with a
+file property of that name is going to be read from.  The function is
+given three arguments: the file pathname, the property name, and the
+property value.  It must return two values: a list of variables to be
+bound and a list of values to bind them to.  The function for the
+3Base* keyword could have been defined by:
+.lisp
+(defun (:base file-property-bindings) (file ignore bse)
+  (if (not (and (typep bse 'fixnum)
+	 (> bse 1)
+	 (< bse 37.)))
+      (ferror nil "File ~A has an illegal -*- Base:~s -*-"
+	          file bse))
+  (values (list 'base 'ibase) (list bse bse)))
+.end_lisp
+.end_defun
+
+.subsection File Stream Operations
+.setq file-stream-operations-section section-page
+
+The following messages may be sent to file streams, in addition to the normal I/O
+messages which work on all streams.  Note that several of these messages are
+useful to send to a file stream which has been closed.  Some of these messages
+use pathnames; refer to (pathname) for an explanation of pathnames.
+
+.defmessage :pathname
+Returns the pathname that was opened to get this stream.  This may not be
+identical to the argument to 3open*, since missing components will have been
+filled in from defaults, and the pathname may have been replaced wholesale if
+an error occurred in the attempt to open the original pathname.
+.end_defmessage
+
+.defmessage :truename
+Returns the pathname of the file actually open on this stream.  This can be
+different from what 3:pathname* returns because of file links, logical
+devices, mapping of "newest" version to a particular version number, etc.  For
+an output stream the truename is not meaningful until after the stream has been
+closed, at least when the file server is an ITS.
+.end_defmessage
+
+.defmessage :qfaslp
+Returns 3t* if the file has a magic flag at the front that says it is a QFASL file,
+3nil* if it is an ordinary file.
+.end_defmessage
+
+.defmessage :length
+Returns the length of the file, in bytes or characters.  For text files on
+pdp-10 file servers, this is the number of pdp-10 characters, not Lisp Machine
+characters.  The numbers are different because of character-set translation;
+see (character-set-differences) for a full explanation.
+For an output stream the length is not meaningful until after the stream has
+been closed, at least when the file server is an ITS.
+.end_defmessage
+
+.defmessage :creation-date
+Returns the creation date of the file, as a number which is a universal time.
+See the chapter on the time package ((time)).
+.end_defmessage
+
+.defmessage :info
+Returns a string which contains the version number and creation date of the file.
+This can be used to tell if the file has been modified between two 3open*s.
+For an output stream the info is not meaningful until after the stream has
+been closed, at least when the file server is an ITS.
+.end_defmessage
+
+.c .defmessage :status
+.c Returns the status of the file stream.  This usually 3:open* or 3:closed*
+.c (which should be self-explanatory).  3:eof* means that the file is open but
+.c no more data are available.  There are other states associated with error handling.
+.c [Maybe this shouldn't be documented.]
+.c .end_defmessage
+
+.defmessage :set-byte-size new-byte-size
+This is only allowed on binary ("fixnum mode") file streams.  The byte size
+can be changed to any number of bits from 1 to 16.
+.end_defmessage
+
+.defmessage :delete &optional (error-p 3t*)
+Deletes the file open on this stream.  For the meaning of 2error-p*, see the 3deletef*
+function.  The file doesn't really go away until the stream is closed.
+.end_defmessage
+
+.defmessage :rename new-name &optional (error-p 3t*)
+Renames the file open on this stream.  For the meaning of 2error-p*, see the 3renamef*
+function.
+.end_defmessage
+
+.c .defmessage :command mark-p command &rest strings
+.c [Should this be documented?]
+.c .end_defmessage
+.c 
+.c .defmessage :continue
+.c [Should this be documented?]
+.c .end_defmessage
+
+.nopara
+File output streams implement the 3:finish* and 3:force-output* messages.
+
+
+.section Accessing Directories
+
+To understand the functions in this section, it helps to have read the following
+chapter, on 2pathnames*.
+
+.cindex file directory
+.cindex directory (of files)
+
+.defun fs:directory-list pathname &rest options
+Finds all the files that match 2pathname* and returns a list with one
+element for each file.  Each element is a list whose car is the pathname
+of the file and whose cdr is a list of the properties of the file; thus the element
+is a "disembodied" property list and 3get* may be used to access the file's
+properties.  The car of one element is 3nil*; the properties in this element
+are properties of the file system as a whole rather than of a specific file.
+
+The matching is done using both host-independent and host-dependent
+conventions.  Any component of 2pathname* which is 3:wild* matches
+anything; all files that match the remaining components of 2pathname*
+will be listed, regardless of their value for the wild component.  In addition,
+there is host-dependent matching.  Typically this uses the asterisk
+character (3**) as a wild-card character.  A pathname component that
+consists of just a 3** matches any value of that component (the same as
+3:wild*).  A pathname component that contains 3** and other characters
+matches any character (on ITS) or any string of characters (on TOPS-20) in
+the starred positions and requires the specified characters otherwise.
+Other hosts will follow similar but not necessarily identical conventions.
+
+The 2options* are keywords which modify the operation.  The following options
+are currently defined:
+.table 3
+.item :noerror
+'kindex :noerror fs:directory-list
+If a file-system error (such as no such directory) occurs during the operation,
+normally an error will be signalled and the user will be asked to supply a new pathname.
+However, if 3:noerror* is specified then in the event of an error
+a string describing the error will be returned as the result of 3fs:directory-list*.
+This is identical to the 3:noerror* option to 3open*.
+
+.item :deleted
+'kindex :deleted fs:directory-list
+This is for TOPS-20 file servers.  It specifies that deleted (but not yet expunged)
+files are to be included in the directory listing.
+.end_table
+
+The properties that may appear in the list of property lists returned by
+3fs:directory-list* are host-dependent to some extent.  The following
+properties are those that are defined for both ITS and TOPS-20 file servers.  This set of
+properties is likely to be extended or changed in the future.
+.table 3
+.item :length-in-bytes
+The length of the file expressed in terms of the basic units in which it is written
+(characters in the case of a text file).
+.item :byte-size
+The number of bits in one of those units.
+.item :length-in-blocks
+The length of the file in terms of the file system's unit of storage allocation.
+.item :block-size
+The number of bits in one of those units.
+.item :creation-date
+The date the file was created, as a universal time.  See (time).
+.item :reference-date
+The most recent date that the file was used, as a universal time.
+.item :author
+The name of the person who created the file, as a string.
+.item :not-backed-up
+3t* if the file exists only on disk, 3nil* if it has been backed up on magnetic tape.
+
+.c These are for ITS only
+.c .item :dont-reap
+.c .item :physical-volume
+.c .item :link-to
+.c .item :physical-volume-free-blocks
+
+.c These are TOPS-20 only
+.c .item :temporary
+.c .item :deleted
+.c .item :directory
+.c .item :dont-dump
+.c .item :offline
+.c .item :dont-delete
+.c .item :protection
+.c .item :generation-retention-count
+.c .item :account
+.end_table
+.end_defun
+
+.defun fs:change-file-properties pathname error-p &rest properties
+Some of the properties of a file may be changed; for instance, its creation
+date or its author.  Exactly which properties may be changed depends on the
+host file system; a list of the changeable property names is the 3:settable-properties*
+property of the file system as a whole, returned by 3fs:directory-list*
+as explained above.
+
+3fs:change-file-properties* changes one or more properties of a file.
+2pathname* names the file.  The 2properties* arguments are alternating
+keywords and values.  The 2error-p* argument is the same as with 3renamef*;
+if an error occurs and it is 3nil* a string describing the error will be
+returned; if it is 3t* a Lisp error will be signalled.  If no error occurs,
+3fs:change-file-properties* returns 3t*.
+.end_defun
+
+.defun fs:file-properties pathname &optional (error-p 3t*)
+Returns a disembodied property list for a single file (compare this to
+3fs:directory-list*).  The car of the returned list is the truename of
+the file and the cdr is an alternating list of indicators and values.
+The 2error-p* argument is the same as with 3renamef*;
+if an error occurs and it is 3nil* a string describing the error will be
+returned; if it is 3t* (the default) a Lisp error will be signalled.
+.end_defun
+
+.cindex filename completion
+.cindex completion (of file names)
+
+.defun fs:complete-pathname defaults string type version &rest options
+2string* is a partially-specified file name.  (Presumably it was typed in by a user
+and terminated with the altmode key or the 3END* key to request completion.)
+3fs:complete-pathname* looks in the file system on the appropriate host and
+returns a new, possibly more specific string.  Any unambiguous abbreviations
+are expanded out in a host-dependent fashion.
+
+2defaults*, 2type*, and 2version* are the arguments that will be given to
+3fs:merge-pathname-defaults* (see (fs:merge-pathname-defaults-fun)) when the
+user's input is eventually parsed and defaulted.
+
+2options* are keywords (without following values) which control how the
+completion will be performed.  The following option keywords are allowed:
+.table 3
+.kitem :deleted
+Look for files which have been deleted but not yet expunged.
+
+.item :read 1or* :in
+'kindex :read fs:complete-pathname
+'kindex :in fs:complete-pathname
+The file is going to be read.  This is the default.
+
+.item :print 1or* :write 1or* :out
+'kindex :print fs:complete-pathname
+'kindex :write fs:complete-pathname
+'kindex :out fs:complete-pathname
+The file is going to be written (i.e. a new version is going to be created).
+
+.kitem :old
+Look only for files that already exist.  This is the default.
+
+.kitem :new-ok
+Allow either a file that already exists, or a file that does not yet exist.
+An example of the use of this is the c-X c-F (Find File) command in the editor.
+
+.end_table
+
+The first value returned is always a string containing a file name; either the
+original string, or a new, more specific string.  The second value returned
+indicates the success or failure status of the completion.  It is 3nil* if an
+error occurred.  One possible error is that the file is on a file system that
+does not support completion, in which case the original string will be returned
+unchanged.  Other possible second values are 3:old*, which means that the
+string completed to the name of a file that exists, 3:new*, which means that
+the string completed to the name of a file which could be created, and 3nil*
+again, which means that there is no possible completion.
+.end_defun
+

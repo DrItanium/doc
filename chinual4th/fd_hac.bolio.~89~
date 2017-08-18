@@ -1,0 +1,591 @@
+.c This file is part of the Lisp Machine Manual.		-*-Bolio-*-
+.c This file is all fucked and should be moved to other places such as the OPERAT document
+
+.c This file documents those functions which are totally random but
+.c which are in the global package and seem generally useful.
+.c It is not clear how to organize this, so we will do that later;
+.c this file is here so that the function descriptions can live
+.c somewhere until we sort them out.
+
+.chapter "Miscellaneous Useful Functions"
+.setq misc-chapter chapter-number
+
+This chapter describes a number of functions which don't logically fit in anywhere else.
+Most of these functions are not normally used in programs, but are "commands", i.e.
+things that you type directly at Lisp.
+
+.section Poking Around in the Lisp World
+
+.defun who-calls x &optional package
+.defun1 who-uses x &optional package
+2x* must be a symbol or a list of symbols.
+3who-calls* tries
+to find all of the functions in the Lisp world
+which call 2x* as a function, use 2x* as a variable,
+or use 2x* as a constant.  (It won't find things
+that use constants which contain 2x*, such as a list one
+of whose elements is 2x*; it will only find it if 2x*
+itself is used as a constant.)  It tries to find all of the functions
+by searching all of the function cells of
+all of the symbols on 2package* and 2package*'s descendants.
+2package* defaults to the 3global* package, and so normally
+all packages are checked.
+
+If 3who-calls* encounters an interpreted function definition, it
+simply tells you if 2x* appears anywhere in the interpreted code.
+3who-calls* is smarter about compiled code, since it has been
+nicely predigested by the compiler.
+
+If 2x* is a list of symbols, 3who-calls* does them all simultaneously,
+which is faster than doing them one at a time.
+
+3who-uses* is an obsolete name for 3who-calls*.
+
+The editor has a command, Meta-X List Callers, which is similar to 3who-calls*.
+
+The symbol 3unbound-function* is treated specially by 3who-calls*.
+3(who-calls 'unbound-function)* will search the compiled
+code for any calls through a symbol which is not currently
+defined as a function.  This is useful for finding errors such
+as functions you misspelled the names of or forgot to write.
+
+3who-calls* prints one line of information for each caller it finds.  It also
+returns a list of the names of all the callers.
+.end_defun
+
+.defun what-files-call x &optional package
+Similar to 3who-calls* but returns a list of the pathnames of all the files
+which contain functions that 3who-calls* would have printed out.  This is useful
+if you need to recompile and/or edit all of those files.
+.end_defun
+
+.defun apropos string &optional package
+3(apropos 2string*)* tries to find all symbols whose print-names
+contain 2string* as a substring.  Whenever it finds a symbol, it prints
+out the symbol's name; if the symbol is defined as a function and/or bound
+to a value, it tells you so, and prints the names of the arguments (if any)
+to the function.  It finds the symbols on 2package* and 2package*'s
+decendants.  2package* defaults to the 3global* package, so normally
+all packages are searched.  3apropos* returns a list of all the symbols
+it finds.
+.end_defun
+
+.defun where-is pname &optional package
+Prints the names of all packages which contain a symbol with the print-name
+2pname*.  If 2pname* is a string it gets upper-cased.  The package 2package* and
+all its sub-packages are searched; 2package* defaults to the 3global* package,
+which causes all packages to be searched.
+3where-is* returns a list of all the symbols it finds.
+.end_defun
+
+.defun describe x
+3describe* tries to tell you all of the interesting information
+about any object 2x* (except for array contents).  3describe* knows
+about arrays, symbols, flonums, packages, stack groups, closures, and FEFs, and prints
+out the attributes of each in human-readable form.  Sometimes
+it will describe something which it finds inside something else;
+such recursive descriptions are indented appropriately.  For instance,
+3describe* of a symbol will tell you about the symbol's value,
+its definition, and each of its properties.  3describe* of a flonum
+(regular or small) will show you its internal representation in a way
+which is useful for tracking down roundoff errors and the like.
+
+If 2x* is a named-structure, 3describe* handles it specially.
+To understand this, you should read the section on named structures
+(see (named-structure)).
+First it gets the named-structure symbol, and sees whether its function knows
+about the 3:describe* operation.  If the operation is known, it applies
+the function to two arguments: the symbol 3:describe*, and the named-structure
+itself.  Otherwise, it looks on the named-structure symbol for information
+which might have been left by 3defstruct*; this information would
+tell it what the symbolic names for the entries in the structure are,
+and 3describe* knows how to use the names to print out what each field's
+name and contents is.
+
+3describe* always returns its argument, in case you want to do something else to it.
+.end_defun
+
+.defun inspect x
+A window-oriented version of 3describe*.  See the window system documentation
+for details, or try it.
+.end_defun
+
+.defun disassemble function
+2function* should be a FEF, or a symbol which is defined as a FEF.
+This prints out a human-readable version of the macro-instructions
+in 2function*.  The macro-code instruction set is explained in (macro-code).
+.end_defun
+
+.nopara
+The 3grindef* function (see (grindef-fun)) may be used to display the definition
+of a non-compiled function.
+
+.defun room &rest areas
+2room* tells you the amount of physical memory on the machine, the
+amount of available virtual memory not yet filled with data (that is,
+the portion of the available virtual memory that has not yet been allocated
+to any region of any area), and the amount
+of "wired" physical memory (i.e. memory not available for paging). 
+Then it tells you how much room is left in some areas.  For each
+area it tells you about, it prints out the name of the area, the number
+of regions which currently make up the area, the current size of the area in kilowords,
+and the amount of the area which has been allocated, also in kilowords.
+If the area cannot grow, the percentage which is free is displayed.
+
+3(room)* tells you about those areas which are in the list which is the value
+of the variable 3room*.  These are the most interesting ones.
+
+3(room 2area1* 2area2*...)* tells you about those areas, which can
+be either the names or the numbers.
+
+3(room t)* tells you about all the areas.
+
+3(room nil)* does not tell you about any areas; it only prints the header.
+This is useful if you just want to know how much memory is on the machine
+or how much virtual memory is available.
+.end_defun
+
+.defvar room
+The value of 3room* is a list of area names and/or area numbers,
+denoting the areas which the function 3room* will describe if given
+no arguments.  Its initial value is:
+.lisp
+(working-storage-area macro-compiled-program)
+.end_lisp
+.end_defvar
+
+.defun set-memory-size n-words
+3set-memory-size* tells the virtual memory system to use only
+2n-words* words of main memory for paging.  Of course, 2n-words* may
+not exceed the amount of main memory on the machine.
+.end_defun
+
+
+.section Utility Programs
+
+.defun ed &optional x
+3ed* is the main function for getting into the editor, Zwei.  Zwei
+is not yet documented in this manual, but the commands are very similar to Emacs.
+
+3(ed)* or 3(ed nil)* simply enters the editor, leaving you in the same
+buffer as the last time you were in the editor.
+
+3(ed t)* puts you in a fresh buffer with a generated name (like BUFFER-4).
+
+3(ed 2pathname*)* edits that file.  2pathname* may be an actual pathname
+or a string.
+
+3(ed 'foo)* tries hard to edit the definition of the 3foo* function.
+It will find a buffer or file containing the source code for 3foo*
+and position the cursor at the beginning of the code.  In general, 3foo*
+can be any function-spec (see (function-spec)).
+
+3(ed 'zwei:reload)* reinitializes the editor.  It will forget about all
+existing buffers, so use this only as a last resort.
+.end_defun
+
+.defun zwei:save-all-files
+This function is useful in emergencies in which you have modified material
+in Zmacs buffers that needs to be saved, but the editor is partially broken.
+This function does what the editor's 3Save All Files* command does, but
+it stays away from redisplay and other advanced facilities so that
+it might work if other things are broken.
+.end_defun
+
+.defun dired &optional pathname
+Puts up a window and edits the directory named by 2pathname*, which defaults to
+the last file opened.  While editing a directory you may view, edit, compare, hardcopy,
+and delete the files it contains.  While in the directory editor type the 3HELP*
+key for further information.
+.end_defun
+
+.defun mail &optional who what
+Sends mail by putting up a window in which you may compose the mail.  2who* is
+a symbol or a string which is who to send it to.  2what* is a string which is the initial
+contents of the mail.  If these are unspecified they can be typed in during composition
+of the mail.  Type the 3END* key to send the mail and return from the 3mail* function.
+.end_defun
+
+.defun bug &optional who what
+Reports a bug.  2who* is the name of the faulty program (a symbol or a
+string).  It defaults to 3lispm* (the Lisp Machine system itself).
+2what* is a string which is the initial contents of the mail.
+3bug* is like 3mail* but includes information about the system version
+and what machine you are on in the text of the message.  This information is
+important to the maintainers of the faulty program; it aids them in reproducing
+the bug and in determining whether it is one which is already being worked on
+or has already been fixed.
+.end_defun
+
+.defun qsend who &optional what
+Sends a message to another user.  3qsend* is different from 3mail* because it
+sends the message immediately; it will appear within seconds on the other user's
+screen, rather than being saved in her mail file.
+
+2who* is a string of the form "2user7@*host*"; 2host* is the name of the
+Lisp Machine or timesharing system the user is currently logged-in to.  2what*
+is a string which is the message.  If 2what* is not specified, you will be prompted
+to type in a message.  Unlike 3mail* and 3bug*, 3qsend* does not put
+up a window to allow you to edit the message; it just sends it.
+
+[3qsend* currently does not evaluate its arguments, and is implemented as a macro,
+but this should probably be changed.]
+.end_defun
+
+.defun print-sends
+Reprints any messages that have been received.  This is useful if you want to see
+a message again.
+.end_defun
+
+.defun print-notifications
+Reprints any notifications that have been received.  The difference between notifications
+and sends is that sends come from other users, while notifications are asynchronous
+messages from the Lisp Machine system itself.
+.end_defun
+
+.defun si:print-disk-error-log
+Prints information about the half dozen most recent disk errors (since the last cold boot).
+.end_defun
+
+.defun peek &optional character
+3peek* is similar to the ITS program of the same name.
+It displays various information about the system, periodically
+updating it.  Like ITS PEEK, it has several modes, which are entered
+by typing a single key which is the name of the mode.  The initial
+mode is selected by the argument, 2character*.  If no argument
+is given, 3peek* starts out by explaining what its modes are.
+.end_defun
+
+.defun hostat &rest hosts
+Asks each of the 2hosts* for its status, and prints the results.  If no hosts are
+specified, all hosts on the Chaosnet are asked.  Hosts can be specified either
+by name or by number.
+
+For each host, a line is output which either says that the host is not
+responding or gives metering information for the host's network
+attachments.  If a host is not responding, that usually means that it is down
+or there is no such host at that address.  A Lisp Machine can fail to respond
+if it is looping inside 3without-interrupts* or paging extremely heavily,
+such that it is simply unable to respond within a reasonable amount of time.
+.end_defun
+
+.defun supdup &optional host
+2host* may be a string or symbol, which will be taken as a host name,
+or a number, which will be taken as a host number.  If no 2host* is
+given, the machine you are logged-in to is assumed.
+This function opens a connection to the host
+over the Chaosnet using the Supdup protocol, and allows the Lisp
+Machine to be used as a terminal for any ITS or TOPS-20 system.
+
+To give commands to 3supdup*, type the 3NETWORK* key followed by one character.
+Type 3NETWORK* followed by 3HELP* for documentation.
+.end_defun
+
+.defun telnet &optional host simulate-imlac
+3telnet* is similar to 3supdup* but uses the Arpanet-standard Telnet
+protocol, simulating a printing terminal rather than a display terminal.
+.end_defun
+
+.section "The Lisp Top Level"
+
+	These functions constitute the Lisp top level,
+and its associated functions.
+
+.cindex lisp top level
+.cindex read-eval-print loop
+
+.defun si:lisp-top-level
+This is the first function called in the initial Lisp environment.
+It calls 3lisp-reinitialize*, clears the screen, and calls 3si:lisp-top-level1*.
+.end_defun
+
+.defun lisp-reinitialize
+This function does a wide variety of things, such as resetting the values
+of various global constants and initializing the error system.
+.end_defun
+
+.defun si:lisp-top-level1
+This is the actual top level loop.  It reads
+a form from 3standard-input*,
+evaluates it, prints the result (with slashification) to
+3standard-output*, and repeats indefinitely.  If several values are returned by the form
+all of them will be printed.  Also the values of 3**, 3+*, 3-*, 3//*,
+3++*, 3***, 3+++*, and 3****
+are maintained (see below).
+.end_defun
+
+.cindex break loop
+.cindex breakpoint
+
+.defspec break [tag] [conditional-form]
+3break* is used to enter a breakpoint loop, which is similar
+to a Lisp top level loop.  3(break 2tag*)* will always
+enter the loop; 3(break 2tag* 2conditional-form*)*
+will evaluate 2conditional-form* and only enter the break loop
+if it returns non-3nil*.  If the break loop is entered, 3break*
+prints out
+.lisp
+;Breakpoint 2tag*; Resume to continue, Abort to quit.
+.end_lisp
+and then enters a loop reading, evaluating, and printing forms.  A
+difference between a break loop and the top level loop is that when
+reading a form, 3break* checks for the following special cases: If the
+Abort key is typed, control is returned to the previous break or
+error-handler, or to top-level if there is none.  If the Resume key is
+typed, 3break* returns 3nil*.  If the symbol 3p* is typed,
+3break* returns 3nil*.  If the list 3(return 2form*)* is typed,
+3break* evaluates 2form* and returns the result.
+
+Inside the 3break* loop, the streams 3standard-output*,
+3standard-input*, and 3query-io* are bound to be synonymous
+to 3terminal-io*; 3terminal-io* itself is not rebound.  Several
+other internal system variables are bound, and you can add your
+own symbols to be bound by pushing elements onto the
+value of the variable 3sys:*break-bindings**
+(see (sys:*break-bindings*-var)).
+
+If 2tag* is omitted, it defaults to 3nil*.
+.end_defun
+
+.defvar prin1
+The value of this variable is normally 3nil*.  If it is non-3nil*,
+then the read-eval-print loop will use its value instead of the
+definition of 3prin1* to print the values returned by functions.
+This hook lets you control how things are printed by all read-eval-print
+loops--the Lisp top level, the 3break* function, and any utility
+programs that include a read-eval-print loop.  It does not affect output
+from programs that call the 3prin1* function or any of its relatives such
+as 3print* and 3format*; if you want to do that, read about
+customizing the printer, on (customizing-the-printer).  If you
+set 3prin1* to a new function, remember that the read-eval-print loop
+expects the function to print the value but not to output a 3return*
+character or any other delimiters.
+.end_defvar
+
+.defvar -
+While a form is being evaluated by a read-eval-print loop,
+3-* is bound to the form itself.
+.end_defvar
+
+.defvar +
+While a form is being evaluated by a read-eval-print loop,
+3+* is bound to the previous form that was read by the loop.
+.end_defvar
+
+.defvar *
+While a form is being evaluated by a read-eval-print loop,
+3** is bound to the result printed the last time through
+the loop.  If there were several values printed (because
+of a multiple-value return), 3** is bound to the first
+value.
+.end_defvar
+
+.defvar //
+While a form is being evaluated by a read-eval-print loop,
+3//* is bound to a list of the results printed the last
+time through the loop.
+.end_defvar
+
+.defvar ++
+3++* holds the previous value of 3+*, that is, the form evaluated
+two interactions ago.
+.end_defvar
+
+.defvar +++
+3+++* holds the previous value of 3++*.
+.end_defvar
+
+.defvar **
+3*** holds the previous value of 3**, that is, the result of the
+form evaluated two interactions ago.
+.end_defvar
+
+.defvar ***
+3**** holds the previous value of 3***.
+.end_defvar
+
+.defvar sys:*break-bindings*
+When 3break* is called, it binds some special variables under control of
+the list which is the value of 3sys:*break-bindings**.  Each element of the
+list is a list of two elements: a variable and a form which is evaluated to
+produce the value to bind it to.  The bindings happen sequentially.  Users may
+3push* things on this list (adding to the front of it), but should not replace
+the list wholesale since several of the variable bindings on this list are
+essential to the operation of 3break*.
+.end_defvar
+
+.defvar lisp-crash-list
+The value of 3lisp-crash-list* is a list of forms.
+3lisp-reinitialize* sequentially evaluates these
+forms, and then sets 3lisp-crash-list* to 3nil*.
+
+In most cases, the 2initialization* facility should be used rather than
+3lisp-crash-list*.  Refer to (initialization).
+.end_defvar
+
+
+.section The Garbage Collector
+
+.defun gc-on
+Turns garbage collection on.  It is off by default, currently.
+.end_defun
+
+.defun gc-off
+Turns garbage collection off.
+.end_defun
+
+.defun number-gc-on &optional (on-p 3t*)
+Turns the special bignum/flonum garbage collector on, or off if 2on-p* is 3nil*.
+This garbage collector is on by default, since it has negligible overhead and
+significantly improves the performance of computational programs.
+.end_defun
+
+
+.section "Logging In"
+.setq lispm-init-file section-page
+
+	Logging in tells the Lisp Machine who you are, so that
+other users can see who is logged in, you can receive messages,
+and your INIT file can be run.  An INIT file is a Lisp program
+which gets loaded when you log in; it can be used to set up
+a personalized environment.
+
+	When you log out, it should be possible to undo any
+personalizations you have made so that they do not affect the next user
+of the machine.  Therefore, anything done by an INIT file should be
+undoable.  In order to do this, for every form in the INIT file, a Lisp
+form to undo its effects should be added to the list which is the value
+of 3logout-list*.  The functions 3login-setq* and 3login-eval*
+help make this easy; see below.
+
+.defvar user-id
+The value of 3user-id* is either the name of the logged in user, as a string,
+or else an empty string if there is no user logged in.
+It appears in the who-line.
+.end_defvar
+
+.defvar logout-list
+The value of 3logout-list* is a list of forms which are evaluated
+when a user logs out.
+.end_defvar
+
+.defun login name &optional host load-init-file
+Sets your name (the variable 3user-id*) to 2name* and logs in a file
+server on 2host*.  2host* also becomes your
+default file host.  If 2host* requires passwords for logging in you
+will be asked for a password.  When logging in to a TOPS-20 host, typing
+an asterisk before your password will enable any special capabilities
+you may be authorized to use.  The default value of 2host* depends
+on which Lisp Machine you use using.  It is found from the value of
+3chaos:machine-location-alist*, which is a list that has one element
+for every known individual Lisp Machine.  3login* also runs the
+3:login* initialization list (see (login-init-list)).
+
+Unless 2load-init-file* is specified as 3nil*, 3login* will load
+your init file if it exists.  On ITS, your init file is 2name* LISPM
+on your home directory.  On TOPS-20 your init file is LISPM.INIT on your
+directory.
+
+If anyone is logged into the machine already, 3login* logs him out
+before logging in 2name*.  (See 3logout*.)  Init files should be
+written using the 3login-setq* and 3login-eval* functions below so
+that 3logout* can undo them.  Usually, however, you cold-boot the
+machine before logging in, to remove any traces of the previous user.
+3login* returns 3t*.
+.end_defun
+
+.defun logout
+First, 3logout* evaluates the forms on 3logout-list*.
+Then it sets 3user-id* to an empty string and 3logout-list*
+to 3nil*.  Then it runs the 3:logout* initialization list
+(see (login-init-list)), and returns 3t*.
+.end_defun
+
+.defspec login-setq {variable value}...
+3login-setq* is like 3setq* except that it puts
+a 3setq* form on 3logout-list* to set the variables
+to their previous values.
+.end_defun
+
+.defun login-eval x
+3login-eval* is used for functions which are "meant to be called"
+from INIT files, such as 3zwei:set-comtab-return-undo*, which conveniently
+return a form to undo what they did.  3login-eval* adds
+the result of the form 2x* to the 3logout-list*.
+.end_defun
+
+
+.section Dribble Files
+
+.defun dribble-start filename &optional editor-p
+3dribble-start* opens 2filename* as a "dribble file" (also
+known as a "wallpaper file").  It rebinds 3standard-input*
+and 3standard-output* so that all of the terminal interaction
+is directed to the file as well as the terminal.  If 2editor-p*
+is non-3nil*, then instead of opening 2filename* on the file
+computer, 3dribble-start* dribbles into a Zmacs buffer whose
+name is 2filename*, creating it if it doesn't exist.
+.end_defun
+
+.defun dribble-end
+This closes the file opened by 3dribble-start* and resets
+the I/O streams.
+.end_defun
+
+.section Status and SStatus
+
+	The 3status* and 3sstatus* special forms exist for compatibility
+with Maclisp.  Programs that wish to run in both Maclisp and Zetalisp
+can use 3status* to determine which of these they are running in.  Also,
+3(sstatus feature ...)* can be used as it is in Maclisp.
+
+.defspec status
+3(status features)* returns a list of symbols indicating features
+of the Lisp environment.  The complete list of all symbols which may
+appear on this list, and their meanings, is given in the Maclisp
+manual.  The default list for the Lisp Machine is:
+.lisp
+(loop defstruct 2site* sort fasload string
+ newio roman trace grindef grind lispm)
+.end_lisp
+The value of this list will be kept up to date as features are added
+or removed from the Lisp Machine system.  Most important is the symbol
+3lispm*, which is the last element of the list; this indicates
+that the program is executing on the Lisp Machine.  2site* is
+a symbol indicating where the machine is located, such as 3:mit*
+or 3:xerox*.  The order of this list should not be depended on,
+and may not be the same as shown above.
+
+This features list is used by the 3#+* read-time conditionalization
+syntax.  See (sharp-plus).
+
+3(status feature 2symbol*)* returns 3t* if 2symbol*
+is on the 3(status features)* list, otherwise 3nil*.
+
+3(status nofeature 2symbol*)* returns 3t* if 2symbol*
+is not on the 3(status features)* list, otherwise 3nil*.
+
+3(status userid)* returns the name of the logged-in user.
+
+3(status tabsize)* returns the number of spaces per tab stop (always
+8).  Note that this can actually be changed on a per-window basis, however
+the 3status* function always returns the default value of 8.
+
+3(status opsys)* returns the name of the operating system, always
+the symbol 3:lispm*.
+
+3(status site)* returns the name of the local machine, e.g. 3"MIT-LISPM-6"*.
+Note that this is not the 2site* as described above, under 3(status features)*.
+
+3(status status)* returns a list of all 3status* operations.
+
+3(status sstatus)* returns a list of all 3sstatus* operations.
+.end_defspec
+
+.defspec sstatus
+3(sstatus feature 2symbol*)* adds 2symbol* to the list
+of features.
+
+3(sstatus nofeature 2symbol*)* removes 2symbol* from
+the list of features.
+.end_defspec

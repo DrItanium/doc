@@ -1,0 +1,1411 @@
+.c This file is part of the Lisp Machine Manual.  -*-Bolio-*-
+.c Function Description: Functions
+
+.chapter Functions
+.cindex function
+.cindex definition
+.setq function-functions section-page
+.setq function-chapter chapter-number
+
+Functions are the basic building blocks of Lisp programs.  This chapter
+describes the functions in Zetalisp that are used to manipulate
+functions.  It also explains how to manipulate special forms and macros.
+
+This chapter contains internal details intended for those writing programs
+to manipulate programs as well as material suitable for the beginner.
+Feel free to skip sections that look complicated or uninteresting
+when reading this for the first time.
+
+.section What Is a Function?
+
+There are many different kinds of functions in Zetalisp.  Here
+are the printed representations of examples of some of them:
+.lisp
+foo
+(lambda (x) (car (last x)))
+(named-lambda foo (x) (car (last (x))))
+(subst (x) (car (last x)))
+#<dtp-fef-pointer append 1424771>
+#<dtp-u-entry last 270>
+#<dtp-closure 1477464>
+.end_lisp
+We will examine these and other types of functions in detail later in this chapter.
+There is one thing they all have in common:  a function is a Lisp object
+that can be applied to arguments.  All of the above objects may be
+applied to some arguments and will return a value.  Functions are Lisp
+objects and so can be manipulated in all the usual ways; you can pass
+them as arguments, return them as values, and make other Lisp objects
+refer to them.
+
+.section Function Specs
+.setq function-spec section-page
+.cindex function spec
+
+The name of a function does not have to be a symbol.  Various kinds of
+lists describe other places where a function can be found.  A Lisp
+object which describes a place to find a function is called a 2function spec*.
+("Spec" is short for "specification".)
+Here are the printed representations of some typical function specs:
+.lisp
+foo
+(:property foo bar)
+(:method tv:graphics-mixin :draw-line)
+(:internal foo 1)
+(:within foo bar)
+(:location #<dtp-locative 7435216>)
+.end_lisp
+
+Function specs have two purposes: they specify a place to 2remember* a
+function, and they serve to 2name* functions.  The most common kind of
+function spec is a symbol, which specifies that the function cell
+of the symbol is the place to remember the function.  We will see all the
+kinds of function spec, and what they mean, shortly.  Function specs are
+not the same thing as functions.  You cannot, in general, apply a
+function spec to arguments.  The time to use a function spec is when
+you want to 2do* something to the function, such as define it,
+look at its definition, or compile it.
+
+Some kinds of functions remember their own names, and some don't.  The
+"name" remembered by a function can be any kind of function spec,
+although it is usually a symbol.  In the examples of functions in the
+previous section, the one starting with the symbol 3named-lambda*, the
+one whose printed representation included 3dtp-fef-pointer*, and the
+3dtp-u-entry* remembered names (the function specs 3foo*,
+3append*, and 3last* respectively).  The others didn't remember
+their names.
+
+To 2define a function spec* means to make that function spec remember
+a given function.  This is done with the 3fdefine* function; you give
+3fdefine* a function spec and a function, and 3fdefine* remembers
+the function in the place specified by the function spec.  The function
+associated with a function spec is called the 2definition* of the
+function spec.  A single function can be
+the definition of more than one function spec at the same time, or of no
+function specs.
+
+To 2define a function* means to create a new function, and define a
+given function spec as that new function.  This is what the 3defun*
+special form does.  Several other special forms, such as 3defmethod*
+((defmethod-fun)) and 3defselect* ((defselect-fun)) do this too.
+
+These special forms that define functions usually take a function spec,
+create a function whose name is that function spec, and then define that
+function spec to be the newly-created function.  Most function
+definitions are done this way, and so usually if you go to a function
+spec and see what function is there, the function's name will be the
+same as the function spec.  However, if you define a function named
+3foo* with 3defun*, and then define the symbol 3bar* to be this
+same function, the name of the function is unaffected; both 3foo* and
+3bar* are defined to be the same function, and the name of that
+function is 3foo*, not 3bar*.
+
+'cindex basic definition
+'cindex encapsulation
+A function spec's definition in general consists of a 2basic
+definition* surrounded by 2encapsulations*.  Both the basic
+definition and the encapsulations are functions, but of recognizably
+different kinds.  What 3defun* creates is a basic definition, and
+usually that is all there is.  Encapsulations are made by
+function-altering functions such as 3trace* and 3advise*.  When the
+function is called, the entire definition, which includes the tracing
+and advice, is used.  If the function is "redefined" with 3defun*,
+only the basic definition is changed; the encapsulations are left in
+place.  See the section on encapsulations, (encapsulate).
+
+A function spec is a Lisp object of one of the following types:
+.table 3 0 500
+.item 2a symbol*
+The function is remembered in the function cell of the symbol. See
+(fsymeval-fun) for an explanation of function cells and the primitive
+functions to manipulate them. 
+
+.item (:property 2symbol* 2property*)
+The function is remembered on the property list of the symbol; doing
+3(get 2symbol* 2property*)* would return the function.  Storing
+functions on property lists is a frequently-used technique for
+dispatching (that is, deciding at run-time which function to call, on
+the basis of input data).
+
+.setq method-function-spec section-page
+.item (:method 2flavor-name* 2message*)
+.item1 (:method 2flavor-name* 2method-type* 2message*)
+The function is remembered inside internal data structures of the flavor
+system.  See the chapter on flavors ((flavor)) for details. 
+
+.item (:handler 2flavor-name* 2message*)
+This is a name for the function actually called when a 2message* message
+is sent to an instance of the flavor 2flavor-name*.  The difference
+between 3:handler* and 3:method* is that the handler may be a method
+inherited from some other flavor or a 2combined method* automatically
+written by the flavor system.  Methods are what you define in source files;
+handlers are not.  Note that redefining or encapsulating a handler affects
+only the named flavor, not any other flavors built out of it.  Thus
+3:handler* function specs are often used with 3trace3
+(see (trace-fun)) and 3advise* (see (advise-fun)).
+
+.item (:location 2pointer*)
+The function is stored in the cdr of 2pointer*, which may be a locative
+or a list.  This is for pointing at an arbitrary place
+which there is no other way to describe.  This form of function spec
+isn't useful in 3defun* (and related special forms) because the
+reader has no printed representation for locative pointers and always
+creates new lists; these function specs are intended for programs
+that manipulate functions (see (programs-that-manipulate-functions)).
+
+.item (:within 2within-function* 2function-to-affect*)
+This refers to the meaning of the symbol 2function-to-affect*, but
+only where it occurs in the text of the definition of
+2within-function*.  If you define this function spec as anything
+but the symbol 2function-to-affect* itself, then that symbol is
+replaced throughout the definition of 2within-function* by a new
+symbol which is then defined as you specify.  See the section on
+function encapsulation ((encapsulate)) for more
+information.
+
+.item (:internal 2function-spec* 2number*)
+Some Lisp functions contain internal functions, created by
+3(function (lambda ...))* forms.  These internal functions need names when compiled,
+but they do not have symbols as names; instead they are named by
+3:internal* function-specs.  2function-spec* is the containing function.
+2number* is a sequence number; the first internal function the compiler comes
+across in a given function will be numbered 0, the next 1, etc.  Internal
+functions are remembered inside the FEF of their containing function.
+.end_table
+
+Here is an example of the use of a function spec which is not a symbol:
+.lisp
+(defun (:property foo bar-maker) (thing &optional kind)
+  (set-the 'bar thing (make-bar 'foo thing kind)))
+.end_lisp
+This puts a function on 3foo*'s 3bar-maker* property.  Now you can
+say
+.lisp
+(funcall (get 'foo 'bar-maker) 'baz)
+.end_lisp
+
+Unlike the other kinds of function spec, a symbol 2can* be used as a
+function.  If you apply a symbol to arguments, the symbol's function
+definition is used instead.  If the definition of the first symbol is
+another symbol, the definition of the second symbol is used, and so on,
+any number of times.  But this is an exception; in general, you can't
+apply function specs to arguments.
+
+A keyword symbol which identifies function specs (may appear in the car of
+a list which is a function spec) is identified by a
+3sys:function-spec-handler* property whose value is a function which
+implements the various manipulations on function specs of that type.  The
+interface to this function is internal and not documented in this manual.
+
+For compatibility with Maclisp, the function-defining special forms
+3defun*, 3macro*, and 3defselect* (and other defining
+forms built out of them, such as 3defunp* and 3defmacro*)
+will also accept a list
+.lisp
+(2symbol* 2property*)
+.end_lisp
+as a function name.  This is translated into
+.lisp
+(:property 2symbol* 2property*)
+.end_lisp
+2symbol* must not be one of the keyword symbols which
+identifies a function spec, since that would be ambiguous.
+
+.section Simple Function Definitions
+
+.defspec defun
+3defun* is the usual way of defining a function which is part of a
+program. A 3defun* form looks like:
+
+.lisp
+(defun 2name* 2lambda-list*
+  2body*...)
+.end_lisp
+2name* is the function spec you wish to define as a function.
+The 2lambda-list* is a list of the names to give to the arguments of
+the function.  Actually, it is a little more general than that; it can
+contain 2lambda-list keywords* such as 3&optional* and 3&rest*.
+(These keywords are explained in (lambda-list) and other
+keywords are explained in (lambda-list-keywords).)
+See (additional-defun-explanation) for some additional syntactic features of 3defun*.
+
+3defun* creates a list which looks like
+.lisp
+(named-lambda 2name* 2lambda-list body*...)
+.end_lisp
+and puts it in the function cell of 2name*.
+2name* is now defined as a function and can be called by other forms.
+
+.lisp
+.exdent 96 Examples:
+(defun addone (x)
+  (1+ x))
+
+(defun foo (a &optional (b 5) c &rest e &aux j)
+  (setq j (+ (addone a) b))
+  (cond ((not (null c))
+	 (cons j e))
+	(t j))) 
+.end_lisp
+
+3addone* is a function which expects a number as an argument, and
+returns a number one larger.  3foo* is a complicated function which
+takes one required argument, two optional arguments, and any number of
+additional arguments which are given to the function as a list named 
+3e*.
+
+A declaration (a list starting with 3declare*) can appear as the first
+element of the body.  It is equivalent to a 3local-declare* (see
+(local-declare-fun)) surrounding the entire 3defun* form.  For
+example,
+.lisp
+(defun foo (x)
+  (declare (special x))
+  (bar))             ;bar1 uses 3x* free.*
+.end_lisp
+is equivalent to and preferable to
+.lisp
+(local-declare ((special x))
+  (defun foo (x)
+    (bar)))
+.end_lisp
+(It is preferable because the editor expects the open parenthesis of a
+top-level function definition to be the first character on a line, which
+isn't possible in the second form without incorrect indentation.)
+
+A documentation string can also appear as the first element of the body
+(following the declaration, if there is one).  (It shouldn't be the only
+thing in the body; otherwise it is the value returned by the function
+and so is not interpreted as documentation.  A string as an element of a
+body other than the last element is only evaluated for side-effect, and
+since evaluation of strings has no side effects, they aren't useful in
+this position to do any computation, so they are interpreted as
+documentation.)  This documentation string becomes part of the
+function's debugging info and can be obtained with the function
+3documentation* (see (documentation-fun)).  The first line of the
+string should be a complete sentence which makes sense read by itself,
+since there are two editor commands to get at the documentation, one of
+which is "brief" and prints only the first line.  Example:
+.lisp
+(defun my-append (&rest lists)
+   "Like append but copies all the lists.
+This is like the Lisp function append, except that
+append copies all lists except the last, whereas
+this function copies all of its arguments
+including the last one."
+   ...)
+.end_lisp
+.end_defspec
+
+.defmac defunp
+Usually when a function uses 3prog*, the 3prog* form is
+the entire body of the function; the definition of such a function
+looks like 3(defun 2name* 2arglist* (prog 2varlist* ...))*.
+Although the use of 3prog* is generally discouraged, 3prog* fans
+may want to use this special form.
+For convenience, the 3defunp* macro can be used to produce such definitions.
+A 3defunp* form such as
+.lisp
+(defunp fctn (args)
+    form1
+    form2
+    ...
+    formn)
+.end_lisp
+expands into
+.lisp
+(defun fctn (args)
+  (prog ()
+	form1
+	form2
+	...
+	(return formn)))
+.end_lisp
+
+You can think of 3defunp* as being like 3defun* except that you can
+3return* out of the middle of the function's body.
+.end_defmac
+
+For more information on defining functions, and other ways of doing so,
+see (function-defining).
+
+.section Operations the User Can Perform on Functions
+
+Here is a list of the various things a user (as opposed to a program) is
+likely to want to do to a function.  In all cases, you specify a
+function spec to say where to find the function.
+
+To print out the definition of the function spec with indentation to
+make it legible, use 3grindef* (see (grindef-fun)).  This works only
+for interpreted functions.  If the definition is a compiled function, it
+can't be printed out as Lisp code, but its compiled code can be printed
+by the 3disassemble* function (see (disassemble-fun)).
+
+To find out about how to call the function, you can ask to see its
+documentation, or its argument names.  (The argument names are usually
+chosen to have mnemonic significance for the caller).  Use 3arglist*
+((arglist-fun)) to see the argument names and 3documentation*
+((documentation-fun)) to see the documentation string.
+There are also editor commands for doing these things: the 3CTRL/SHIFT/D*
+and 3META/SHIFT/D* commands are for looking at a function's
+documentation, and 3CTRL/SHIFT/A* is for looking at an argument
+list.  3CTRL/SHIFT/A* does not ask for the function name; it acts on
+the function which is called by the innermost expression which the
+cursor is inside.  Usually this is the function which will be called
+by the form you are in the process of writing.
+
+You can see the function's debugging info alist by means of the function
+3debugging-info* (see (debugging-info-fun)).
+
+When you are debugging, you can use 3trace* (see (trace-fun)) to obtain a printout or a
+break loop whenever the function is called.  You can
+customize the definition of the function, either temporarily or
+permanently, using 3advise* (see (advise-fun)).
+
+.section Kinds of Functions
+.setq kinds-of-functions section-page
+
+There are many kinds of functions in Zetalisp.  This section
+briefly describes each kind of function.  Note that a function is also a
+piece of data and can be passed as an argument, returned, put in a list,
+and so forth.
+
+.cindex special forms
+
+Before we start classifying the functions, we'll first discuss something
+about how the evaluator works.  As we said in the basic description of
+evaluation on (description-of-evaluation), when the evaluator is given
+a list whose first element is a symbol, the form may be a function form,
+a special form, or a macro form.  If the definition of the symbol is a
+function, then the function is just applied to the result of evaluating
+the rest of the subforms.  If the definition is a cons whose car is
+3macro*, then it is a macro form; these are explained in (macro).
+What about special forms?
+
+.setq special-function page
+Conceptually, the evaluator knows specially about all special forms
+(that's why they're called that).  However, the Zetalisp
+implementation actually uses the definition of symbols that name special
+forms as places to hold pieces of the evaluator.  The definitions of
+such symbols as 3prog*, 3do*, 3and*, and 3or* actually hold Lisp
+objects, which we will call 2special functions*.  Each of these
+functions is the part of the Lisp interpreter that knows how to deal
+with that special form.  Normally you don't have to know about this;
+it's just part of the hidden internals of how the evaluator works.
+However, if you try to add encapsulations to 3and* or something
+like that, knowing this will help you understand the behavior you will
+get.
+
+Special functions are written like regular functions except that the
+keywords 3&quote* and 3&eval* (see (lambda-list-keywords)) are used
+to make some of the arguments be "quoted" arguments.  The evaluator
+looks at the pattern in which arguments to the special function are
+"quoted" or not, and it calls the special function in a special way: for
+each regular argument, it passes the result of evaluating the
+corresponding subform, but for each "quoted" argument, it passes the
+subform itself without evaluating it first.  For example, 3cond*
+works by having a special function that takes a "quoted" 3&rest* argument;
+when this function is called it is passed a list of 3cond* clauses
+as its argument.
+
+If you apply or funcall a special function yourself, you have to understand
+what the special form is going to do with its arguments; it is likely
+to call 3eval* on parts of them.  This is different from applying
+a regular function, which is passed argument values rather than Lisp
+expressions.
+
+.setq special-form-caveat page
+
+Defining your own special form, by using 3&quote* yourself, can be
+done; it is a way to extend the Lisp language.  Macros are another way
+of extending the Lisp language.  It is preferable to implement language
+extensions as macros rather than special forms, because macros directly
+define a Lisp-to-Lisp translation and therefore can be understood by
+both the interpreter and the compiler.  Special forms, on the other
+hand, only extend the interpreter.  The compiler has to be modified in
+an 2ad hoc* way to understand each new special form so that code using
+it can be compiled.  Since all real programs are eventually compiled,
+writing your own special functions is strongly discouraged.
+
+(In fact, many of the special forms in Zetalisp are actually implemented
+as macros, rather than as special functions.  They're implemented this
+way because it's easier to write a macro than to write both a new
+special function and a new 2ad hoc* module in the compiler.  However,
+they're sometimes documented in this manual as special forms, rather
+than macros, because you should not in any way 2depend* on the way
+they are implemented; they might get changed in the future to be special
+functions, if there was some reason to do so.)
+
+There are four kinds of functions, classified by how they work.
+
+First, there are 2interpreted* functions: you define them with
+3defun*, they are represented as list structure, and they are
+interpreted by the Lisp evaluator.
+
+Secondly, there are 2compiled* functions: they are defined
+by 3compile* or by loading a qfasl file, they are represented by a
+special Lisp data type, and they are executed directly by the microcode.
+Similar to compiled functions are microcode functions, which are written
+in microcode (either by hand or by the micro-compiler) and executed directly
+by the hardware.
+
+Thirdly, there are various types of Lisp object which can be applied to
+arguments, but when they are applied they dig up another function
+somewhere and apply it instead.  These include 3dtp-select-method*,
+closures, instances, and entities.
+
+Finally, there are various types of Lisp object which, when used as
+functions, do something special related to the specific data type.
+These include arrays and stack-groups.
+
+.subsection "Interpreted Functions"
+
+An interpreted function is a piece of list structure which represents a
+program according to the rules of the Lisp interpreter.  Unlike other
+kinds of functions, an interpreted function can be printed out and read
+back in (it has a printed representation that the reader understands),
+can be pretty-printed (see (grindef-fun)), and can be opened up and
+examined with the usual functions for list-structure manipulation.
+
+There are four kinds of interpreted functions: 3lambda*s,
+3named-lambda*s, 3subst*s, and 3named-subst*s.  A 3lambda* function is the
+simplest kind.  It is a list that looks like this:
+.lisp
+(lambda 2lambda-list* 2form1* 2form2*...)
+.end_lisp
+The symbol 3lambda* identifies this list as a 3lambda*
+function.  2lambda-list* is a description of what arguments the
+function takes; see (lambda-list) for details.  The 2forms*
+make up the body of the function.  When the function is called,
+the argument variables are bound to the values of the arguments
+as described by 2lambda-list*, and then the forms in the body are
+evaluated, one by one.  The value of the function is the value of its
+last form.
+
+A 3named-lambda* is like a 3lambda* but contains an extra element in
+which the system remembers the function's name, documentation, and other
+information.  Having the function's name there allows the error handler
+and other tools to give the user more information.  This is the kind of
+function that 3defun* creates.  A 3named-lambda* function looks
+like this:
+.lisp
+(named-lambda 2name* 2lambda-list* 2body forms*...)
+.end_lisp
+If the 2name* slot contains a symbol, it is the function's name.
+Otherwise it is a list whose car is the name and whose cdr is the
+function's debugging information alist.  See 3debugging-info*,
+(debugging-info-fun).  Note that the name need not be a symbol;
+it can be any function spec.  For example,
+.lisp
+(defun (foo bar) (x)
+  (car (reverse x)))
+.end_lisp
+will give 3foo* a 3bar* property whose value is
+.lisp
+(named-lambda ((:property foo bar)) (x) (car (reverse x)))
+.end_lisp
+
+.setq subst section-page
+.cindex subst
+A 3subst* is just like a 3lambda* as far as the interpreter is concerned.
+It is a list that looks like this:
+.lisp
+(subst 2lambda-list* 2form1* 2form2*...)
+.end_lisp
+The difference between a 3subst* and a 3lambda* is the way they are
+handled by the compiler.  A call to a normal function is compiled as a
+2closed subroutine*; the compiler generates code to compute the
+values of the arguments and then apply the function to those values.  A
+call to a 3subst* is compiled as an 2open subroutine*; the compiler
+incorporates the body forms of the 3subst* into the function being
+compiled, substituting the argument forms for references to the
+variables in the 3subst*'s 2lambda-list*.  This is a simple-minded
+but useful facility for 2open* or 2in-line coded* functions.
+It is simple-minded because the argument forms can be evaluated multiple
+times or out of order, and so the semantics of a 3subst* may not be the
+same in the interpreter and the compiler.  3subst*s are described more fully on
+(defsubst-fun), with the explanation of 3defsubst*.
+
+.cindex named-subst
+A 3named-subst* is the same as a 3subst* except that it has a name
+just as a 3named-lambda* does.  It looks like
+.lisp
+(named-subst 2name* 2lambda-list* 2form1* 2form2* ...)
+.end_lisp
+where 2name* is interpreted the same way as in a 3named-lambda*.
+
+.subsection "Compiled Functions"
+.cindex function entry frame
+.cindex FEF
+
+There are two kinds of compiled functions: 2macrocoded* functions
+and 2microcoded* functions.  The Lisp compiler converts 3lambda*
+and 3named-lambda* functions into macrocoded functions.  A
+macrocoded function's printed representation looks like:
+.lisp
+#<dtp-fef-pointer append 1424771>
+.end_lisp
+This type of Lisp object is also called a "Function Entry Frame", or
+"FEF" for short.  Like "car" and "cdr", the name is historical in origin
+and doesn't really mean anything.  The object contains Lisp Machine
+machine code that does the computation expressed by the function; it
+also contains a description of the arguments accepted, any constants
+required, the name, documentation, and other things.  Unlike Maclisp
+"subr-objects", macrocoded functions are full-fledged objects and
+can be passed as arguments, stored in data structure, and applied to arguments.
+
+The printed representation of a microcoded function looks like:
+.lisp
+#<dtp-u-entry last 270>
+.end_lisp
+Most microcompiled functions are basic Lisp primitives or subprimitives
+written in Lisp Machine microcode.  You can also convert your own
+macrocode functions into microcode functions in some circumstances,
+using the micro-compiler.
+
+.subsection "Other Kinds of Functions"
+
+A closure is a kind of function which contains another function and a
+set of special variable bindings.  When the closure is applied, it
+puts the bindings into effect and then applies the other function.  When
+that returns, the closure bindings are removed.  Closures are made with
+the function 3closure*.  See (closure) for more information.
+Entities are slightly different from closures; see (entity).
+
+.setq select-method page
+A select-method (3dtp-select-method*) is an a-list of symbols and
+functions.  When one is called the first argument is looked up in the
+a-list to find the particular function to be called.  This function is
+applied to the rest of the arguments.  The a-list may have a list of
+symbols in place of a symbol, in which case the associated function is
+called if the first argument is any of the symbols on the list.  If
+3cdr* of 3last* of the a-list is not 3nil*, it is a 2default
+handler* function, which gets called if the message key is not found in
+the a-list.  Select-methods can be created with the 3defselect*
+special form (see (defselect-fun)).
+
+An instance is a message-receiving object which has some state and a table
+of message-handling functions (called 2methods*).  Refer to the chapter
+on flavors ((flavor)) for further information.
+
+An array can be used as a function.  The arguments to the array are
+the indices and the value is the contents of the element of the
+array.  This works this way for Maclisp compatibility and is not recommended usage.
+Use 3aref* ((aref-fun)) instead.
+
+A stack group can be called as a function.  This is one way to pass control
+to another stack group.  See (stack-group).
+
+.section Function-Defining Special Forms
+.setq function-defining section-page
+
+3defun* is a special form which is put in a program to define a
+function.  3defsubst* and 3macro* are others.
+This section explains how these special forms work, how
+they relate to the different kinds of functions, and how they interface to the
+rest of the function-manipulation system.
+
+Function-defining special forms typically take as arguments a function
+spec and a description of the function to be made, usually in the form
+of a list of argument names and some forms which constitute the body of
+the function.  They construct a function, give it the function spec as
+its name, and define the function spec to be the new function.
+Different special forms make different kinds of functions.  3defun*
+makes a 3named-lambda* function, and 3defsubst* makes a 3named-subst*
+function.  3macro* makes a macro; though the macro definition is not
+really a function, it is like a function as far as definition handling
+is concerned.
+
+These special forms are used in writing programs because the function
+names and bodies are constants.  Programs that define functions usually
+want to compute the functions and their names, so they use 3fdefine*.
+See (fdefine-fun).
+
+All of these function-defining special forms alter only the basic
+definition of the function spec.  Encapsulations are preserved.
+See (encapsulate).
+
+The special forms only create interpreted functions.  There is no
+special way of defining a compiled function.  Compiled functions are
+made by compiling interpreted ones.  The same special form which defines
+the interpreted function, when processed by the compiler, yields the
+compiled function.  See (compiler) for details.
+
+Note that the editor understands these and other "defining" special forms
+(e.g. 3defmethod*, 3defvar*, 3defmacro*, 3defstruct*, etc.)
+to some extent, so that when you ask for the definition of something, the editor
+can find it in its source file and show it to you.  The general convention
+is that anything which is used at top level (not inside a function)
+and starts with 3def* should be a special form for defining things
+and should be understood by the editor.  3defprop* is an exception.
+
+.c [Explain how a user can create his own, or point to an explanation]
+
+.setq additional-defun-explanation page
+The 3defun* special form (and the 3defunp* macro which expands into a
+3defun*) are used for creating ordinary interpreted functions (see (defun-fun)).
+
+For Maclisp compatibility, a 2type* symbol may be inserted between
+2name* and 2lambda-list* in the 3defun* form.  The following types
+are understood:
+.table 3
+.item expr
+The same as no type.
+.item fexpr
+3&quote* and 3&rest* are prefixed to the lambda list.
+.item macro
+A macro is defined instead of a normal function.
+.end_table
+
+If 2lambda-list* is a non-3nil* symbol instead of a list,
+the function is recognized as a Maclisp 2lexpr* and it is converted
+in such a way that the 3arg*, 3setarg*, and 3listify* functions
+can be used to access its arguments (see (arg-fun)).
+
+The 3defsubst* special form is used to create substitutible functions.  It
+is used just like 3defun* but produces a list starting with 3named-subst*
+instead of one starting with 3named-lambda*.  The 3named-subst* function
+acts just like the corresponding 3named-lambda* function when applied,
+but it can also be open-coded (incorporated into its callers) by the compiler.
+See (defsubst-fun) for full information.
+
+The 3macro* special form is the primitive means of creating a macro.
+It gives a function spec a definition which is a macro definition rather
+than a actual function.  A macro is not a function because it cannot be
+applied, but it 2can* appear as the car of a form to be evaluated.
+Most macros are created with the more powerful 3defmacro* special form.
+See (macro).
+
+The 3defselect* special form defines a select-method function.  See (defselect-fun).
+
+.nopara
+Unlike the above special forms, the next two (3deff* and 3def*)
+do not create new functions.  They simply serve as hints to the editor
+that a function is being stored into a function spec here, and therefore
+if someone asks for the source code of the definition of that function spec,
+this is the place to look for it.
+
+.defspec def
+If a function is created in some strange way, wrapping a 3def* special
+form around the code that creates it informs the editor of the connection.
+The form
+.lisp
+(def 2function-spec*
+  2form1* 2form2*...)
+.end_lisp
+simply evaluates the forms 2form1*, 2form2*, etc.  It is assumed
+that these forms will create or obtain a function somehow, and make
+it the definition of 2function-spec*.
+
+Alternatively, you could put 3(def 2function-spec*)* in
+front of or anywhere near the forms which define the function.  The
+editor only uses it to tell which line to put the cursor on.
+.end_defspec
+
+.defspec deff function-spec definition-creator
+3deff* is a simplified version of 3def*.  It
+evaluates the form 2definition-creator*, which should produce a function,
+and makes that function the definition of 2function-spec*, which is not
+evaluated.  3deff*
+is used for giving a function spec a definition which is not obtainable
+with the specific defining forms such as 3defun* and 3macro*.
+For example,
+.lisp
+(deff foo 'bar)
+.end_lisp
+will make 3foo* equivalent to 3bar*, with an indirection so that if
+3bar* changes 3foo* will likewise change;
+.lisp
+(deff foo (function bar))
+.end_lisp
+copies the definition of 3bar* into 3foo* with no indirection, so that
+further changes to 3bar* will have no effect on 3foo*.
+.end_defspec
+
+.defmac @define
+This macro turns into 3nil*, doing nothing.  It exists for the sake of the
+@ listing generation program, which uses it to declare names of special forms
+which define objects (such as functions) that @ should cross-reference.
+.end_defmac
+
+.defun defun-compatibility x
+This function is used by 3defun* and the compiler to convert
+Maclisp-style lexpr, fexpr, and macro 3defun*s to Zetalisp
+definitions.  2x* should be the cdr of a 3(defun ...)* form.
+3defun-compatibility* will return a corresponding 3(defun ...)* or
+3(macro ...)* form, in the usual Zetalisp format.  You shouldn't
+ever need to call this yourself.
+.end_defun
+
+.defspec defselect
+3defselect* defines a function which is a select-method.  This
+function contains a table of subfunctions; when it is called, the first
+argument, a symbol on the keyword package called the 2message name*,
+is looked up in the table to determine which subfunction to call.  Each
+subfunction can take a different number of arguments, and have a
+different pattern of 3&optional* and 3&rest* arguments.
+3defselect* is useful for a variety of "dispatching" jobs.  By analogy
+with the more general message passing facilities described in (flavor),
+the subfunctions are sometimes called 2methods* and the first argument
+is sometimes called a 2message*.
+
+The special form looks like
+.lisp
+(defselect (2function-spec* 2default-handler* 2no-which-operations*)
+  (2message-name* (2args...*)
+        2body...*)
+  (2message-name* (2args...*)
+        2body...*)
+  ...)
+.end_lisp
+
+2function-spec* is the name of the function to be defined.
+2default-handler* is optional; it must be a symbol and is a function which
+gets called if the select-method is called with an unknown message.  If
+2default-handler* is unsupplied or 3nil*, then an error occurs if an unknown
+message is sent.  If 2no-which-operations* is non-3nil*, the
+3:which-operations* method which would normally be supplied automatically is
+suppressed.  The 3:which-operations* method takes no arguments and returns a
+list of all the message names in the 3defselect*.
+
+If 2function-spec* is a symbol, and 2default-handler* and 2no-which-operations*
+are not supplied, then the first subform of the 3defselect* may be just 2function-spec*
+by itself, not enclosed in a list.
+
+The remaining subforms in a 3defselect* define methods.  2message-name* is the
+message name, or a list of several message names if several messages are to be handled
+by the same subfunction.  2args* is a lambda-list; it should not include the first
+argument, which is the message name.  2body* is the body of the
+function.
+
+A method subform can instead look like:
+.lisp
+  (2message-name* . 2symbol*)
+.end_lisp
+In this case, 2symbol* is the name of a function which is to be called when the
+2message-name* message is received.  It will be called with the same arguments
+as the select-method, including the message symbol itself.
+.end_defspec
+
+
+.section Lambda-List Keywords
+.cindex lambda-list keywords
+.cindex "&" keywords
+.setq lambda-list-keywords section-page
+
+This section documents all the keywords that may appear in the
+"lambda-list" (argument list) (see (lambda-list)) of a function, a
+macro, or a special form.  Some of them are allowed everywhere, while
+others are only allowed in one of these contexts; those are so
+indicated.
+
+.defvar lambda-list-keywords
+The value of this variable is a list of all of the allowed "&" keywords.
+Some of these are obsolete and don't do anything; the remaining ones
+are listed below.
+.end_defvar
+
+.table 3
+.item &optional
+Separates the required arguments of a function from the optional arguments.
+See (lambda-list).
+
+.item &rest
+Separates the required and optional arguments of a function from the rest argument.
+There may be only one rest argument.  See (&rest) for full information about
+rest arguments.  See (lambda-list).
+
+.item &key
+Separates the positional arguments and rest argument of a function from the keyword
+arguments.  See (lambda-list).
+
+.item &allow-other-keys
+In a function which accepts keyword arguments, says that keywords
+which are not recognized are allowed.  They and the corresponding values are
+ignored, as far as keyword arguments are concerned, but they do become
+part of the rest argument, if there is one.
+
+.item &aux
+Separates the arguments of a function from the auxiliary variables.
+Following 3&aux* you can put entries of the form
+.lisp
+(2variable* 2initial-value-form*)
+.end_lisp
+or just 2variable* if you want it initialized to 3nil* or don't care what the initial
+value is.
+
+.item &special
+Declares the following arguments and/or auxiliary variables to be special within
+the scope of this function.
+
+.item &local
+Turns off a preceding 3&special* for the variables which follow.
+
+.item &functional
+Preceding an argument, tells the compiler that the value of this argument will be
+a function.  When a caller of this function is compiled, if it passes a quoted
+constant argument which looks like a function (a list beginning with the symbol
+3lambda*) the compiler will know that it is intended to be a function rather
+than a list that happens to start with that symbol, and will compile it.
+
+.item &quote
+Declares that the following arguments are not to be evaluated.  This is how you create
+a special function.  See the caveats about special forms, on (special-form-caveat).
+
+.item &eval
+Turns off a preceding 3&quote* for the arguments which follow.
+
+.item &list-of
+This is for macros defined by 3defmacro* only.  Refer to (&list-of).
+
+.item &body
+This is for macros defined by 3defmacro* only.  It is similar to 3&rest*,
+but declares to 3grindef* and the code-formatting module of the editor that
+the body forms of a special form follow and should be indented accordingly.
+Refer to (&body).
+.end_table
+
+
+.section How Programs Manipulate Definitions
+
+.setq programs-that-manipulate-functions section-page
+
+.defun fdefine function-spec definition &optional (carefully 3nil*) (no-query 3nil*)
+This is the primitive which 3defun* and everything else in the system
+uses to change the definition of a function spec.  If 2carefully* is
+non-3nil*, which it usually should be, then only the basic definition
+is changed, the previous basic definition is saved if possible (see
+3undefun*, (undefun-fun)), and any encapsulations of the function such
+as tracing and advice are carried over from the old definition to the
+new definition.  2carefully* also causes the user to be queried if the
+function spec is being redefined by a file different from the one that
+defined it originally.  However, this warnings is suppressed if either the
+argument 2no-query* is non-3nil*, or if the global variable
+3inhibit-fdefine-warnings* is 3t*.
+
+If 3fdefine* is called while a file is being loaded, it records what
+file the function definition came from so that the editor can find the
+source code.
+
+If 2function-spec* was already defined as a
+function, and 2carefully* is non-3nil*, the function-spec's
+3:previous-definition* property is used to save the previous
+definition.  If the previous definition is an interpreted function, it
+is also saved on the 3:previous-expr-definition* property.  These
+properties are used by the 3undefun* function ((undefun-fun)), which
+restores the previous definition, and the 3uncompile* function
+((uncompile-fun)), which restores the previous interpreted definition.
+The properties for different kinds of function specs are stored in
+different places; when a function spec is a symbol its properties are
+stored on the symbol's property list.
+
+3defun* and the other function-defining special forms all supply 3t*
+for 2carefully* and 3nil* or nothing for 2no-query*.  Operations
+which construct encapsulations, such as 3trace*, are the only ones
+which use 3nil* for 2carefully*.
+.end_defun
+
+.defvar inhibit-fdefine-warnings
+This variable is normally 3nil*.  Setting it to 3t* prevents
+3fdefine* from warning you and asking about questionable function definitions such as
+a function being redefined by a different file than defined it originally,
+or a symbol that belongs to one package being defined by a file that
+belongs to a different package.  Setting it to 3:just-warn* allows
+the warnings to be printed out, but prevents the queries from happening;
+it assumes that your answer is "yes", i.e. that it is all right to
+redefine the function.
+.end_defvar
+
+.defvar sys:fdefine-file-pathname
+While loading a file, this is the generic-pathname for the file.
+The rest of the time it is 3nil*.  3fdefine* uses this to
+remember what file defines each function.
+.end_defvar
+
+.defun fset-carefully symbol definition &optional force-flag
+This function is obsolete.  It is equivalent to
+.lisp
+(fdefine 2symbol* 2definition* t 2force-flag*)
+.end_lisp
+.end_defun
+
+.defun fdefinedp function-spec
+This returns 3t* if 2function-spec* has a definition, or 3nil* if
+it does not.
+.end_defun
+
+.defun fdefinition function-spec
+This returns 2function-spec*'s definition.  If it has none, an error
+occurs.
+.end_defun
+
+.defun fdefinition-location function-spec
+This returns a locative pointing at the cell which contains
+2function-spec*'s definition.  For some kinds of function specs,
+though not for symbols, this can cause data structure to be created to
+hold a definition.  For example, if 2function-spec* is of the
+3:property* kind, then an entry may have to be added to the property
+list if it isn't already there.  In practice, you should write 3(locf
+(fdefinition 2function-spec*))* instead of calling this function
+explicitly.
+.end_defun
+
+.defun fundefine function-spec
+Removes the definition of 2function-spec*.  For symbols this
+is equivalent to 3fmakunbound*.
+If the function is encapsulated, 3fundefine* removes both the
+basic definition and the encapsulations.  Some types of function specs
+(3:location* for example) do not implement 3fundefine*.
+3fundefine* on a 3:within* function spec removes the replacement
+of 2function-to-affect*, putting the definition of 2within-function*
+back to its normal state.  3fundefine* on a 3:method* function spec
+removes the method completely, so that future messages will be handled
+by some other method (see the flavor chapter).
+.end_defun
+
+.defun si:function-spec-get function-spec indicator
+Returns the value of the 2indicator* property of 2function-spec*,
+or 3nil* if it doesn't have such a property.
+.end_defun
+
+.defun si:function-spec-putprop function-spec value indicator
+Gives 2function-spec* an 2indicator* property whose value is 2value*.
+.end_defun
+
+.defun undefun function-spec
+If 2function-spec* has a saved previous basic definition, this
+interchanges the current and previous basic definitions,
+leaving the encapsulations alone.
+This undoes the effect of a 3defun*, 3compile*, etc.
+See also 3uncompile* ((uncompile-fun)).
+.end_defun
+
+
+.section How Programs Examine Functions
+
+These functions take a function as argument and return information about
+that function.  Some also accept a function spec and operate on its
+definition.  The others do not accept function specs in general but do
+accept a symbol as standing for its definition.  (Note that a symbol is
+a function as well as a function spec).
+
+.defun documentation function
+Given a function or a function spec, this finds its documentation
+string, which is stored in various different places depending on the
+kind of function.  If there is no documentation, 3nil* is returned.
+.end_defun
+
+.defun debugging-info function
+This returns the debugging info alist of 2function*, or 3nil* if it has none.
+.end_defun
+
+.defun arglist function &optional real-flag
+3arglist* is given a function or a function spec, and returns its best
+guess at the nature of the function's 3lambda*-list.  It can also
+return a second value which is a list of descriptive names for the
+values returned by the function.
+	If 2function* is a symbol, 3arglist*
+of its function definition is used.
+	If the 2function* is an actual 3lambda*-expression,
+its cadr, the lambda-list, is returned.  But if 2function*
+is compiled, 3arglist* attempts to reconstruct the lambda-list of the original
+definition, using whatever debugging information was saved by the compiler.
+Sometimes the actual names of the bound variables are not available, and
+3arglist* uses the symbol 3si:*unknown** for these.  Also, sometimes
+the initialization of an optional parameter is too complicated
+for 3arglist* to reconstruct; for these it returns the symbol
+3si:*hairy**.
+	Some functions' real argument lists are not what would be most
+descriptive to a user.  A function may take a &rest argument for
+technical reasons even though there are standard meanings for the first
+element of that argument.  For such cases, the definition of the
+function can specify, with a local declaration, a value to be returned
+when the user asks about the argument list.  Example:
+.lisp
+(defun foo (&rest rest-arg)
+  (declare (arglist x y &rest z))
+  .....)
+.end_lisp
+2real-flag* allows the caller of 3arglist* to say that
+the real argument list should be used even if a declared argument list exists.
+Note that while normally 3declare*s are only for the compiler's benefit,
+this kind of 3declare* affects all functions, including interpreted functions.
+
+	3arglist* cannot be relied upon to return the exactly
+correct answer, since some of the information may have been lost.
+Programs interested in how many and what kind of arguments there are
+should use 3args-info* instead.  In general 3arglist*
+is to be used for documentation purposes, not for reconstructing
+the original source code of the function.
+	When a function returns multiple values, it is useful to give
+the values names so that the caller can be reminded which value is
+which.  By means of a 3return-list* declaration in the function's
+definition, entirely analogous to the 3arglist* declaration above,
+you can specify a list of mnemonic names for the returned values.  This
+list will be returned by 3arglist* as the second value.
+.lisp
+(arglist 'arglist)
+  => (function &optional real-flag) 1and* (arglist return-list)
+.end_lisp
+.end_defun
+
+.defun args-info function
+3args-info* returns a fixnum called the "numeric argument descriptor"
+of the 2function*, which describes the way the function takes arguments.
+This descriptor is used internally by the microcode, the evaluator, and
+the compiler.  2function* can be a function or a function spec.
+
+The information is stored in various bits and byte fields in the
+fixnum, which are referenced by the symbolic names shown below.
+By the usual Lisp Machine convention, those starting with a single "%"
+are bit-masks (meant to be 3logand*'ed or 3bit-test*'ed with the number), and those
+starting with "%%" are byte descriptors (meant to be used with 3ldb*
+or 3ldb-test*).
+	Here are the fields:
+.table 3 0 500
+.item %%arg-desc-min-args
+'vindex %%arg-desc-min-args
+This is the minimum number of arguments which may be passed
+to this function, i.e. the number of "required" parameters.
+
+.item %%arg-desc-max-args
+'vindex %%arg-desc-max-args
+This is the maximum number of arguments which may be passed
+to this function, i.e. the sum of the number of "required"
+parameters and the number of "optional" paramaters.
+If there is a rest argument, this is not really the maximum
+number of arguments which may be passed; an arbitrarily-large
+number of arguments is permitted, subject to limitations on
+the maximum size of a stack frame (about 200 words).
+
+.item %arg-desc-evaled-rest
+'vindex %arg-desc-evaled-rest
+If this bit is set, the function has a "rest" argument, and it is not "quoted".
+
+.item %arg-desc-quoted-rest
+'vindex %arg-desc-quoted-rest
+If this bit is set, the function has a "rest" argument, and it is "quoted".
+Most special forms have this bit.
+
+.item %arg-desc-fef-quote-hair
+'vindex %arg-desc-fef-quote-hair
+If this bit is set, there are some quoted arguments other
+than the "rest" argument (if any), and the pattern of quoting is too complicated
+to describe here.  The ADL (Argument Description List) in the FEF should be consulted.
+This is only for special forms.
+
+.item %arg-desc-interpreted
+'vindex %arg-desc-interpreted
+This function is not a compiled-code object, and a numeric argument descriptor
+cannot be computed.
+Usually 3args-info* will not return this bit, although 3%args-info* will.
+
+.item %arg-desc-fef-bind-hair
+'vindex %arg-desc-fef-bind-hair
+There is argument initialization, or something else too
+complicated to describe here.
+The ADL (Argument Description List) in the FEF should be consulted.
+.end_table
+
+Note that 3%arg-desc-quoted-rest* and 3%arg-desc-evaled-rest* cannot both be set.
+.end_defun
+
+.defun %args-info function
+This is an internal function; it is like 3args-info*
+but does not work for interpreted functions.  Also, 2function*
+must be a function, not a function spec.  It exists because it has
+to be in the microcode anyway, for 3apply* and the basic
+function-calling mechanism.
+.end_defun
+
+.c [This section could document a variety of other function-analysis
+.c functions which are not on the global package, including the ones in eh
+.c for getting arg names and so forth.]
+
+
+.section "Encapsulations"
+.cindex encapsulation
+.cindex basic definition
+.setq encapsulate section-page
+
+The definition of a function spec actually has two parts: the 2basic
+definition*, and 2encapsulations*.  The basic definition is what
+functions like 3defun* create, and encapsulations are additions made by
+3trace* or 3advise* to the basic definition.  The purpose of making
+the encapsulation a separate object is to keep track of what was made by
+3defun* and what was made by 3trace*.  If 3defun* is done a second
+time, it replaces the old basic definition with a new one while leaving
+the encapsulations alone.
+
+Only advanced users should ever need to use encapsulations directly via
+the primitives explained in this section.  The most common things to do
+with encapsulations are provided as higher-level, easier-to-use features:
+3trace* (see (trace-fun)) and 3advise* (see (advise-fun)).
+
+The way the basic definition and the encapsulations are defined is that
+the actual definition of the function spec is the outermost
+encapsulation; this contains the next encapsulation, and so on.  The
+innermost encapsulation contains the basic definition.  The way
+this containing is done is as follows.
+An encapsulation is actually a function whose debugging info alist
+contains an element of the form
+.lisp
+(si:encapsulated-definition 2uninterned-symbol* 2encapsulation-type*)
+.end_lisp
+The presence of such an element in the debugging info alist
+is how you recognize a function to be an encapsulation.  An encapsulation
+is usually an interpreted function (a list starting with 3named-lambda*) but
+it can be a compiled function also, if the application which created it
+wants to compile it.
+
+2uninterned-symbol*'s function definition is the thing that the
+encapsulation contains, usually the basic definition of the function spec.  Or it
+can be another encapsulation, which has in it another debugging info
+item containing another uninterned symbol.  Eventually you get to a
+function which is not an encapsulation; it does not have the sort of
+debugging info item which encapsulations all have.  That function is the basic
+definition of the function spec.
+
+Literally speaking, the definition of the function spec is the
+outermost encapsulation, period.  The basic definition is not the
+definition.  If you are asking for the definition of the function spec
+because you want to apply it, the outermost encapsulation is exactly
+what you want.  But the basic definition can be found mechanically
+from the definition, by following the debugging info alists.  So it
+makes sense to think of it as a part of the definition.  In regard to
+the function-defining special forms such as 3defun*, it is
+convenient to think of the encapsulations as connecting between the
+function spec and its basic definition.
+
+An encapsulation is created with the macro 3si:encapsulate*.
+
+.defmac si:encapsulate
+A call to 3si:encapsulate* looks like
+.lisp
+(si:encapsulate 2function-spec* 2outer-function* 2type*
+	     2body-form*
+	     2extra-debugging-info*)
+.end_lisp
+All the subforms of this macro are evaluated.  In fact, the macro could
+almost be replaced with an ordinary function, except for the way
+2body-form* is handled.
+
+2function-spec* evaluates to the function spec whose definition the
+new encapsulation should become.  2outer-function* is another function
+spec, which should often be the same one.  Its only purpose is to be
+used in any error messages from 3si:encapsulate*.
+
+2type* evaluates to a symbol which identifies the purpose of the
+encapsulation; it says what the application is.  For example, it could
+be 3advise* or 3trace*.  The list of possible types is defined by
+the system because encapsulations are supposed to be kept in an order
+according to their type (see 3si:encapsulation-standard-order*,
+(si:encapsulation-standard-order-var)).  2type* should have an
+3si:encapsulation-grind-function* property which tells 3grindef* what to
+do with an encapsulation of this type.
+
+2body-form* is a form which evaluates to the body of the
+encapsulation-definition, the code to be executed when it is called.
+Backquote is typically used for this expression; see (backquote).
+3si:encapsulate* is a macro because, while 2body* is
+being evaluated, the variable 3si:encapsulated-function* is bound to a
+list of the form 3(function 2uninterned-symbol*)*, referring to the
+uninterned symbol used to hold the prior definition of
+2function-spec*.  If 3si:encapsulate* were a function, 2body-form*
+would just get evaluated normally by the evaluator before 3si:encapsulate*
+ever got invoked, and so there would be no opportunity to bind 3si:encapsulated-function*.
+The form 2body-form* should contain 3(apply ,si:encapsulated-function arglist)*
+somewhere if the encapsulation is
+to live up to its name and truly serve to encapsulate the original
+definition.  (The variable 3arglist* is bound by some of the code
+which the 3si:encapsulate* macro produces automatically.  When the
+body of the encapsulation is run 3arglist*'s value will be the list of
+the arguments which the encapsulation received.)
+
+2extra-debugging-info* evaluates to a list of extra items to put into
+the debugging info alist of the encapsulation function (besides the one
+starting with 3si:encapsulated-definition* which every encapsulation
+must have).  Some applications find this useful for recording
+information about the encapsulation for their own later use.
+
+When a special function is encapsulated, the encapsulation is itself a
+special function with the same argument quoting pattern.  (Not all quoting
+patterns can be handled; if a particular special form's quoting pattern
+cannot be handled, 3si:encapsulate* signals an error.)  Therefore,
+when the outermost encapsulation is started, each argument has been
+evaluated or not as appropriate.  Because each encapsulation calls the
+prior definition with 3apply*, no further evaluation takes place, and the
+basic definition of the special form also finds the arguments evaluated
+or not as appropriate.  The basic definition may call 3eval* on some
+of these arguments or parts of them; the encapsulations should not.
+
+Macros cannot be encapsulated, but their expander functions can be; if
+the definition of 2function-spec* is a macro, then 3si:encapsulate*
+automatically encapsulates the expander function instead.  In this case,
+the definition of the uninterned symbol is the original macro
+definition, not just the original expander function.
+It would not work for the encapsulation to apply the macro definition.
+So during the evaluation of 2body-form*, 3si:encapsulated-function* is bound
+to the form 3(cdr (function 2uninterned-symbol*))*, which extracts the
+expander function from the prior definition of the macro.
+
+Because only the expander function is actually encapsulated, the
+encapsulation does not see the evaluation or compilation of the
+expansion itself.  The value returned by the encapsulation is the
+expansion of the macro call, not the value computed by the expansion.
+.end_defspec
+
+It is possible for one function to have multiple encapsulations,
+created by different subsystems.  In this case, the order of
+encapsulations is independent of the order in which they were made.
+It depends instead on their types.  All possible encapsulation types
+have a total order and a new encapsulation is put in the right place
+among the existing encapsulations according to its type and their types.
+
+.defvar si:encapsulation-standard-order
+The value of this variable is a list of the allowed encapsulation types,
+in the order that the encapsulations are supposed to be kept in
+(innermost encapsulations first).  If you want to add new kinds
+of encapsulations, you should add another symbol to this list.
+Initially its value is
+.lisp
+(advise trace si:rename-within)
+.end_lisp
+3advise* encapsulations are used to hold advice (see (advise-fun)).  3trace*
+encapsulations are used for implementing tracing (see (trace-fun)).
+3si:rename-within* encapsulations are used to record the fact that
+function specs of the form 3(:within 2within-function*
+2altered-function*)* have been defined.  The encapsulation goes on
+2within-function* (see (rename-within-section) for more information).
+.end_defvar
+
+Every symbol used as an encapsulation type must be on the list
+3si:encapsulation-standard-order*.  In addition, it should have an
+3si:encapsulation-grind-function* property whose value is a function that
+3grindef* will call to process encapsulations of that type.  This
+function need not take care of printing the encapsulated function
+because 3grindef* will do that itself.  But it should print any
+information about the encapsulation itself which the user ought to see.
+Refer to the code for the grind function for 3advise* to see how to
+write one.
+
+To find the right place in the ordering to insert a new encapsulation,
+it is necessary to parse existing ones.  This is done with the function
+3si:unencapsulate-function-spec*.
+
+.defun si:unencapsulate-function-spec function-spec &optional encapsulation-types
+This takes one function spec and returns another.  If the original
+function spec is undefined, or has only a basic definition (that is,
+its definition is not an encapsulation), then the original function
+spec is returned unchanged.
+
+If the definition of 2function-spec* is an encapsulation, then
+its debugging info is examined to find the uninterned symbol which
+holds the encapsulated definition, and also the encapsulation type.
+If the encapsulation is of a type which is to be skipped over, the
+uninterned symbol replaces the original function spec and the process
+repeats.
+
+The value returned is the uninterned symbol from inside the last
+encapsulation skipped.  This uninterned symbol is the first one which
+does not have a definition which is an encapsulation that should be
+skipped.  Or the value can be 2function-spec* if 2function-spec*'s
+definition is not an encapsulation which should be skipped.
+
+The types of encapsulations to be skipped over are specified by
+2encapsulation-types*.  This can be a list of the types to be
+skipped, or 3nil* meaning skip all encapsulations (this is the default).  Skipping all
+encapsulations means returning the uninterned symbol which holds the basic
+definition of 2function-spec*.  That is, the 2definition* of
+the function spec returned is the 2basic definition* of the function spec
+supplied.  Thus,
+.lisp
+(fdefinition (si:unencapsulate-function-spec 'foo))
+.end_lisp
+returns the basic definition of 3foo*, and
+.lisp
+(fdefine (si:unencapsulate-function-spec 'foo) 'bar)
+.end_lisp
+sets the basic definition (just like using 3fdefine* with
+2carefully* supplied as 3t*).
+
+2encapsulation-types* can also be a symbol, which should be an
+encapsulation type; then we skip all types which are supposed to come
+outside of the specified type.  For example, if
+2encapsulation-types* is 3trace*, then we skip all types of
+encapsulations that come outside of 3trace* encapsulations, but we
+do not skip 3trace* encapsulations themselves.  The result is a
+function spec which is where the 3trace* encapsulation ought to
+be, if there is one.  Either the definition of this function spec is a
+3trace* encapsulation, or there is no 3trace* encapsulation
+anywhere in the definition of 2function-spec*, and this function
+spec is where it would belong if there were one.  For example,
+.lisp
+(let ((tem (si:unencapsulate-function-spec spec 'trace)))
+  (and (eq tem (si:unencapsulate-function-spec tem '(trace)))
+       (si:encapsulate tem spec 'trace `(...2body*...))))
+.end_lisp
+finds the place where a 3trace* encapsulation ought to go, and
+makes one unless there is already one there.
+
+.lisp
+(let ((tem (si:unencapsulate-function-spec spec 'trace)))
+  (fdefine tem (fdefinition (si:unencapsulate-function-spec
+				tem '(trace)))))
+.end_lisp
+eliminates any 3trace* encapsulation by replacing it by whatever it
+encapsulates.  (If there is no 3trace* encapsulation, this code
+changes nothing.)
+
+These examples show how a subsystem can insert its own type of
+encapsulation in the proper sequence without knowing the names of any
+other types of encapsulations.  Only the variable
+3si:encapsulation-standard-order*, which is used by
+3si:unencapsulate-function-spec*, knows the order.
+.end_defun
+
+.subsection "Rename-Within Encapsulations"
+.cindex rename-within
+.cindex function renaming
+.setq rename-within-section section-page
+
+One special kind of encapsulation is the type 3si:rename-within*.  This
+encapsulation goes around a definition in which renamings of functions
+have been done.
+
+How is this used?
+
+If you define, advise, or trace 3(:within foo bar)*, then 3bar*
+gets renamed to 3altered-bar-within-foo* wherever it is called from
+3foo*, and 3foo* gets a 3si:rename-within* encapsulation to
+record the fact.  The purpose of the encapsulation is to enable
+various parts of the system to do what seems natural to the user.
+For example, 3grindef* (see (grindef-fun)) notices the
+encapsulation, and so knows to print 3bar* instead of
+3altered-bar-within-foo*, when grinding the definition of 3foo*.
+
+Also, if you redefine 3foo*, or trace or advise it, the new
+definition gets the same renaming done (3bar* replaced by
+3altered-bar-within-foo*).  To make this work, everyone who alters
+part of a function definition should pass the new part of the
+definition through the function 3si:rename-within-new-definition-maybe*.
+
+.defun si:rename-within-new-definition-maybe function-spec new-structure
+Given 2new-structure* which is going to become a part of the
+definition of 2function-spec*, perform on it the replacements
+described by the 3si:rename-within* encapsulation in the
+definition of 2function-spec*, if there is one.  The altered
+(copied) list structure is returned.
+
+It is not necessary to call this function yourself when you replace
+the basic definition because 3fdefine* with 2carefully*
+supplied as 3t* does it for you.  3si:encapsulate* does this
+to the body of the new encapsulation.  So you only need to call 
+3si:rename-within-new-definition-maybe* yourself if you are rplac'ing
+part of the definition.
+
+For proper results, 2function-spec* must be the outer-level function
+spec.  That is, the value returned by 3si:unencapsulate-function-spec*
+is 2not* the right thing to use.  It will have had one or more
+encapsulations stripped off, including the 3si:rename-within*
+encapsulation if any, and so no renamings will be done.
+.end_defun

@@ -1,0 +1,417 @@
+.c This file is part of the Lisp Machine manual.	-*-Bolio-*-
+
+.c Need examples!
+
+.chapter "Stack Groups"
+'cindex "stack group"
+.setq stack-group section-page
+.setq stack-group-chapter chapter-number
+'cindex coroutine
+
+	A 2stack group* (usually abbreviated "SG") is a type of Lisp
+object useful for implementation of certain advanced control structures
+such as coroutines and generators.  Processes, which are a kind of
+coroutine, are built on top of stack groups (see (process)).  A stack
+group represents a computation and its internal state, including the
+Lisp stack.
+
+	At any time, the computation being performed by the Lisp
+Machine is associated with one stack group, called the 2current* or
+2running* stack group.  The operation of making some stack group be
+the current stack group is called a 2resumption* or a 2stack group
+switch*; the previously running stack group is said to have 2resumed* the new
+stack group.  The 2resume* operation has two parts: first, the state
+of the running computation is saved away inside the current stack group,
+and secondly the state saved in the new stack group is restored, and the
+new stack group is made current.  Then the computation of the new stack
+group resumes its course.
+
+	The stack group itself holds a great deal of state information.
+It contains the control stack, or "regular PDL".  The control stack is
+what you are shown by the backtracing commands of the error handler
+(Control-B, Meta-B, and Control-Meta-B); it remembers the function which
+is running, its caller, its caller's caller, etc., and
+the point of execution of each function (the "return addresses" of each
+function).  A stack group also contains the environment stack, or
+"special PDL".  This contains all of the values saved by
+3lambda*-binding.  The name "stack group" derives from the existence
+of these two stacks.  Finally, the stack group contains various internal state
+information (contents of machine registers and so on).
+
+	When the state of the current
+stack group is saved away, all of its bindings are undone,
+and when the state is restored, the bindings are put back.
+Note that although bindings are temporarily undone, unwind-protect
+handlers are 2not* run by a stack-group switch (see 3let-globally*,
+(let-globally-fun)).
+
+	Each stack group is a separate environment for purposes of function
+calling, throwing, dynamic variable binding, and condition signalling.  All
+stack groups run in the same address space, thus they share the same Lisp
+data and the same global (not lambda-bound) variables.
+
+When a new stack group is created, it is empty: it doen't contain the state
+of any computation, so it can't be resumed.  In order to get things going,
+the stack group must be set to an initial state.  This is done by "presetting"
+the stack group.  To preset a stack group, you supply a function and a set
+of arguments.  The stack group is placed in such a state that when it is
+first resumed, this function will call those arguments.  The function is
+called the "initial" function of the stack group.
+
+.section Resuming of Stack Groups
+
+The interesting thing that happens to stack groups is that they resume
+each other.  When one stack group resumes a second stack group, the
+current state of Lisp execution is saved away in the first stack group,
+and is restored from the second stack group.  Resuming is also called
+"switching stack groups".
+
+At any time, there is one
+stack group associated with the current computation; it is called the
+current stack group.  The computations associated with other stack
+groups have their states saved away in memory, and they are not
+computing.  So the only stack group that can do anything at all, in
+particular resuming other stack groups, is the current one.
+
+You can look at things from the point of view of one computation.  Suppose
+it is running along, and it resumes some stack group.  Its state is saved
+away into the current stack group, and the computation associated with the
+one it called starts up.  The original computation lies dormant in the
+original stack group, while other computations go around resuming each other,
+until finally the original stack group is resumed by someone.  Then the
+computation is restored from the stack group and gets to run again.
+
+There are several ways that the current stack group can resume other
+stack groups.  This section describes all of them.
+
+.cindex resumer
+Associated with each stack group is a 2resumer*.  The resumer is 3nil*
+or another stack group.  Some forms of resuming examine and alter the
+resumer of some stack groups.
+
+Resuming has another ability: it can transmit a Lisp object from the
+old stack group to the new stack group.  Each stack group specifies
+a value to transmit whenever it resumes another stack group; whenever
+a stack group is resumed, it receives a value.
+
+In the descriptions below, let 2c* stand for the current stack group,
+2s* stand for some other stack group, and 2x* stand for any
+arbitrary Lisp object.
+
+Stack groups can be used as functions.  They accept one argument.  If
+2c* calls 2s* as a function with one argument 2x*, then 2s* is
+resumed, and the object transmitted is 2x*.  When 2c* is resumed
+(usually--but not necessarily--by 2s*), the object transmitted by that
+resumption will be returned as the value of the call to 2s*.  This is
+one of the simple ways to resume a stack group: call it as a function.
+The value you transmit is the argument to the function, and the value
+you receive is the value returned from the function.  Furthermore, this
+form of resuming sets 2s*'s resumer to be 2c*.
+
+Another way to resume a stack group is to use 3stack-group-return*.
+Rather than allowing you to specify which stack group to resume,
+this function always resumes the resumer of the current stack group.
+Thus, this is a good way to resume whoever it was who resumed 2you*,
+assuming he did it by function-calling.  3stack-group-return* takes
+one argument which is the object to transmit.  It returns when someone
+resumes the current stack group, and returns one value, the object
+that was transmitted by that resumption.  3stack-group-return* does
+not affect the resumer of any stack group.
+
+The most fundamental way to do resuming is with 3stack-group-resume*,
+which takes two arguments: the stack group, and a value to transmit.
+It returns when someone resumes the current stack group, returning
+the value that was transmitted by that resumption,
+and does not affect any stack group's resumer.
+
+If the initial function of 2c* attempts to return a value 2x*, the
+regular kind of Lisp function return cannot take place, since the
+function did not have any caller (it got there when the stack group was
+initialized).  So instead of normal function returning, a "stack group
+return" happens.  2c*'s resumer is resumed, and the value transmitted
+is 2x*.  2c* is left in a state ("exhausted") from which it cannot
+be resumed again; any attempt to resume it will signal an error.  Presetting
+it will make it work again.
+
+Those are the "voluntary" forms of stack group switch; a resumption
+happens because the computation said it should.  There are also two
+"involuntary" forms, in which another stack group is resumed without the
+explicit request of the running program.
+
+If an error occurs, the current stack group resumes the error handler stack
+group.  The value transmitted is partially descriptive of the error, and
+the error handler looks inside the saved state of the erring stack group
+to get the rest of the information.  The error handler recovers from the
+error by changing the saved state of the erring stack group and then
+resuming it.
+
+When certain events occur, typically a 1-second clock tick, a 2sequence
+break* occurs.  This forces the current stack group to resume a special
+stack group called the 2scheduler* (see (scheduler)).  The scheduler
+implements processes by resuming, one after another, the stack group of each
+process that is ready to run.
+
+.defvar sys:%current-stack-group-previous-stack-group
+The binding of this variable is the resumer of the current stack group.
+.end_defvar
+
+.defvar sys:%current-stack-group
+The value of 3sys:%current-stack-group* is the stack group which is
+currently running.  A program can use this variable to get its hands
+on its own stack group.
+.end_defvar
+
+.section Stack Group States
+
+A stack group has a 2state*, which controls what it will do when it
+is resumed.  The code number for the state is returned by the function
+3sys:sg-current-state*.  This number will be the value of one of
+the following symbols.  Only the states actually used by the current
+system are documented here; some other codes are defined but not used.
+
+.table 3 500
+.item sys:sg-state-active
+The stack group is the current one.
+
+.item sys:sg-state-resumable
+The stack group is waiting to be resumed, at which time it will pick up
+its saved machine state and continue doing what it was doing before.
+
+.item sys:sg-state-awaiting-return
+The stack group called some other stack group as a function.  When it is
+resumed, it will return from that function call.
+
+.item sys:sg-state-awaiting-initial-call
+The stack group has been preset (see below) but has never been called.
+When it is resumed, it will call its initial function with the preset arguments.
+
+.item sys:sg-state-exhausted
+The stack group's initial function has returned.  It cannot be resumed.
+
+.item sys:sg-state-awaiting-error-recovery
+When a stack group gets an error it goes into this state, which prevents
+anything from happening to it until the error handler has looked at it.
+In the meantime it cannot be resumed.
+
+.item sys:sg-state-invoke-call-on-return
+When the stack group is resumed, it will call a function.  The function
+and arguments are already set up on the stack.  The debugger uses this
+to force the stack group being debugged to do things.
+.end_table
+
+.section Stack Group Functions
+
+.defun make-stack-group name &optional options
+This creates and returns a new stack group.  2name* may be any symbol
+or string; it is used in the stack group's printed representation.
+2options* is a list of alternating keywords and values.  The options
+are not too useful; most calls to 3make-stack-group* don't need any
+options at all.  The options are:
+.table 3
+.kitem :sg-area
+The area in which to create the stack group structure itself.
+Defaults to the default area (the value of 3default-cons-area*).
+
+.kitem :regular-pdl-area
+The area in which to create the regular PDL.  Note that this
+may not be any area; only certain areas will do, because regular PDLs
+are cached in a hardware device called the 2pdl buffer*.
+The default is 3sys:pdl-area*.
+
+.kitem :special-pdl-area
+The area in which to create the special PDL.
+Defaults to the default area (the value of 3default-cons-area*).
+
+.kitem :regular-pdl-size
+Length of the regular PDL to be created.  Defaults to 3000.
+
+.kitem :special-pdl-size
+Length of the special PDL to be created.  Defaults to 2000.
+
+.kitem :swap-sv-on-call-out
+.item1 :swap-sv-of-sg-that-calls-me
+'kindex :swap-sv-of-sg-that-calls-me make-stack-group
+These flags default to 1.  If these are 0, the system does not maintain
+separate binding environments for each stack group.  You do not want
+to use this feature.
+
+.kitem :trap-enable
+This determines what to do if a microcode error occurs.
+If it is 31* the system tries to handle the error;
+if it is 30* the machine halts.  Defaults to 1.
+
+.kitem :safe
+If this flag is 31* (the default), a strict call-return discipline among
+stack-groups is enforced.  If 30*, no restriction on stack-group
+switching is imposed.
+.c I could explain this a lot better if I understood it.
+.end_table
+.end_defun
+
+.defun stack-group-preset stack-group function &rest arguments
+This sets up 2stack-group* so that when it is resumed,
+2function* will be applied to 2arguments* within the stack group.
+Both stacks are made empty; all saved state in the stack group is destroyed.
+3stack-group-preset* is typically used to initialize a stack group just after it is made,
+but it may be done to any stack group at any time.  Doing this to a stack
+group which is not exhausted will destroy its present state without
+properly cleaning up by running 3unwind-protect*s.
+.end_defun
+
+.defun stack-group-resume s x
+Resumes 2s*, transmitting the value 2x*.
+No stack group's resumer is affected.
+.end_defun
+
+.defun stack-group-return x
+Resumes the current stack group's resumer, transmitting the value 2x*.
+No stack group's resumer is affected.
+.end_defun
+
+.defun symeval-in-stack-group symbol sg &optional frame as-if-current
+Evaluates the variable 2symbol* in the binding environment of
+2sg*.  If 2frame* is not 2nil*, if evaluates 2symbol* in the
+binding environment of execution in that frame.  (A frame is an index
+in the stack group's regular pdl).
+
+Two values are returned: the symbol's value, and a locative to where
+the value is stored.  If 2as-if-current* is not 2nil*, the
+locative points to where the value 1would* be stored if 2sg* were
+running.  This may be different from where the value is stored now;
+for example, the current binding in stack group 2sg* is stored in
+2symbol*'s value cell when 2sg* is running, but is probably
+stored in 2sg*'s special pdl when 2sg* is not running.
+2as-if-current* makes no difference if 2sg* actually 1is*
+the current stack group.
+
+If 2symbol* is unbound in the specified stack group and frame,
+this will get an unbound-variable error.
+.end_defun
+
+There are a large number of functions in the 3sys:* and 3eh:* packages
+for manipulating the internal details of stack groups.  These are not
+documented here as they are not necessary for most users or even system
+programmers to know about.  Refer to the file SYS: LMWIN; EH LISP for them.
+
+.c If eh:unwind-sg was global it might be documented here
+.c If there was a way to "interrupt" a stack group (force it to call a function)
+.c it would be documented here.  There is only force-break currently.
+
+
+.section Input/Output in Stack Groups
+.setq sg-terminal-io-issues section-page
+
+	Because each stack group has its own set of dynamic bindings, a
+stack group will not inherit its creator's value of 3terminal-io*
+(see (terminal-io-var)), nor its caller's, unless you make special
+provision for this.  The 3terminal-io* a stack group gets by default
+is a "background" stream which does not normally expect to be used.  If
+it is used, it will turn into a "background window" which will request
+the user's attention.  Usually this is because an error printout is
+trying to be printed on the stream.  [This will all be explained
+in the window system documentation.]
+
+	If you write a program that uses multiple stack groups, and you want
+them all to do input and output to the terminal, you should pass the
+value of 3terminal-io* to the top-level function of each stack group
+as part of the 3stack-group-preset*, and that function should bind
+the variable 3terminal-io*.
+
+	Another technique is to use a closure as the top-level function
+of a stack group.  This closure can bind 3terminal-io* and any other
+variables that are desired to be shared between the stack group and its
+creator.
+
+
+.section An Example of Stack Groups
+
+The canonical coroutine example is the so-called samefringe problem:
+Given two trees, determine whether they contain the same
+atoms in the same order, ignoring parenthesis structure.  A better
+way of saying this is, given two binary trees built out of conses,
+determine whether the sequence of atoms on the fringes of the trees
+is the same, ignoring differences in the arrangement of the
+internal skeletons of the two trees.  Following the usual rule
+for trees, 3nil* in the cdr of a cons is to be ignored.
+
+One way of solving this problem is to use 2generator* coroutines.
+We make a generator for each tree.  Each time the generator is called
+it returns the next element of the fringe of its tree.  After the
+generator has examined the entire tree, it returns a special "exhausted"
+flag.  The generator is most naturally written as a recursive function.
+The use of coroutines, i.e. stack groups, allows the two generators to
+recurse separately on two different control stacks without having to
+coordinate with each other.
+
+The program is very simple.  Constructing it in the usual bottom-up style,
+we first write a recursive function which takes a tree and 3stack-group-return*s
+each element of its fringe.  The 3stack-group-return* is how the generator
+coroutine delivers its output.  We could easily test this function by changing
+3stack-group-return* to 3print* and trying it on some examples.
+.lisp
+(defun fringe (tree)
+  (cond ((atom tree) (stack-group-return tree))
+	(t (fringe (car tree))
+	   (if (not (null (cdr tree)))
+	       (fringe (cdr tree))))))
+.end_lisp
+
+Now we package this function inside another, which takes care of
+returning the special "exhausted" flag.
+.lisp
+(defun fringe1 (tree exhausted)
+  (fringe tree)
+  exhausted)
+.end_lisp
+
+The 3samefringe* function takes the two trees as arguments and returns
+3t* or 3nil*.  It creates two stack groups to act as the two
+generator coroutines, presets them to run the 3fringe1* function, then
+goes into a loop comparing the two fringes.  The value is 3nil* if a difference
+is discovered, or 3t* if they are still the same when the end is reached.
+.lisp
+(defun samefringe (tree1 tree2)
+  (let ((sg1 (make-stack-group "samefringe1"))
+	(sg2 (make-stack-group "samefringe2"))
+	(exhausted (ncons nil)))
+    (stack-group-preset sg1 #'fringe1 tree1 exhausted)
+    (stack-group-preset sg2 #'fringe1 tree2 exhausted)
+    (do ((v1) (v2)) (nil)
+      (setq v1 (funcall sg1 nil)
+	    v2 (funcall sg2 nil))
+      (cond ((neq v1 v2) (return nil))
+	    ((eq v1 exhausted) (return t))))))
+.end_lisp
+
+Now we test it on a couple of examples.
+.lisp
+(samefringe '(a b c) '(a (b c))) => t
+(samefringe '(a b c) '(a b c d)) => nil
+.end_lisp
+
+The problem with this is that a stack group is quite a large object, and
+we make two of them every time we compare two fringes.  This is a lot of
+unnecessary overhead.  It can easily be eliminated with a modest amount
+of explicit storage allocation, using the resource facility (see
+(defresource-fun)).  While we're at it, we can avoid making the
+exhausted flag fresh each time; its only important property is that it
+not be an atom.
+.lisp
+(defresource samefringe-coroutine ()
+   :constructor (make-stack-group "for-samefringe"))
+
+(defvar exhausted-flag (ncons nil))
+
+(defun samefringe (tree1 tree2)
+  (using-resource (sg1 samefringe-coroutine)
+    (using-resource (sg2 samefringe-coroutine)
+      (stack-group-preset sg1 #'fringe1 tree1 exhausted-flag)
+      (stack-group-preset sg2 #'fringe1 tree2 exhausted-flag)
+      (do ((v1) (v2)) (nil)
+	(setq v1 (funcall sg1 nil)
+	      v2 (funcall sg2 nil))
+	(cond ((neq v1 v2) (return nil))
+	      ((eq v1 exhausted-flag) (return t)))))))
+.end_lisp
+
+Now we can compare the fringes of two trees with no allocation of memory whatsoever.

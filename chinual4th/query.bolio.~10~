@@ -1,0 +1,174 @@
+.c This file is part of the Lisp machine manual -*-Bolio-*-
+
+.chapter "Querying the User"
+.cindex querying the user
+.cindex yes-or-no
+.setq query-chapter chapter-number
+
+The following functions provide a convenient and consistent interface for
+asking questions of the user.  Questions are printed and the answers are
+read on the stream 3query-io*, which normally is synonymous with
+3terminal-io* but can be rebound to another stream for special applications.
+
+We will first describe two simple functions for yes-or-no questions, then
+the more general function on which all querying is built.
+
+.defun y-or-n-p &optional message stream
+This is used for asking the user a question whose answer is either "yes"
+or "no".  It types out 2message* (if any), reads a one-character
+answer, echoes it as "3Yes*" or "3No*", and returns 3t* if the
+answer is "yes" or 3nil* if the answer is "no".  The characters which
+mean "yes" are Y, T, space, and hand-up.  The characters which mean "no"
+are N, rubout, and hand-down.  If any other character is typed, the
+function will beep and demand a "Y or N" answer.
+
+If the 2message* argument is supplied, it will be printed on a fresh line
+(using the 3:fresh-line* stream operation).
+Otherwise the caller is assumed to have printed the message already.
+If you want a question mark and/or a space at the end of the message,
+you must put it there yourself; 3y-or-n-p* will not add it.
+2stream* defaults to the value of 3query-io*.
+
+3y-or-n-p* should only be used for questions which the user knows
+are coming.  If the user is not going to be anticipating the question
+(e.g. if the question is "Do you really want to delete all of your files?"
+out of the blue)
+then 3y-or-n-p* should not be used, because the user might type ahead
+a T, Y, N, space, or rubout, and therefore accidentally answer the question.
+In such cases, use 3yes-or-no-p*.
+.end_defun
+
+.defun yes-or-no-p &optional message stream
+This is used for asking the user a question whose answer is either
+"Yes" or "No".  It types out 2message* (if any), beeps, and reads in a line
+from the keyboard.  If the line is the string "Yes", it returns 3t*.
+If the line is "No", it returns 3nil*.  (Case is ignored, as are
+leading and trailing spaces and tabs.)  If the input line is anything else,
+3yes-or-no-p* beeps and demands a "yes" or "no" answer.
+
+If the 2message* argument is supplied, it will be printed on a fresh line
+(using the 3:fresh-line* stream operation).
+Otherwise the caller is assumed to have printed the message already.
+If you want a question mark and/or a space at the end of the message,
+you must put it there yourself; 3yes-or-no-p* will not add it.
+2stream* defaults to the value of 3query-io*.
+
+To allow the user to answer a yes-or-no question with a single
+character, use 3y-or-n-p*.  3yes-or-no-p* should be
+used for unanticipated or momentous questions; this is why it beeps
+and why it requires several keystrokes to answer it.
+.end_defun
+
+.defun fquery options format-string &rest format-args
+Asks a question, printed by 3(format query-io 2format-string* 2format-args*...)*,
+and returns the answer.  3fquery* takes care of checking for valid answers,
+reprinting the question when the user clears the screen, giving help, and so
+forth.
+
+2options* is a list of alternating keywords and values, used to select among a variety
+of features.  Most callers will have a constant list which they pass as 2options*
+(rather than consing up a list whose contents varies).
+The keywords allowed are:
+.table 3
+.kitem :type
+What type of answer is expected.  The currently-defined types are 3:tyi* (a single
+character) and 3:readline* (a line terminated by a carriage return).  3:tyi* is
+the default.
+
+.kitem :choices
+Defines the allowed answers.  The allowed forms of choices are complicated and
+explained below.  The default is the same set of choices as the 3y-or-n-p*
+function (see above).  Note that the 3:type* and 3:choices* options should
+be consistent with each other.
+
+.kitem :list-choices
+If 3t*, the allowed choices are listed (in parentheses) after the question.
+The default is 3t*; supplying 3nil* causes the choices not to be listed unless
+the user tries to give an answer which is not one of the allowed choices.
+
+.kitem :help-function
+Specifies a function to be called if the user hits the 3HELP* key.
+The default help-function simply lists the available choices.
+Specifying 3nil* disables special treatment of 3HELP*.
+Specifying a function of three arguments--the stream, the list of choices,
+and the type-function--allows smarter help processing.  The type-function
+is the internal form of the 3:type* option and can usually be ignored.
+
+.kitem :condition
+If non-3nil*, a condition to be signalled before asking the question.
+The handler of this condition may supply an answer, in which case the user
+is not asked.  The details are given below.  The default condition is 3:fquery*.
+
+.kitem :fresh-line
+If 3t*, 3query-io* is advanced to a fresh line before asking the question.
+If 3nil*, the question is printed wherever the cursor was left by previous typeout.
+The default is 3t*.
+
+.kitem :beep
+If 3t*, 3fquery* beeps to attract the user's attention to the question.
+The default is 3nil*, which means not to beep unless the user tries to
+give an answer which is not one of the allowed choices.
+
+.kitem :clear-input
+If 3t*, 3fquery* throws away type-ahead before reading the user's response
+to the question.  Use this for unexpected questions.  The default is 3nil*,
+which means not to throw away typeahead unless the user tries to
+give an answer which is not one of the allowed choices.  In that case, typeahead
+is discarded since the user probably wasn't expecting the question.
+
+.kitem :select
+If 3t* and 3query-io* is a visible window, that window is temporarily
+selected while the question is being asked.  The default is 3nil*.
+
+.kitem :make-complete
+If 3t* and 3query-io* is a typeout-window, the window is "made complete"
+after the question has been answered.  This tells the system that the contents
+of the window are no longer useful.  Refer to the window system documentation
+for further explanation.  The default is 3t*.
+.end_table
+
+The argument to the 3:choices* option is a list each of whose elements is
+a 2choice*.  The cdr of a choice is a list of the user inputs which correspond
+to that choice.  These should be characters for 3:type :tyi* or strings
+for 3:type :readline*.  The car of a choice is either a symbol which 3fquery*
+should return if the user answers with that choice, or a list whose first element
+is such a symbol and whose second element is the string to be echoed when the
+user selects the choice.  In the former case nothing is echoed.
+In most cases 3:type :readline* would use the first
+format, since the user's input has already been echoed, and 3:type :tyi* would
+use the second format, since the input has not been echoed and furthermore is
+a single character, which would not be mnemonic to see on the display.
+
+Perhaps this can be clarified by example.  The 3yes-or-no-p* function uses
+this list of choices:
+.lisp
+((t "Yes") (nil "No"))
+.end_lisp
+and the 3y-or-n-p* function uses this list:
+.lisp
+(((t "Yes.") #/y #/t #\sp #\hand-up)
+ ((nil "No.") #/n #\rubout #\hand-down))
+.end_lisp
+
+If a condition is specified (or allowed to default to 3:fquery*), before asking
+the question 3fquery* will signal the condition.  (See (condition) for information
+about conditions.)  The handler will receive four arguments: the condition name,
+the 2options* argument to 3fquery*, the 2format-string* argument to 3fquery*,
+and the list of 2format-args* arguments to 3fquery*.  As usual with conditions,
+if the handler returns 3nil* the operation proceeds as if there had been no handler.
+If the handler returns two values, 3t* and 2ans*, 3fquery* will immediately
+return 2ans*.  No conventions have yet been defined for standard condition names
+for use with 3fquery*.
+
+If you want to use the formatted output functions instead of 3format* to produce the
+promting message, write
+.lisp
+(fquery 2options* (format:outfmt 2exp-or-string* 2exp-or-string* ...))
+.end_lisp
+3format:outfmt* puts the output into a list of a string, which makes 3format*
+print it exactly as is.  There is no need to supply additional arguments to the
+3fquery* unless it signals a condition.  In that case the arguments might be passed so
+that the condition handler can see them.  The condition handler will receive a list
+containing one string, the message, as its third argument instead of just a string.  If
+this argument is passed along to 3format*, all the right things happen.
+.end_defun

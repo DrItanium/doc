@@ -1,0 +1,984 @@
+.c Pathname chapter of Lisp machine manual -*- Bolio -*-
+
+.chapter Naming of Files
+.cindex filename
+.cindex pathname
+.setq pathname section-page
+.setq pathname-chapter chapter-number
+
+A Lisp Machine generally has access to many file systems.  While it may
+have its own file system on its own disks, usually a community of Lisp
+Machine users want to have a shared file system accessible by any of the
+Lisp Machines over a network.  These shared file systems can be
+implemented by any computer that is capable of providing file system
+service.  A file server computer may be a special-purpose computer that
+does nothing but service file system requests from computers on a
+network, or it might be an existing time-sharing system.
+
+Programs need to use names to designate files within these file systems.
+The main difficulty in dealing with names of files is that different
+file systems have different naming formats for files.  For example, in
+the ITS file system, a typical name looks like:
+.lisp
+	DSK: GEORGE; FOO QFASL
+.end_lisp
+with 3DSK* being a device name, 3GEORGE* being a directory name, 3FOO*
+being the first file name and 3QFASL* being the second file name.  However, in
+TOPS-20, a similar file name is expressed as:
+.lisp
+	PS:<GEORGE>FOO.QFASL
+.end_lisp
+It would be unreasonable for each program that deals with file names to
+be expected to know about each different file name format that exists;
+in fact, new formats could get added in the future, and existing
+programs should retain their abilities to manipulate the names.
+
+The functions and flavors described in this chapter exist to solve this
+problem.  They provide an interface through which a program can deal with
+names of files and manipulate them without depending on anything about
+their syntax.  This lets a program deal with multiple remote file
+servers simultaneously, using a uniform set of conventions.
+
+
+.section Pathnames
+
+All file systems dealt with by the Lisp Machine are mapped into a common model,
+in which files are named by something called a 2pathname*.  A pathname always
+has six components, described below.  These components are the common interface
+that allows programs to work the same way with different file systems; the mapping
+of the pathname components into the concepts peculiar to each file system is taken
+care of by the pathname software.  This mapping is described for each file
+system later in this chapter.
+
+.cindex host (pathname)
+.cindex device (pathname)
+.cindex directory (pathname)
+.cindex name (pathname)
+.cindex type (pathname)
+.cindex version (pathname)
+These are the components of a pathname.  They will be clarified by an example below.
+.table 1
+.item host
+The name of the file system machine on which the file resides.
+
+.item device
+Corresponds to the "device" or "file structure" concept in many host file systems.
+
+.item directory
+The name of a group of related files belonging to a single user or project.
+Corresponds to the "directory" concept in many host file systems.
+
+.item name
+The name of a group of files which can be thought of as conceptually the "same" file.
+
+.item type
+Corresponds to the "filetype" or "extension" concept in many host file systems.
+This says what kind of file this is.
+
+.item version
+Corresponds to the "version number" concept in many host file systems.
+This is a number which increments every time the file is modified.
+.end_table
+
+As an example, consider a Lisp program named 3CONCH*.  If it belongs
+to 3GEORGE*, who uses the 3FISH* machine, the host would be
+3FISH*, the device would be the default probably, and the directory would be
+3GEORGE*.  On this directory would be a number of files related to the
+3CONCH* program.  The source code for this program would live in a set
+of files with name 3CONCH*, type 3LISP*, and versions 31*, 32*,
+33*, etc.  The compiled form of the program would live in files named
+3CONCH* with type 3QFASL*; each would have the same version number as the
+source file that it came from.  If the program had a documentation file,
+it would have type 3INFO*.
+
+Note that a pathname is not necessarily the name of a specific file.  Rather,
+it is a way to get to a file; a pathname need not correspond to any file that
+actually exists, and more than one pathname can refer to the same file.  For
+example, the pathname with a version of "newest" will refer to the same file
+as a pathname with the same components except a certain number as the version.
+In systems with links, multiple file names, logical devices, etc. two pathnames
+that look quite different may really turn out to address the same file.
+To get from a pathname to a file requires doing a file system operation
+such as 3open*.
+
+A pathname is an instance of a flavor (see (flavor));
+exactly which flavor depends on what the host of the pathname is.  If 2p* is a
+pathname, then 3(typep 2p* 'fs:pathname)* will return 3t*.  (3fs* is
+the file-system package.)  There are functions for manipulating pathnames,
+and there are also messages that can be sent to them.  These are described
+later in this chapter.
+
+.cindex parse (pathname)
+.cindex merge (pathname)
+Two important operations of the pathname system are 2parsing* and 2merging*.
+Parsing is the conversion of a string--which might be something typed in by the
+user when asked to supply the name of a file--into a pathname object.  This involves
+finding out what host the pathname is for, then using the file name syntax
+conventions of that host to parse the string into the standard pathname components.
+Merging is the operation which takes a pathname with missing components and
+supplies values for those components from a set of defaults.
+
+Since each kind of file server can have its own character string
+representation of names of its files, there has to be a different parser
+for each of these representations, capable of examining such a character
+string and figuring out what each component is.  The parsers all work
+differently.  How can the parsing operation know which parser to use?
+The first thing that the parser does is to figure out which host this
+filename belongs to.  A filename character string may specify a host
+explicitly, by having the name of the host, followed by a colon, either
+at the beginning or the end of the string.  For example, the following
+strings all specify hosts explicitly:
+.lisp
+AI: COMMON; GEE WHIZ		;1 This specifies host AI.*
+COMMON; GEE WHIZ AI:		;1 So does this.*
+AI: ARC: USERS1; FOO BAR	;1 So does this.*
+ARC: USERS1; FOO BAR AI:	;1 So does this.*
+EE:PS:<COMMON>GEE.WHIZ.5	;1 This specifies host EE.*
+PS:<COMMON>GEE.WHIZ.5 EE:	;1 So does this.*
+.end_lisp
+If the string does not specify a host explicitly, the parser will
+assume some particular host is the one in question, and will use
+the parser for that host's file system.  The optional arguments passed to
+the parsing function (3fs:parse-pathname*) tell it which host to assume.
+Note: the parser won't be confused by strings starting with 3"DSK:"*
+or 3"PS:"* because it knows that neither of those is a valid host name.
+(If some file system's syntax allowed file names that start with the name
+of a valid host followed by a colon, there could be problems.)
+
+Pathnames, like symbols, are 2interned*.  This means that there is
+only one pathname object with a given set of components.  If a character
+string is parsed into components, and some pathname object with exactly
+those components already exists, then the parser returns the existing
+pathname object rather than creating a new one.  The main reason for
+this is that a pathname has a property list (see (plist)).  The system
+stores properties on pathnames to remember information about the file or
+family of files to which that pathname refers.  So you can parse a
+character-string that represents a filename, and then look at its
+property list to get various information known about that pathname.  The
+components of a pathname are never modified once the pathname has been
+created, just as the print-name of a symbol is never modified.  The only
+thing that can be modified is the property list.
+
+.setq pathname-plist-warning page
+
+When using property lists of pathnames, you have to be very careful
+which pathname you use to hold properties, in order to avoid a subtle
+problem: many different pathnames can refer to the same file, because
+of things like the 3:newest* component, file system links, multiple
+naming in the file system, and so on.  If you put a property on one of
+these pathnames because you want to associate some information with the
+file itself, somebody else might look at another pathname that refers
+to the same file, and not find the information there.  If you really
+want to associate information with the file itself rather than some
+particular pathname, you can get a canonical pathname for the file by
+using the 3:truename* message to a stream opened to that file (see
+(:truename-message)).  You may also want to store properties on
+"generic" pathnames (see (generic-pathname)).
+
+A pathname can be converted into a string, which is in the file name syntax
+of its host's file system, except that the name of the host followed by a colon
+is inserted at the front.  3prin1* of a pathname (3~S* in 3format*)
+prints it like a Lisp object (using the usual "3#<*" syntax),
+while 3princ* of a pathname (3~A* in 3format*) prints it like a file
+name of the host file system.  The 3string* function, applied to a pathname,
+returns the string that 3princ* would print.  Thus pathnames may be used as
+arguments to functions like 3string-append*.
+
+Not all of the components of a pathname need to be specified.  If a
+component of a pathname is missing, its value is 3nil*.  Before a file
+server can do anything interesting with a file, such as opening the
+file, all the missing components of a pathname must be filled in from
+defaults.  But pathnames with missing components are often handed around
+inside the machine, since almost all pathnames typed by users do not
+specify all the components explicitly.  The host is not allowed to be
+missing from any pathname; since the behavior of a pathname is
+host-dependent to some extent, it has to know what its host is.  All
+pathnames have host attributes, even if the string being parsed does not
+specify one explicitly.
+
+.cindex unspecific pathname components
+
+A component of a pathname can also be the special symbol 3:unspecific*.
+This means that the component has been explicitly determined not to be there,
+as opposed to being missing.  One way this can occur is with 2generic*
+pathnames, which refer not to a file but to a whole family of files.  The
+version, and usually the type, of a generic pathname are 3:unspecific*.  Another
+way 3:unspecific* is used has to do with mapping of pathnames into file
+systems such as ITS that do not have all six components.  A component that
+is really not there will be 3:unspecific* in the pathname.  When a pathname
+is converted to a string, 3nil* and 3:unspecific* both cause the component
+not to appear in the string.  The difference occurs in the merging operation,
+where 3nil* will be replaced with the default for that component, while
+3:unspecific* is left alone.
+
+A component of a pathname can also be the special symbol 3:wild*.  This is
+only useful when the pathname is being used with a directory primitive such
+as 3fs:directory-list* (see (fs:directory-list-fun)), where it means that this pathname component matches
+anything.  The printed representation of a pathname usually designates
+3:wild* with an asterisk; however, this is host-dependent.
+
+What values are allowed for components of a pathname depends, in general,
+on the pathname's host.  However, in order for pathnames to be usable
+in a system-independent way certain global conventions are adhered to.
+These conventions are stronger for the type and version than for the
+other components, since the type and version are actually understood by
+many programs, while the other components are usually just treated as something
+supplied by the user which just needs to be remembered.
+
+The type is always a string (unless it is one of the special symbols 3nil*,
+3:unspecific*, and 3:wild*).  Many programs that deal with files have an idea of what
+type they want to use.  For example, Lisp source programs are 3"lisp"*,
+compiled Lisp programs are 3"qfasl"*, text files are 3"text"*, tags files
+are 3"tags"*, etc.  Just what characters are allowed in the type, and how many,
+is system dependent.
+
+The version is either a number (specifically, a positive fixnum), or a special symbol.
+3nil*, 3:unspecific*, and 3:wild* have been explained above.  3:newest* refers
+to the largest version number that exists when reading a file, or that number
+plus one when writing a new file.  3:oldest* refers to the smallest version
+number that exists.  Some file systems may define other special
+version symbols, such as 3:installed* for example.
+
+The host is always a string.  The Lisp Machine has a fixed list of hosts
+that it knows about.
+
+.cindex structured pathname components
+The device, directory, and name are more system-dependent.  These can be strings
+(with host-dependent rules on allowed characters and length), or they can
+be 2structured*.  A structured component is a list of strings.  This
+is used for file system features such as hierarchical directories.  The system is
+arranged so that programs do not need to know about structured components
+unless they do host-dependent operations.  Giving a string as a pathname component
+to a host that wants a structured value converts the string to the appropriate
+form.  Giving a structured component to a host that does not understand them
+converts it to a string by taking the first element and ignoring the rest.
+
+Some host file systems have features that do not fit into this pathname
+model.  For instance, directories might be accessible as files, there
+might be complicated structure in the directories or names, or there
+might be relative directories, such as "<" in Multics.  These features
+appear in the parsing of strings into pathnames, which is one reason why
+the strings are written in host-dependent syntax.  Pathnames for hosts with
+these features are also likely to handle additional messages besides the
+common ones documented in this chapter, for the benefit of
+host-dependent programs which want to access those features.  However,
+note that once your program depends on any such features, it will only
+work for certain file servers and not others; in general, it is a good
+idea to make your program work just as well no matter what file server
+is being used.
+
+.section Defaults and Merging
+.cindex default (pathname)
+.cindex merge (pathname)
+
+When the user is asked to type in a pathname, it is of course unreasonable
+to require the user to type a complete pathname, containing all components.
+Instead there are defaults, so that components not specified by the user can
+be supplied automatically by the system.  Each program that deals with pathnames
+typically has its own set of defaults.
+
+The system defines an object called a 2defaults a-list*.  Functions are
+provided to create one, get the default pathname out of one, merge a pathname
+with one, and store a pathname back into one.  A defaults a-list can remember
+more than one default pathname if defaults are being kept separately for
+each host; this is controlled by the variable 3fs:*defaults-are-per-host**.
+The main primitive for using defaults is the function
+3fs:merge-pathname-defaults* (see (fs:merge-pathname-defaults-fun)).
+
+In place of a defaults a-list, you may use just a pathname.  Defaulting one
+pathname from another is useful for cases such as a program that has an input
+file and an output file, and asks the user for the name of both, letting
+the unsupplied components of one name default from the other.  Unspecified
+components of the output pathname will come from the input pathname, except
+that the type should default not to the type of the input but to the appropriate
+default type for output from this program.
+
+The implementation of a defaults a-list is an association list of host names
+and default pathnames.  The host name 3nil* is special and holds the
+defaults for all hosts, when defaults are not per-host.
+
+.setq pathname-merging-rules page
+The 2merging* operation takes as input a pathname, a defaults a-list
+(or another pathname), a default type, and a default version, and returns a
+pathname.  Basically, the missing components in the pathname are filled
+in from the defaults a-list, except that if no type is specified the
+default type is used, and if no version is specified the default version
+is used.  By default, the default type is 3:unspecific*, meaning that
+if the input pathname has no type, the user really wants a file with no
+type.  Programs that have a default type for the files they manipulate
+will supply it to the merging operation.  The default version is usually
+3:newest*; if no version is specified the newest version in existence
+should be used.  The default type and version can be 3nil*, to preserve
+the information that they were missing in the input pathname.
+
+The full details of the merging rules are as follows.  First, if the
+pathname explicitly specifies a host and does not supply a device, then
+the device will be the default file device for that host.  Next, if the
+pathname does not specify a host, device, directory, or name, that
+component comes from the defaults.
+
+The merging rules for the type and version are more complicated, and
+depend on whether the pathname specifies a name.  If the pathname
+doesn't specify a name, then the type and version, if not provided, will
+come from the defaults, just like the other components.  However, if the
+pathname does specify a name, then the type and version are not affected
+by the defaults.  The reason for this is that the type and version
+"belong to" some other filename, and are unlikely to have anything to do
+with the new one you are typing in.  Finally, if this process leaves the
+type or version missing, the default type or default version is used
+(these were inputs to the merging operation).
+
+The effect of all this is that if the user supplies just a name, the
+host, device, and directory will come from the defaults, but the type
+and version will come from the default type and default version
+arguments to the merging operation.  If the user supplies nothing, or
+just a directory, the name, type, and version will come over from
+the defaults together.  If the host's file name syntax provides a way
+to input a type or version without a name, the user can let the name
+default but supply a different type or version than the one in the defaults.
+
+The following special variables are parts of the pathname interface
+that are relevant to defaults.
+
+.defvar fs:*defaults-are-per-host*
+This is a user customization option intended to be set by a user's
+3LISPM INIT* file (see (lispm-init-file)).  The default value is
+3nil*, which means that each program's set of defaults contains only
+one default pathname.  If you type in just a host name and a colon, the
+other components of the name will default from the previous host, with
+appropriate translation to the new host's pathname syntax.  If
+3fs:*defaults-are-per-host** is set to 3t*, each program's set of
+defaults will maintain a separate default pathname for each host.  If
+you type in just a host name and a colon, the last file that was
+referenced on that host will be used. 
+.end_defvar
+
+.defvar fs:*default-pathname-defaults*
+This is the default defaults a-list; if the pathname primitives that need
+a set of defaults are not given one, they use this one.  Most programs, however,
+should have their own defaults rather than using these.
+.end_defvar
+
+.defvar fs:load-pathname-defaults
+This is the defaults a-list for the 3load* and 3qc-file* functions.  Other
+functions may share these defaults if they deem that to be an appropriate user
+interface.
+.end_defvar
+
+.defvar fs:last-file-opened
+This is the pathname of the last file that was opened.  Occasionally this
+is useful as a default.  Since some programs deal with files without
+notifying the user, you must not expect the user to know what the
+value of this symbol is.  Using this symbol as a default may cause
+unfortunate surprises, and so such use is discouraged.
+.end_defvar
+
+
+.section Generic Pathnames
+
+.cindex generic pathname
+.setq generic-pathname section-page
+
+A generic pathname stands for a whole family of files.  The property
+list of a generic pathname is used to remember information about the
+family, some of which (such as the package) comes from the 7-*-* line
+(see (file-property-list))
+of a source file in the family.  All types of files with that name, in
+that directory, belong together.  They are different members of the same
+family; for example, they might be source code, compiled code, and
+documentation for a program.  All versions of files with that name, in
+that directory, belong together.
+
+The generic pathname of pathname 2p* has the same host, device,
+directory, and name as 2p* does.  However, it has a version of
+3:unspecific*.  Furthermore, if the type of 2p* is one of the
+elements of 3fs:*known-types**,  then it has a type of
+3:unspecific*; otherwise it has the same type as 2p*.  The reason
+that the type of the generic pathname works this way is that in some
+file systems, like ITS, the type component may actually be part of the
+file name; ITS files named 3"DIRECT IONS"* and 3"DIRECT ORY"* do not
+belong together.
+
+The 3:generic-pathname* message to a pathname returns its
+corresponding generic pathname.  See (pathname-generic-pathname-method).
+
+.defvar fs:*known-types*
+This is a list of the file types which are "not important"; constructing a generic
+pathname will strip off the file type if it is in this list.  File types not
+in this list are really part of the name in some sense.  The initial list is
+.lisp
+("lisp" "qfasl" "text" nil :unspecific)
+.end_lisp
+Some users may need to add to this list.
+.end_defvar
+
+
+.section Pathname Functions
+
+.nopara
+These functions are what programs use to parse and default file names
+that have been typed in or otherwise supplied by the user.
+
+.defun fs:parse-pathname thing &optional host defaults
+This turns 2thing*, which can be a pathname, a string, a symbol, or a
+Maclisp-style name list, into a pathname.  Most functions which are advertised
+to take a pathname argument call 3fs:parse-pathname* on it so that they will
+accept anything that can be turned into a pathname.
+
+This function does 2not* do defaulting, even though it has an argument
+named 2defaults*; it only does parsing.  The 2host* and 2defaults*
+arguments are there because in order to parse a string into a pathname,
+it is necessary to know what host it is for so that it can be parsed with
+the file name syntax peculiar to that host.  If 2thing* does not contain
+a manifest host name, then if 2host* is non-3nil*, it is the host name
+to use, as a string.  If 2thing* is a string, a manifest host name may be
+at the beginning or the end, and consists of the name of a host followed by a colon.
+If 2host* is 3nil* then the host name is obtained
+from the default pathname in 2defaults*.  If 2defaults* is not supplied,
+the default defaults (3fs:*default-pathname-defaults**) are used.
+
+Note that if 2host* is specified, and 2thing* contains a host name, an
+error is signalled if they are not the same host.
+.end_defun
+
+.defun fs:merge-pathname-defaults pathname &optional defaults default-type default-version
+Fills in unspecified components of 2pathname* from the defaults, and returns
+a new pathname.  This is the function that most programs should call to
+process a file name supplied by the user.  2pathname* can be a pathname,
+a string, a symbol, or a Maclisp namelist.  The returned value will always
+be a pathname.  The merging rules are documented on (pathname-merging-rules).
+
+If 2defaults* is a pathname, rather than a defaults a-list, then the defaults
+are taken from its components.  This is how you merge two pathnames (in Maclisp
+that operation is called 3mergef*).
+
+2defaults* defaults to the value of 3fs:*default-pathname-defaults**
+if unsupplied.  2default-type* defaults to 3:unspecific*.
+2default-version* defaults to 3:newest*.
+.end_defun
+
+.defun fs:merge-and-set-pathname-defaults pathname &optional defaults default-type default-version
+This is the same as 3fs:merge-pathname-defaults* except that after it is done
+the result is stored back into 2defaults*.  This is handy for programs that
+have "sticky" defaults.  (If 2defaults* is a pathname rather than a defaults
+a-list, then no storing back is done.)  The optional arguments default the same
+way as in 3fs:merge-pathname-defaults*.
+.end_defun
+
+.need 1500
+.nopara
+This function yields a pathname given its components.
+
+.defun fs:make-pathname &rest options
+The 2options* are alternating keywords and values, which specify the
+components of the pathname.  Missing components default to 3nil*,
+except the host (all pathnames must have a host).  The 3:defaults*
+option specifies what defaults to get the host from if none is
+specified.  The other options allowed are 3:host*,
+3:device*, 3:structured-device*, 3:directory*,
+3:structured-directory*, 3:name*, 3:structured-name*, 3:type*,
+and 3:version*.
+.end_defun
+
+.need 1500
+.nopara
+These functions are used to manipulate defaults a-lists directly.
+
+.defun fs:make-pathname-defaults
+Creates a defaults a-list initially containing no defaults.  Asking this empty set of
+defaults for its default pathname before anything has been stored into it will return
+the file 3FOO* on the user's home directory on the host he logged in to.
+.end_defun
+
+.defun fs:copy-pathname-defaults defaults
+Creates a defaults a-list initially a copy of 2defaults*.
+.end_defun
+
+.defun fs:default-pathname &optional defaults host default-type default-version
+This is the primitive function for getting a default pathname out of a defaults a-list.
+Specifying the optional arguments 2host*, 2default-type*, and 2default-version*
+to be non-3nil* forces those fields of the returned pathname to contain those values.
+
+If 3fs:*defaults-are-per-host** is 3nil* (its default value), this gets the
+one relevant default from the a-list.  If it is 3t*, this gets the default for
+2host* if one is specified, otherwise for the host most recently used.
+
+If 2defaults* is not specified, the default defaults are used.
+
+This function has an additional optional argument 2internal-p*, which
+users should never supply. 
+.end_defun
+
+.defun fs:set-default-pathname pathname &optional defaults
+This is the primitive function for updating a set of defaults.  It
+stores 2pathname* into 2defaults*.
+If 2defaults* is not specified, the default defaults are used.
+.end_defun
+
+.need 1500
+.nopara
+These functions return useful information.
+
+.defun fs:user-homedir &optional host reset-p
+.cindex home directory
+Returns the pathname of the logged-in user's home directory on 2host*, which defaults
+to the host the user logged in to.  Home directory is a somewhat system-dependent
+concept, but from the point of view of the Lisp Machine it is the directory where the
+user keeps personal files such as init files and mail.
+This function returns a pathname without any name, type, or version component
+(those components are all 3nil*).
+If 2reset-p* is specified non-3nil*, the machine the user is logged in to
+is changed to be 2host*.
+.end_defun
+
+.defun fs:init-file-pathname program-name &optional host
+.cindex init file
+Returns the pathname of the logged-in user's init file for the program 2program-name*,
+on the 2host*, which defaults to the host the user logged in to.  Programs that load
+init files containing user customizations call this function to find where to look
+for the file, so that they need not know the separate init file name conventions of
+each host operating system.  The 2program-name* 3"LISPM"* is used by the 3login*
+function.
+.end_defun
+
+.need 1500
+.nopara
+These functions are useful for poking around.
+
+.defun fs:describe-pathname pathname
+If 2pathname* is a pathname object, this describes it, showing you its properties
+(if any) and information about files with that name that have been loaded into the
+machine.  If 2pathname* is a string, this describes all interned pathnames that
+match that string, ignoring components not specified in the string.
+One thing this is useful for is finding what directory a file
+whose name you remember is in.  Giving 3describe* (see (describe-fun)) a pathname
+object will do the same thing as this function will.
+.end_defun
+
+.defun fs:pathname-plist pathname
+Parses and defaults 2pathname* then returns the list of properties of that pathname.
+.end_defun
+
+.defvar fs:*pathname-hash-table*
+This is the hash table in which pathname objects are interned.  Applying the
+function 3maphash-equal* to this will extract all the pathnames in the world.
+.end_defvar
+
+
+
+.section Pathname Messages
+
+This section documents the messages a user may send to a pathname object.  Pathnames
+handle some additional messages which are only intended to be sent by the file system
+itself, and therefore are not documented here.  Someone who wanted to add a new
+host to the system would need to understand those internal messages.  This section
+also does not document messages which are peculiar to pathnames of a particular
+host; those would be documented under that host.
+
+.defmethod pathname :host
+.defmethod1 pathname :device
+.defmethod1 pathname :directory
+.defmethod1 pathname :name
+.defmethod1 pathname :type
+.defmethod1 pathname :version
+These return the components of the pathname.  The returned values can be strings,
+special symbols, or lists of strings in the case of structured components.  The type
+will always be a string or a symbol.  The version will always be a number or a symbol.
+.end_defmethod
+
+.defmethod pathname :new-device dev
+.defmethod1 pathname :new-structured-device dev
+.defmethod1 pathname :new-directory dir
+.defmethod1 pathname :new-structured-directory dir
+.defmethod1 pathname :new-name name
+.defmethod1 pathname :new-structured-name name
+.defmethod1 pathname :new-type type
+.defmethod1 pathname :new-version version
+These return a new pathname which is the same as the pathname they are
+sent to except that the value of one of the components has been changed.
+The "structured" messages expect a list of strings.  If the component is
+not structured on this host, the first string in the list is used and
+the rest are ignored.  The "unstructured" messages expect a string (or a
+special symbol), but accept a list of strings if this host allows this
+component to be structured.
+.end_defmethod
+
+.defmethod pathname :new-pathname &rest options
+This returns a new pathname which is the same as the pathname it is sent
+to except that the values of some of the components have been changed.
+2options* is a list of alternating keywords and values.  The keywords
+all specify values of pathname components; they are 3:host*,
+3:device*, 3:structured-device*, 3:directory*,
+3:structured-directory*, 3:name*, 3:structured-name*, 3:type*,
+and 3:version*. 
+.end_defmethod
+
+.c commented out because it is superfluous and people shouldn't be encouraged to use it
+.c .defmethod pathname :default-namestring string &optional default-type default-version
+.c Returns a new pathname which is constructed by parsing 2string* and defaulting
+.c unspecified fields from the pathname the message is sent to.  The 2default-type*
+.c and 2default-version* arguments are identical to those of 3fs:merge-pathname-defaults*.
+.c [In fact this message is unnecessary since 3fs:merge-pathname-defaults* does the
+.c same thing.]
+.c .end_defmethod
+
+.defmethod pathname :generic-pathname
+Returns the generic pathname for the family of files of which this pathname is a member.
+See (generic-pathname) for documentation on generic pathnames.
+.end_defmethod
+
+.need 1500
+.nopara
+Messages to get a path name string out of a pathname object:
+
+.defmethod pathname :string-for-printing
+Returns a string which is the printed representation of the path name.  This is
+the same as what you get if you 3princ* the pathname or take 3string* of it.
+.end_defmethod
+
+.defmethod pathname :string-for-wholine
+Returns a string which may be compressed in order to fit in the wholine.
+.end_defmethod
+
+.defmethod pathname :string-for-editor
+Returns a string which is the path name with its components rearranged so
+that the name is first.  The editor uses this form to name its buffers.
+.end_defmethod
+
+.defmethod pathname :string-for-dired
+Returns a string to be used by the directory editor.  The string contains only
+the name, type, and version.
+.end_defmethod
+
+.defmethod pathname :string-for-host
+Returns a string which is the path name the way the host file system likes to see it.
+.end_defmethod
+
+.need 1500
+.nopara
+Messages to manipulate the property list of a pathname:
+
+.defmethod pathname :get indicator
+.defmethod1 pathname :getl list-of-indicators
+.defmethod1 pathname :putprop value indicator
+.defmethod1 pathname :remprop indicator
+.defmethod1 pathname :plist
+These manipulate the pathname's property list analogously to the functions of the
+same names (see (get-fun)), which don't (currently) work on instances.
+Please read the paragraph on (pathname-plist-warning) explaining some
+care you must take in using property lists of pathnames.
+.end_defmethod
+
+.c omitted:
+.c init-file because it's internal
+.c open, rename, delete, truename, directory-stream because they are internal
+
+
+.section Host File Systems Supported
+
+This section lists the host file systems supported, gives an example
+of the pathname syntax for each system, and discusses any special idiosyncracies.
+More host types will no doubt be added in the future.
+
+.subsection ITS
+
+.cindex ITS pathnames
+
+An ITS pathname looks like 3"HOST: DEVICE: DIR; FOO 69"*.
+The default device is 3DSK:* but other devices such as 3ML:*, 3ARC:*,
+3DVR:*, or 3PTR:* may be used.
+
+ITS does not exactly fit the virtual file system model, in that a file
+name has two components (FN1 and FN2) rather than three (name, type, and
+version).  Consequently to map any virtual pathname into an ITS
+filename, it is necessary to choose whether the FN2 will be the type or
+the version.  The rule is that usually the type goes in the FN2 and the
+version is ignored; however, certain types (3LISP* and 3TEXT*) are
+ignored and instead the version goes in the FN2.  Also if the type is 3:unspecific*
+the FN2 is the version.
+
+Given an ITS filename, it is converted into a pathname by making the FN2 the
+version if it is "<", ">", or a number.  Otherwise the FN2 becomes the type.
+ITS pathnames allow the special version symbols 3:oldest* and 3:newest*,
+which correspond to "<" and ">" respectively.  If a version is specified,
+the type is always 3:unspecific*.  If a type is specified, the version
+is 3:newest* unless the type is a normally-ignored type (such as 3LISP*)
+in which case the version is 3:unspecific* so that it does not override the type.
+
+Each component of an ITS pathname is mapped to upper case and truncated to
+six characters.
+
+Special characters (space, colon, and semicolon) in a component of an ITS pathname
+can be quoted by prefixing them with right horseshoe (7*)
+or equivalence sign (7*).  Right horseshoe is the same character code in the
+Lisp Machine character set as control-Q in the ITS character set.
+
+An ITS pathname can have a structured name, which is a list of two strings,
+the FN1 and the FN2.  In this case there is neither a type nor a version.
+
+An ITS pathname with an FN2 but no FN1 (i.e. a type and/or version but no name)
+is represented with the placeholder FN1 7""*, because ITS pathname syntax
+provides no way to write an FN2 without an FN1 before it.
+
+The ITS init file naming convention is "homedir; user program".
+
+.defvar fs:*its-uninteresting-types*
+The ITS file system does not have separate file types and version numbers;
+both components are stored in the "FN2".  This variable is a list of the file
+types which are "not important"; files with these types use the FN2 for a version
+number.  Files with other types use the FN2 for the type and do not have a version
+number.  The initial list is
+.lisp
+("lisp" "text" nil :unspecific)
+.end_lisp
+Some users may need to add to this list.
+.end_defvar
+
+.defmethod its-pathname :fn1
+.defmethod1 its-pathname :fn2
+These two messages return a string which is the FN1 or FN2 host-dependent
+component of the pathname.
+.end_defmethod
+
+.subsection TOPS-20 and Tenex
+
+.cindex TOPS-20 pathnames
+
+A TOPS-20 pathname looks like 3"HOST:DEVICE:<DIRECTORY>NAME.TYPE.VERSION"*.
+The default device is 3PS:*.
+
+TOPS-20 pathnames are mapped to upper case.  Special characters (including
+lowercase letters) are quoted with the circle-x (7*) character, which
+has the same character code in the Lisp Machine character set as control-V
+in the TOPS-20 character set.
+
+TOPS-20 pathnames allow the special version symbols 3:oldest* and 3:newest*,
+which correspond to "..-2" and "..0" respectively.
+
+The directory component of a TOPS-20 pathname may be structured.  The
+directory 3<FOO.BAR>* is represented as the list 3("FOO" "BAR")*.
+
+The TOPS-20 init file naming convention is "<user>program.INIT".
+
+When there is an attempt to display a TOPS-20 file name in the who-line and
+there isn't enough room to show the entire name, the name is truncated
+and followed by a center-dot character to indicate that there is more to
+the name than can be displayed.
+
+.cindex Tenex pathnames
+Tenex pathnames are almost the same as TOPS-20 pathnames, except that
+the version is preceeded by a semi-colon instead of a period, the
+default device is 3DSK* instead of 3PS*, and the quoting
+requirements are slightly different.
+
+.subsection Logical Pathnames
+.cindex logical pathnames
+
+There is another kind of pathname that doesn't correspond to any
+particular file server.  It is called a "logical" pathname, and its host
+is called a "logical" host.  Every logical pathname can be translated
+into a corresponding "physical" pathname; there is a mapping from
+logical hosts into physical hosts used to effect this translation.
+
+The reason for having logical pathnames is to make it easy to keep bodies
+of software on more than one file system.  An important example is the body
+of software that constitutes the Lisp Machine system.  Every site has a
+copy of all of the sources of the programs that are loaded into the initial
+Lisp environment.  Some sites may store the sources on an ITS file system,
+while others might store them on a TOPS-20.  However, there is software
+that wants to deal with the pathnames of these files in such a way that the
+software will work correctly no matter which site it is run at.  The way
+this is accomplished is that there is a logical host called 3SYS*, and
+all pathnames for system software files are actually logical pathnames with
+host 3SYS*.  At each site, 3SYS* is defined as a logical host, but
+translation will work differently at one site than at another.  At a site
+where the sources are stored on a certain TOPS-20, for example, pathnames
+of the 3SYS* host will be translated into pathnames for that TOPS-20.
+
+Here is how translation is done.  For each logical host, there is a mapping
+that takes the name of a directory on the logical host, and produces a
+device and a directory for the corresponding physical host.  To translate a
+logical pathname, the system finds the mapping for that pathname's host and
+looks up that pathname's directory in the mapping.  If the directory is
+found, a new pathname is created whose host is the physical host, and whose
+device and directory come from the mapping.  The other components of the
+new pathname are left the same.  There is also, for each logical host, a
+"default device".  If the directory is not found in the mapping, then the
+new pathname will have the same directory name as the old one, and its
+device will be the "default device" for the logical host.
+
+This means that when you invent a new logical device for a certain set
+of files, you also make up a set of logical directory names, one for
+each of the directories that the set of files is stored in.  Now when
+you create the mappings at particular sites, you can choose any physical
+host for the files to reside on, and for each of your logical directory
+names, you can specify the actual directory name to use on the physical
+host.  This gives you flexibility in setting up your directory names; if
+you used a logical directory name called 3fred* and you want to move
+your set of files to a new file server that already has a directory
+called 3fred*, being used by someone else, you can translate 3fred*
+to some other name and so avoid getting in the way of the existing
+directory.  Furthermore, you can set up your directories on each host
+to conform to the local naming conventions of that host.
+
+.defun fs:add-logical-pathname-host logical-host physical-host translations
+This creates a new logical host named 2logical-host*.  Its
+corresponding "physical" host (that is, the host to which it will
+forward most operations) is 2physical-host*.  2logical-host* and
+2physical-host* should both be strings.  2translations* should be a
+list of translation specifications.  Each translation specification
+should be a list of two strings.  The first is the name of a directory
+on the logical host.  The second is a pathname whose device component
+and directory component are the translation of that directory.  The
+default device for the logical host will be the device of the first
+translation specification.
+Example:
+.lisp
+(fs:add-logical-pathname-host "music" "music-10-a"
+      '(("melody" "ss:<melody>")
+        ("doc" "ps:<music-documentation>")))
+.end_lisp
+
+This creates a new logical host called 3music*.  If you try to read the
+file 3music:doc;manual  text  2*, you will be re-directed to the file
+3music-10-a:ps:<music-documentation>manual.text.2* (assuming that the
+host 3music-10-a* is a TOPS-20 system).
+.end_defun
+
+.defmethod fs:logical-pathname :translated-pathname
+This converts a logical pathname to a physical pathname.  It returns the
+translated pathname of this instance; a pathname whose 3:host*
+component is the physical host that corresponds to this instance's
+logical host.
+
+If this message is sent to a physical pathname, it simply returns itself.
+.end_defmethod
+
+.defmethod fs:logical-pathname :back-translated-pathname pathname
+This converts a physical pathname to a logical pathname.
+2pathname* should be a pathname whose host is the physical host
+corresponding to this instance's logical host.  This returns
+a pathname whose host is the logical host and whose translation
+is 2pathname*.
+
+An example of how this would be used is in connection with truenames.
+Given a stream which was obtained by opening a logical pathname,
+.lisp
+(funcall stream ':pathname)
+.end_lisp
+returns the logical pathname that was opened.
+.lisp
+(funcall stream ':truename)
+.end_lisp
+returns the true name of the file that is open, which of course is
+a pathname on the physical host.  To get this in the form of a logical
+pathname, one would do
+.lisp
+(funcall (funcall stream ':pathname)
+	 ':back-translated-pathname
+	 (funcall stream ':truename))
+.end_lisp
+
+If this message is sent to a physical pathname, it simply returns its
+argument.  Thus the above example will work no matter what kind of
+pathname was opened to create the stream.
+.end_defmethod
+
+A logical pathname looks like 3"HOST: DIRECTORY; NAME TYPE VERSION"*.
+There is no way to specify a device; parsing a logical pathname
+always returns a pathname whose device component is 3:unspecific*.
+This is because devices don't have any meaning in logical pathnames.
+
+The equivalence-sign character (3*) can be used for quoting special
+characters such as spaces and semicolons.  The double-arrow character
+(3*) can be used as a place-holder for unspecified components.
+Components are not mapped to upper-case.  The 3:newest*, 3:oldest*,
+and 3:wild* values for versions are specified with the strings
+3">"*, 3"<"*, and 3"*"* respectively.
+
+There isn't any init file naming convention for logical hosts; you
+can't log into them.  The 3:string-for-host*,
+3:string-for-wholine*, 3:string-for-dired*, and 3:string-for-editor* messages are all
+passed on to the translated pathname, but the 3:string-for-printing*
+is handled by the 3fs:logical-pathname* flavor itself and shows
+the logical name.
+
+.section Maclisp Conversion
+
+.cindex namelists (Maclisp compatibility)
+.cindex Maclisp file manipulation
+
+This section briefly discusses how to convert from Maclisp I/O and filename
+functions to the corresponding but often more general Lisp Machine ones.
+
+The functions 3load*, 3open*, 3probef*, 3renamef*, and 3deletef*
+are upward compatible.  Most of them take optional additional arguments to
+do additional things, usually connected with error handling.
+Where Maclisp wants to see a file name in the form of a symbol or a list,
+the Lisp Machine will accept those or a string or a pathname object.
+3probef* returns a pathname or 3nil* rather than a namelist or 3nil*.
+
+3load* keeps defaults, which it updates from the file name it is given.
+
+The old-I/O functions 3uread*, 3crunit*, etc. do not exist in the Lisp Machine.
+3fasload* exists but is a function rather than a special form.
+
+There is a special form, 3with-open-file*, which should replace most calls
+to 3open*.  See (with-open-file-fun).
+
+The functions for manipulating file names themselves are different.  The system
+will accept a namelist as a pathname, but will never create a namelist.
+3mergef* is replaced by 3fs:merge-pathname-defaults*.
+3defaultf* is replaced by 3fs:default-pathname* or 3fs:set-default-pathname*,
+depending on whether it is given an argument.
+3namestring* is replaced by the 3:string-for-printing* message to a pathname,
+or the 3string* function.
+3namelist* is approximately replaced by 3fs:parse-pathname*.
+3(status udir)* and 3(status homedir)* are approximately replaced by 3fs:user-homedir*.
+The 3truename* function is replaced by the 3:truename* stream operation,
+which returns a pathname containing the actual name of the file open on that
+stream.
+The 3directory* and 3allfiles* functions are replaced by 3fs:directory-list*.
+
+.section Examples
+
+The following examples illustrate some of the rules of parsing and
+merging.  They assume that the default host is an ITS host named
+3AI*.
+
+If we parse the string 3"AI:COMMON;NOMEN 5"* (by calling
+3fs:parse-pathname*), we get back a pathname that prints as
+3#<ITS-PATHNAME "AI: COMMON; NOMEN 5">*.  Its host is 3"AI"*, its
+device is 3"DSK"* (because of the rule that when you specify a host
+and don't specify a device, the standard file-storage device for that host is used),
+its directory is 3"COMMON"*,
+its name is 3"NOMEN"*, its type is nonexistent (3:unspecific*), and its
+version is 35*.  Call this pathname 2p*.
+
+Parsing just the string 3"foo"* returns a pathname that prints as
+3#<ITS-PATHNAME "AI: FOO">*.  The host is 3"AI"*, the name is
+3"FOO"*, and all the other components are unspecified, i.e. 3nil*.
+
+If we merge this with 2p* (by calling 3fs:merge-pathname-defaults*
+with this pathname as its first argument and 2p* as its second), the
+result is a pathname that prints as 3#<ITS-PATHNAME "AI: COMMON; FOO
+>">*, with host 3"AI"*, device 3"DSK"*, directory 3"COMMON"*,
+name 3"FOO"*, type 3:unspecific*, and version 3:newest*.  This is
+because of the rule that when a name is explicitly specified, the type
+and version of the defaults are ignored.  The version, 35*, was
+ignored, and the version of the result came from the 2default-version*
+argument to 3fs:merge-pathname-defaults*, which had the value
+3:newest*.  The type, similarly, came from the 2default-type*
+argument, which had the value 3:unspecific*.
+
+Parsing 3"FOO BAR"* returns a pathname that prints as 3#<ITS-PATHNAME
+"AI: FOO BAR">*.  It has host 3"AI"*, name 3"FOO"*, and type
+3"BAR"*; the directory is 3nil* and the version is 3:newest*.
+Merging this with 2p* gives a pathname that prints as 3#<ITS-PATHNAME
+"AI: COMMON; FOO BAR">*; it has host 3"AI"*, device 3"DSK"*,
+directory 3"COMMON"*, name 3"FOO"*, type 3"BAR"*, and version
+3:newest*.  If we ask for the generic pathname of this new pathname,
+what we get prints exactly the same, but one of its components is
+different: its version is 3:unspecific*.  This difference does not
+appear in the printed representation because ITS filenames cannot convey
+both a meaningful type and a meaningful version number at the same time.

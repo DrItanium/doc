@@ -1,0 +1,628 @@
+.c -*- Mode: Bolio -*-
+
+.section The Patch Facility
+.setq patch-facility section-page
+.cindex patch
+.cindex system maintenance
+
+The patch facility allows a system maintainer to manage new releases of a
+large system and issue patches to correct bugs.  It is designed to be
+used to maintain both the Lisp Machine system itself, and applications
+systems that are large enough to be loaded up and saved on a disk
+partition.
+
+When a system of programs is very large, it needs to be maintained.
+Often problems are found and need to be fixed, or other little changes need to
+be made.  However, it takes a long time to
+load up all of the files that make up such a system, and so rather than
+having every user load up all the files every time he wants to use the
+system, usually the files just get loaded once into a Lisp world, and
+then the Lisp world is saved away on a disk partition.  Users then use
+this disk partition, and copies of it are distributed.  The problem is that since
+the users don't load up the system every time they want to use it, they don't
+get all the latest changes.
+
+The purpose of the patch system is to solve this problem.  A 2patch* file
+is a little file that, when you load it, updates
+the old version of the system into the new version of the system.  Most
+often, patch files just contain new function definitions; old functions
+are redefined to do their new thing.  When you want to use a system, you
+first use the Lisp environment saved on the disk, and then you load all
+the latest patches.  Patch files are very small, so loading them doesn't
+take much time.  You can even load the saved environment, load up the
+latest patches, and then save it away, to save future users the trouble
+of even loading the patches.  (Of course, new patches may be made
+later, and then these will have to be loaded if you want to get the
+very latest version.)
+
+For every system, there is a series of patches that have been made to
+that system.  To get the latest version of the system, you load each
+patch file in the series, in order.  Sooner or later, the maintainer of a
+system will want to stop building more and more patches, and recompile
+everything, starting afresh.  A complete recompilation is also necessary when
+a system is changed in a far-reaching way, that can't be done with a
+small patch; for example, if you completely reorganize a program, or
+change a lot of names or conventions, you might need to completely
+recompile it to make it work again.  After a complete recompilation has
+been done, the old patch files are no longer suitable to use; loading
+them in might even break things.
+
+The way all this is kept track of is by labelling each version of a
+system with a two-part number.  The two parts are called the 2major
+version number* and the 2minor version number*.  The minor version
+number is increased every time a new patch is made; the patch is
+identified by the major and minor version number together.  The major
+version number is increased when the program is completely recompiled,
+and at that time the minor version number is reset to zero.  A complete
+system version is identified by the major version number, followed by
+a dot, followed by the minor version number.
+
+To clarify this, here is a typical scenario.  A new system is created;
+its initial version number is 31.0*.  Then a patch file is created;
+the version of the program that results from loading the first patch
+file into version 31.0* is called 31.1*.  Then another patch file
+might be created, and loading that patch file into system 31.1*
+creates version 31.2*.  Then the entire system is recompiled, creating
+version 32.0* from scratch.  Now the two patch files are irrelevant,
+because they fix old software; the changes that they reflect are
+integrated into system 32.0*.
+
+Note that the second patch file should only be loaded into system
+31.1* in order to create system 31.2*; you shouldn't load it into
+31.0* or any other system besides 31.1*.  It is important that all
+the patch files be loaded in the proper order, for two reasons.  First,
+it is very useful that any system numbered 31.1* be exactly the same
+software as any other system numbered 31.1*, so that if somebody
+reports a bug in version 31.1*, it is clear just which software is
+being complained about.  Secondly, one patch might patch another patch;
+loading them in some other order might have the wrong effect.
+
+The patch facility keeps track, in the file system, of all the patch
+files that exist, remembering which version each one creates.  There
+is a separate numbered sequence of patch files for each major version
+of each system.  All of them are stored in the file system, and the
+patch facility keeps track of where they all are.  In addition to the
+patch files themselves, there are "patch directory" files which contain
+the patch facility's data base by which it keeps track of what minor
+versions exist for a major version, and what the last major version
+of a system is.  These files and how to make them are described below.
+
+In order to use the patch facility, you must define your system with
+3defsystem* (see (system-system)) and declare it as patchable with the
+3:patchable* option.  When you load your system (with 3make-system*,
+see (make-system-fun)) it is added to the list of all systems present in
+the world.  The patch facility keeps track of which version of each
+patchable system is present, and where the data about that system reside in
+the file system.  This information can be used to update the Lisp world
+automatically to the latest versions of all the systems it contains.  Once
+a system is present, you can ask for the latest patches to be loaded, ask
+which patches are already loaded, and add new patches.
+
+You can also load in patches or whole new systems and then save the
+entire Lisp environment away in a disk partition.  This is explained on
+(disk-partition).
+
+When a Lisp Machine is booted, it prints out a line of information
+telling you what systems are present, and which version of each
+system is loaded.  This information is returned by the function
+3si:system-version-info*.  It is followed by a text string containing
+any additional information that was requested by whomever created
+the current disk partition (see 3disk-save*, (disk-save-fun)).
+
+.defun print-system-modifications &rest system-names
+With no arguments, this lists all the systems present in this world and, for
+each system, all the patches that have been loaded into this world.  For each patch
+it shows the major version number (which will always be the same since
+a world can only contain one major version), the minor version number,
+and an explanation of what the patch does, as typed in by the person who
+made the patch.
+
+If 3print-system-modifications* is called with arguments, only the
+modifications to the systems named are listed.
+.end_defun
+
+.defun si:get-system-version &optional system
+Returns two values, the major and minor version numbers of the version
+of 2system* currently loaded into the machine, or 3nil* if that
+system is not present.  2system* defaults to 3"System"*.
+.end_defun
+
+.defun si:system-version-info &optional (brief-p 3nil*)
+This returns a string giving information about which systems and what
+versions of the systems are loaded into the machine, and what microcode
+version is running.  A typical string for it to produce is:
+.lisp
+"System 65.12, ZMail 19.1, Vision 10.23, microcode 739"
+.end_lisp
+If 2brief-p* is 3t*, it uses short names, suppresses the microcode
+version, any systems which should not appear in the disk label comment,
+the name 3System*, and the commas:
+.lisp
+"65.12 Vis 10.23"
+.end_lisp
+.end_defun
+
+.subsection Defining a System
+
+In order to use the patch facility, you must declare your system as
+patchable by giving the 3:patchable* option to 3defsystem* (see
+(system-system)).  The major version of your system in the file system
+will be incremented whenever 3make-system* is used to compile it.
+Thus a major version is associated with a set of QFASL files.
+The major version of your system that is remembered as having been loaded into the
+Lisp environment will be set to the major version in the file system
+whenever 3make-system* is used to load your system and the
+major version in the file system is greater than what you had loaded before.
+
+After loading your system, you can save it with the 3disk-save*
+function (see (disk-save-fun)).  3disk-save* will ask you for any
+additional information you want printed as part of the greeting when the
+machine is booted.  This is in addition to the names and versions of all
+the systems present in this world.  If the system version will not fit
+in the 16-character field allocated in the disk label, 3disk-save*
+will ask you to type in an abbreviated form.
+
+.subsection Patch files
+
+The patch system will maintain several different types of files in
+the directory associated with your system.  This directory is specified
+to 3defsystem* via either the 3:patchable* option or the 3:pathname-default*
+option.  These files are maintained automatically,
+but so that you will know what they are and when they are obsolete (because
+they are associated with an obsolete version of your system), they are described here.
+
+The file that tells the system's current major version has a name of the form
+3AI: MYDIR; PATCH (PDIR)*  (on Tops-20, 3EE:PS:<MYDIR>PATCH.DIRECTORY*),
+where the host, device, and directory (3AI:MYDIR;* or 3EE:PS:<MYDIR>* in this
+example) come from the system definition as explained above.
+
+For each major version of the system, there is a 2patch directory file*,
+of the form 3AI: MYDIR; PAT259 (PDIR)*, which describes the individual
+patches for that version, where 259 is the major version number in this
+example.  (On Tops-20, this is 3EE:PS:<MYDIR>PATCH-259.DIRECTORY*).
+
+Then for each minor version of the system, the source of the patch file
+itself has a name of the form 3AI: MYDIR; P59.69 >*, for minor version 69
+of major version 259.  Note that 3259* has been truncated to 359* to
+fit into six characters for ITS.  On Tops-20 this would be
+3EE:PS:<MYDIR>PATCH-259-69.LISP*.  Patch files get compiled, so there
+will also be files like 3AI: MYDIR; P59.69 QFASL* (on Tops-20,
+3EE:PS:<MYDIR>PATCH-259-69.QFASL*).
+
+If the 3:patchable* option to 3defsystem* is given an argument, telling
+it to put the patch files in a different directory than the one which holds
+the other files of the system, then a slightly different set of file name
+conventions are used.
+
+On ITS, the file that tells the current major version is of the form 3AI:
+PATDIR; 2system* (PDIR)*, where 2system* is the name of the system
+and 3PATDIR* is the directory specified in the 3:patchable* option to 3defsystem*.
+The patch directory file for major version 2nnn* is of the form 3AI:
+PATDIR; 2sysnnn* (PDIR)*, where 2sys* is the short name specified
+with the 3:short-name* option to 3defsystem*.  A patch file has a
+name of the form 3AI: PATDIR; 2nnn*.2mm**; note that the major
+version is truncated to three digits instead of two.  In this set of file name
+conventions, the patch files don't all fall together in alphabetical order,
+as they do in the first set.
+
+On TOPS-20, the file names take the forms 3EE:PS:<PATDIR>2system*.PATCH-DIRECTORY*,
+3EE:PS:<PATDIR>2system*-2nnn*.PATCH-DIRECTORY*, and
+3EE:PS:<PATDIR>2system*-2nnn*-2mmm*.LISP* (or 3.QFASL*).  These file name
+conventions allow the patches for multiple systems to coexist in the same directory.
+
+.subsection Loading Patches
+
+.defun load-patches &rest options
+This function is used to bring the current world up to the latest minor
+version of whichever major version it is, for all systems present, or
+for certain specified systems.  If there are any patches
+available, 3load-patches* will offer to read them in. 
+With no arguments, 3load-patches* updates all the systems present in
+this world.
+
+2options* is a list of keywords.  Some keywords are followed by an argument.
+The following options are accepted:
+.table 3
+.item :systems 2list*
+'kindex :systems load-patches
+2list* is a list of names of systems to be brought up to date.  If this
+option is not specified, all systems are processed.
+
+.kitem :verbose
+Print an explanation of what is being done.  This is the default.
+
+.kitem :selective
+For each patch, say what it is and then ask the user whether or not to load it.
+This is the default.  If the user answers "P", selective mode is turned off for
+any remaining patches to the current system.
+
+.kitem :noselective
+Turns off 3:selective*.
+
+.kitem :silent
+Turns off both 3:selective* and 3:verbose*.  In 3:silent* mode all necessary
+patches are loaded without printing anything and without querying the user.
+.end_table
+.end_defun
+
+Currently 3load-patches* is not called automatically, but the system
+may be changed to offer to load patches when the user logs in, in order
+to keep things up to date.
+
+.subsection Making Patches
+
+There are two editor commands that are used to create patch files.
+During a typical maintenance session on a system you will make several
+edits to its source files.  The patch system can be used to copy these
+edits into a patch file so that they can be automatically incorporated
+into the system to create a new minor version.  Edits in a patch file
+can be modified function definitions, new functions, modified
+3defvar*'s and 3defconst*'s, or arbitrary forms to be evaluated, even including
+3load*'s of new files.
+
+Meta-X Add Patch adds the region (if there is one) or else the current
+"defun" to the patch file currently being constructed.  The first time you
+give this command it will ask you what system you are patching, allocate
+a new minor version number, and start constructing the patch file for that
+version.  If you change a function, you should recompile it, test it,
+then once it works use Add Patch to put it in the patch file.
+
+The patch file being constructed is in an editor buffer.  If you mistakenly
+Add Patch something which doesn't work, you can select the buffer containing
+the patch file and delete it.  Then later you can Add Patch the corrected
+version.
+
+While you are making your patch file, the minor version number that has
+been allocated for you is reserved so that nobody else can use it.  This
+way if two people are patching a system at the same time, they will not
+both get the same minor version number.
+
+After making and testing all of your patches, use meta-X Finish Patch to
+install the patch file so that other users can load it.  This will compile
+the patch file if you have not done so yourself (patches are always compiled).
+It will ask you for a comment describing the reason for the patch; 3load-patches*
+and 3print-system-modifications* print these comments.
+
+After finishing your patch, if you do another Add Patch it will
+ask you which system again and start a new minor version.  Note that you
+can only be putting together patches for one system at a time.
+
+If you start making a patch file and for some reason never do a Finish
+Patch (you decide to give up or your machine crashes), the minor version
+number that you were working on will remain reserved.  Since patch files
+must always be loaded in strictly sequential order, nobody will be able
+to load any further patches made to this major version past this point.
+You must manually edit the patch directory file for this major version,
+removing the line corresponding to the aborted patch.  It is OK for a
+minor version number to be skipped.
+
+.subsection System Status
+.setq patch-system-status section-page
+.cindex status, of a patchable system
+
+The patch system has the concept of the "status" of a major version of a system.
+The status is displayed when the system version is displayed, in places such
+as the system greeting message and the disk partition comment.  This status
+allows users of the system to know what is going on.  The status of a system
+changes as patches are made to it.
+
+The status is one of the following keywords:
+.table 3
+.item :experimental
+The system has been built but has not yet been fully debugged and released to users.
+This is the default status when a new major version is created, unless it is
+overridden with the 3:initial-status* option to 3defsystem*.
+
+.item :released
+The system is released for general use.  This status produces no extra text
+in the system greeting and the disk partition comment.
+
+.item :obsolete
+The system is no longer supported.
+
+.item :broken
+This is like 3:experimental* but is used when the system was thought incorrectly
+to have been debugged, and hence was 3:released* for a while.
+.end_table
+
+.defun si:set-system-status system status &optional major-version
+Changes the status of a system.  2system* is the name of the system.
+2major-version* is the number of the major version to be changed; if unsupplied
+it defaults to the version currently loaded into the Lisp world.
+2status* should be one of the keywords above.
+.end_defun
+
+.section Saving New Versions: Disk Partitions
+.setq disk-partition section-page
+.cindex band
+.cindex partition
+.cindex saving the Lisp world
+
+.subsection Concepts
+
+The 3make-system* and 3load-patches* functions, described above,
+load software into the Lisp world.  This takes time; it is wasteful for
+everyone to sit through this loading of software every time the software
+is to be used.  Usually someone loads up software into a Lisp world and
+then saves away the whole Lisp world in a partition on a disk.  This section
+explains how to do this and other things.
+
+A Lisp Machine disk is divided into several named 2partitions* (also
+called "bands" sometimes).  Partitions can be used for many things.
+Every disk has a partition named 3PAGE*, which is used to implement the
+virtual memory of the Lisp Machine.  When you run Lisp, this is where
+the Lisp world actually resides.  There are also partitions that hold
+saved images of the Lisp Machine microcode, conventionally named
+3MCR2n** (where 2n* is a digit), and partitions that hold saved
+images of Lisp worlds, conventionally named 3LOD2n**.  A saved
+image of a Lisp world is also called a "virtual memory load" or "system load".
+
+The directory of partitions is in a special block on the disk called the
+label.  When you "cold-boot" a Lisp Machine by typing
+CTRL/META/CTRL/META-Rubout, the machine checks the label to see which
+two partitions contain two important "files": the current microcode
+load, and the current saved image of the Lisp world. These are kept
+separate so that the microcode can be easily changed without going
+through the time-consuming process of generating a new system load.
+When you "cold-boot", the contents of the current microcode band
+are loaded into the microcode memory, and then the contents
+of the current saved image of the Lisp world is copied into the
+3PAGE* partition.  Then Lisp starts running.
+
+For each partition, the directory of partitions contains a brief textual
+description of the contents of the partition.  For microcode partitions,
+a typical description might be 3"UCADR 739"*; this means that version
+3739* of the microcode is in the partition.  For saved Lisp images, it
+is a little more complicated.  Ideally, the description would say which
+versions of which systems are loaded into the band.  Unfortunately,
+there isn't enough room for that in most cases.  A typical description
+is 3"65.8 ZMail 19.1"*, meaning that this band contains version
+365.8* of 3System* and version 319.1* of 3ZMail*.  The description
+is created when a Lisp world is saved away by 3disk-save* (see below).
+
+.subsection Manipulating the Label
+
+.defun print-disk-label &optional (unit 30*) (stream 3standard-output*)
+Print a description of the label of the disk specified by 2unit* onto
+2stream*.  The description starts with the name of the disk pack,
+various information about the disk that is generally uninteresting, and
+the names of the two current load partitions (microcode and saved Lisp
+image).  This is followed by one line of description for each
+partition.  Each one has a name, disk address, size, and textual
+description.  The two partitions that are the current load partitions,
+used when you cold-boot,
+are preceeded by asterisks.  2unit* may be the unit number of
+the disk (most Lisp machines just have one unit, numbered 30*),
+or the "host name" of another Lisp Machine on the Chaosnet (in which
+case the label of unit 30* on that machine will be printed, and the
+user of that machine will be notified that you are looking at his label).
+.end_defun
+
+.defun set-current-band partition-name
+Set the current saved Lisp image partition to be 2partition-name*.
+If 2partition-name* is a number, the name 3LOD2n** will be used.
+.end_defun
+
+.defun set-current-microload partition-name
+Set the current microcode partition to be 2partition-name*.
+If 2partition-name* is a number, the name 3MCR2n** will be used.
+.end_defun
+
+When using the functions to set the current load partitions, be extra
+sure that you are specifying the correct partition.  Having done it,
+cold-booting the machine will reload from those partitions.  Some
+versions of the microcode will not work with some versions of the
+Lisp system, and if you set the two current partitions incompatibly,
+cold-booting the machine will fail; you will need an expert to fix this.
+
+.defun si:edit-disk-label unit &optional init-p
+This runs an interactive label editor on the specified unit.
+This editor allows you to change any field in the label.  The
+3HELP* key documents the commands.  You have to be an expert
+to need this and to understand what it does, so the commands
+are not documented here.  Ask someone if you need help.
+.end_defun
+
+.defun print-loaded-band &optional format-dest
+Tells you what you are currently running.  This includes where it came from on the disk
+and what version of each system is present in your Lisp environment.
+2format-dest* defaults to 3t*; if it is 3nil* the answer will be returned as
+a string rather than printed out.
+.end_defun
+
+.defun disk-restore &optional partition
+Allows booting from a band other than the current one.  2partition*
+may be the name or the number of a disk partition containing a
+virtual-memory load, or 3nil* or omitted, meaning to use the current
+partition.  The specified partition is copied into the paging area of
+the disk and then started.
+
+Although you can use this to boot a different Lisp image than the installed
+one, this does not provide a way to boot a different microcode image.
+3disk-restore* brings up the new band with the currently running microcode.
+
+3disk-restore* asks the user for confirmation before doing it.
+.end_defun
+
+.subsection Updating Software
+
+Of all the procedures described in this section, the most common one
+is to take a partition containing a Lisp image, update it to have
+all the latest patches, and save it away into a partition.
+
+The way you do this is to start by cold-booting the machine, to get a
+fresh, empty system.  Next, you must log in as something whose INIT file
+does not affect the Lisp world noticably (so that when you save away the
+Lisp image, the side-effects of the INIT file won't get saved too); you
+can log in as "LISPM".  Now you can load in any new software you want;
+usually you just do 3(load-patches)* and answer the questions, to
+bring all the present patchable systems up to date, but you might also
+add a new system and load it up.  You may also want to call 3si:set-system-status*
+to change the release status of the system.
+
+When you're done loading everything, do 3(print-disk-label)* to find a
+band in which to save your new Lisp world.  It is best not to reuse the
+current band, since if something goes wrong during the saving of the
+partition, while you have written, say,
+half of the band that is current, it may be impossible to cold-boot the
+machine.  Once you have found the partition, you use the 3disk-save*
+function to save everything into that partition.
+
+.defun disk-save partition-name
+Save the current Lisp world in the designated partition.
+2partition-name* may be a partition name (a string), or it may be a
+number in which case the name 3LOD2n** is used.
+
+It first asks you for yes-or-no confirmation that you really want to
+reuse the named partition.  Then it tries to figure out what to put into
+the textual description of the label.  It starts with the brief version
+of 3si:system-version-info* (see (si:system-version-info-fun)).  Then
+it asks you for an "additional comment" to append to this; usually you
+just type a 3return* here, but you can also add a comment that will be
+returned by 3si:system-version-info* (and thus printed when the system
+is booted) from then on.  If this doesn't fit into the fixed size
+available for the textual description, it asks you to retype the whole
+thing (the version info as well as your comment) in a compressed
+form that will fit.  The compressed version will appear in the textual
+description in 3print-disk-label*.
+
+The Lisp environment is then saved away into the designated partition,
+and then the equivalent of a cold-boot from that partition is done.
+.end_defun
+
+Once the patched system has been successfully saved and the system
+comes back up, you can make it current with 3set-current-band*.
+
+Please don't save patched systems that have had the editor or the
+compiler run.  This works, but it makes the saved system a lot bigger.
+You should try to do as little as possible between the time you
+cold-boot and the time you save the partition, in order to produce a
+clean saved environment.
+
+.defvar si:login-history
+The value of 3si:login-history* is a list of entries, one for each person who
+has logged into this world since it was created.  This makes it possible to
+tell who 3disk-saved* a band with something broken in it.  Each entry is
+a list of the user ID, the host logged into, the Lisp machine on which the
+world was being executed, and the date and time.
+.end_defvar
+
+.subsection Installing New Software
+
+The version numbers of the current microcode and system are announced to
+the INFO-LISPM mailing list.  When a new system becomes available, mail
+is sent to the list explaining where to find the new system and what is
+new about it.  Sometimes a microcode and a system go together, and the new
+system will not work with the old microcode and vice versa.  When this
+happens extra care is required to avoid getting incompatible loads
+current at the same time so that the machine will not be able to boot
+itself.
+
+All of the extant microcode versions can be found on the LISPM1
+directory on AI.  Microcode version 2nnn* is in AI: LISPM1; UCADR 2nnn*MCR.
+To copy a new microcode version into one of the microcode
+load partitions, first do a 3(print-disk-label)* to ensure that the
+partition you intend to bash is not the current one; if it was, and something
+went wrong in the middle of loading the new microcode, it would
+be impossible to cold-boot, and this is hard to fix.
+
+Then, install the microcode (on the non-current partition)
+by using 3si:load-mcr-file*.
+
+.defun si:load-mcr-file microcode-file partition
+Load the contents of the file 2microcode-file* into the designated
+partition.  2microcode-file* is either the version number of the
+system microcode to be loaded, or the pathname of a file containing
+microcode (in "MCR" format), such as "AI: LISPM1; UCADR 2nnn*MCR".
+2partition* is either the number of an 3MCR* partition, or the
+name of one, such as "MCR1".
+This takes about 30 seconds.
+.end_defun
+
+The system load, unlike the microcode load, is much too large to fit in
+an AI file.  Therefore, the only way to install an updated system on a
+machine is to copy it from another machine that already has it.  So the
+first step is to find a machine that is not in use and has the desired
+system.  We will call this the source machine.  The machine where the
+new system will be installed is the target machine.  You can see who
+is logged into which machines, see which ones are free, and use
+3print-disk-label* with an argument to examine the label of that
+machine's disk and see if it has the system you want.
+
+The function for actually copying a system load partition off of
+another machine is called as follows.  Before doing this, double-check
+the partition names by printing the labels of both machines, and make
+sure no one is using the source machine.
+
+.defun si:receive-band source-host source-band target-band
+Copy the partition on 2source-host*'s partition named 2source-band*
+onto the local machine's partition named 2target-band*.  ("Band"
+means "partition".)  This takes about ten minutes.  It types out the
+size of the partition in pages, and types a number
+every 100 pages telling how far it has gotten.  It puts up a display
+on the remote machine saying what's going on.
+.end_defun
+
+To go the other direction, use 3si:transmit-band*.
+
+.defun si:transmit-band source-band target-host target-band
+This is just like 3si:receive-band*, except you use it on
+the source machine instead of the target machine.  It copies
+the local machine's partition named 2source-band* onto
+2target-machine*'s partition named 2target-band*.
+.end_defun
+
+After transferring the band, it is good practice to make sure that it really
+was copied successfully by comparing the original and the copy.  All of the
+known reasons for errors during band transfer have (of course) been corrected,
+but peace of mind is valuable.  If the copy was not perfectly faithful, you
+might not find out about it until a long time later, when you use whatever part
+of the system that had not been copied properly.
+
+.defun si:compare-band source-host source-band target-band
+This is like 3si:receive-band*, except that it does not change anything.
+It compares the two bands and complains about any differences.
+.end_defun
+
+Having gotten the current microcode load and system load copied into
+partitions on your machine, you can make them current using
+3set-current-microload* and 3set-current-band*.  Double-check
+everything with 3print-disk-label*.  Then cold-boot the machine, and
+the new system should come up in a half-minute or so.
+
+If the microcode you installed is not the same version as was installed
+on the source machine from which you got the system load, you will need to
+follow the procedure given below under "installing new microcode".
+This can happen if someone hasn't installed the current microcode yet
+on that other machine.
+
+.subsection Installing New Microcode
+
+When an existing system is to be used with a new microcode, certain changes
+need to be made to the system, and it should then be dumped back out with
+the changes.  Usually new microcode is released only along with a new
+system, so you hardly ever have to do this.  The error handler has a table
+of errors that are detected by microcode.  The hardware/microcode debugger
+(CC) has a microcode symbol table.  These symbols are used when debugging
+other machines, and are also used by certain metering programs.  These tables
+should be updated when a new microcode is installed.
+
+The error-handler will automatically update its table (from a file on the
+3AI:LISPM1;* directory) when the machine is booted with the new
+microcode.  The CC symbol table is updated by the following procedure:
+.lisp
+(login 'lispm)
+(pkg-goto 'cadr)
+(cc-load-ucode-symbols "AI: LISPM1; UCADR 2nnn*SYM")
+(pkg-goto)
+.end_lisp
+where 2nnn* is the microcode version number.  This operation will take
+a minute or two; after it has read in most of the file the machine will
+stop for a long time while it sorts the symbols.  It will look like it
+has crashed, but it hasn't, really, and will eventually come back.
+
+After booting the system with the new microcode and following the above
+procedure, the updated system should be saved with 3disk-save* as explained
+above.  Note that this operation does not change the system version number.
+Once the new band is verified to work, the old band can be removed from the
+label with 3si:edit-disk-label* if desired.

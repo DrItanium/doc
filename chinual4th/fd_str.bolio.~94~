@@ -1,0 +1,636 @@
+.c This file is part of the Lisp Machine Manual.		-*-Bolio-*-
+
+.chapter "Strings"
+.setq string-chapter chapter-number
+.cindex string
+	Strings are a type of array which represent a sequence of
+characters.  The printed representation of a string is its characters
+enclosed in quotation marks, for example 3"foo bar"*.  Strings are
+constants, that is, evaluating a string returns that string.  Strings
+are the right data type to use for text-processing.
+
+	 Strings are arrays of type 3art-string*, where each element
+holds an eight-bit unsigned fixnum.  This is because characters are
+represented as fixnums, and for fundamental characters only eight bits are
+used.  A string can also be an array of type 3art-fat-string*, where each
+element holds a sixteen-bit unsigned fixnum; the extra bits allow for
+multiple fonts or an expanded character set.
+
+	The way characters work, including
+multiple fonts and the extra bits from the keyboard, is explained
+in (character-set).  Note that you can type in the fixnums
+that represent characters using "3#/*" and "3#\*"; for example,
+3#/f* reads in as the fixnum that represents the character "f",
+and 3#\return* reads in as the fixnum that represents the special "return"
+character.  See (sharp-slash) for details of this syntax.
+
+	The functions described in this section provide a variety of useful
+operations on strings.  In place of a string, most of these functions will
+accept a symbol or a fixnum as an argument, and will coerce it into a
+string.  Given a symbol, its print name, which is a string, will be used.
+Given a fixnum, a one-character string containing the character designated
+by that fixnum will be used.  Several of the functions actually work on any
+type of one-dimensional array and may be useful for other than string
+processing; these are the functions such as 3substring* and 3string-length*
+which do not depend on the elements of the string being characters.
+
+	Since strings are arrays, the usual array-referencing function 3aref*
+is used to extract the characters of the string as fixnums.  For example,
+.lisp
+(aref "frob" 1) => 162  1;lower-case r*
+.end_lisp
+Note that the character at the beginning of the string is element zero
+of the array (rather than one); as usual in Zetalisp, everything
+is zero-based.
+
+It is also legal to store into strings (using 3aset*).
+As with 3rplaca* on lists, this changes the actual object; one must be careful
+to understand where side-effects will propagate to.
+When you are making strings that you intend to change later, you probably
+want to create an array with a fill-pointer (see (fill-pointer)) so that
+you can change the length of the string as well as the contents.
+The length of a string is always computed using 3array-active-length*,
+so that if a string has a fill-pointer, its value will be used
+as the length.
+
+.section "Characters"
+
+.defun character x
+	3character* coerces 2x* to a single character,
+represented as a fixnum.  If 2x* is a number, it is returned.  If
+2x* is a string or an array, its first element is returned.  If
+2x* is a symbol, the first character of its pname is returned.
+Otherwise, an error occurs.  The way characters are represented
+as fixnums is explained in (character-set).
+.end_defun
+
+.defun char-equal ch1 ch2
+	This is the primitive for comparing characters for equality;
+many of the string functions call it.  2ch1* and 2ch2*
+must be fixnums.  The result is 3t* if the characters are equal ignoring
+case and font, otherwise 3nil*.
+3%%ch-char* is the byte-specifier for the portion of a character
+which excludes the font information.
+.end_defun
+
+.defun char-lessp ch1 ch2
+	This is the primitive for comparing characters for order;
+many of the string functions call it.  2ch1* and 2ch2*
+must be fixnums.  The result is 3t* if 2ch1* comes before 2ch2*
+ignoring case and font, otherwise 3nil*.  Details of the ordering
+of characters are in (character-set).
+.end_defun
+
+.section Upper and Lower Case Letters
+.cindex alphabetic case
+.cindex upper case letter
+.cindex lower case letter
+
+.defvar alphabetic-case-affects-string-comparison
+This variable is normally 3nil*.  If it is 3t*, 3char-equal*,
+3char-lessp*, and the string searching and comparison functions will
+distinguish between upper-case and lower-case letters.  If it is 3nil*,
+lower-case characters behave as if they were the same character but
+in upper-case.  It is all right
+to bind this to 3t* around a string operation, but changing its
+global value to 3t* will break many system functions and user
+interfaces and so is not recommended.
+.end_defvar
+
+.defun char-upcase ch
+	If 2ch*, which must be a fixnum, is a lower-case alphabetic
+character its upper-case form is returned; otherwise, 2ch* itself is
+returned.  If font information is present it is preserved.
+.end_defun
+
+.defun char-downcase ch
+	If 2ch*, which must be a fixnum, is a upper-case alphabetic
+character its lower-case form is returned; otherwise, 2ch* itself is
+returned.  If font information is present it is preserved.
+.end_defun
+
+.defun string-upcase string
+	Returns a copy of 2string*, with all lower case alphabetic
+characters replaced by the corresponding upper case characters.
+.end_defun
+
+.defun string-downcase string
+	Returns a copy of 2string*, with all upper case alphabetic
+characters replaced by the corresponding lower case characters.
+.end_defun
+
+.section Basic String Operations
+
+.defun string x
+	3string* coerces 2x* into a string.  Most of the string
+functions apply this to their string arguments.
+If 2x* is a string (or any array), it is returned.  If 2x* is
+a symbol, its pname is returned.  If 2x* is a non-negative
+fixnum less than 3400* octal, a one-character-long string containing
+it is created and returned.  If 2x* is a pathname (see (pathname)),
+the "string for printing" is returned.  Otherwise, an error is signalled.
+
+If you want to get the printed representation of an object into the
+form of a string, this function is 2not* what you should use.
+You can use 3format*, passing a first argument of 3nil* (see (format-fun)).
+You might also want to use 3with-output-to-string* (see
+(with-output-to-string-fun)).
+.end_defun
+
+.defun string-length string
+	3string-length* returns the number of characters in 2string*.  This is 1
+if 2string* is a number, the 3array-active-length*
+(see (array-active-length-fun))
+if 2string*
+is an array, or the 3array-active-length* of the pname if 2string* is a symbol.
+.end_defun
+
+.defun string-equal string1 string2 &optional (idx1 0) (idx2 0) lim1 lim2
+	3string-equal* compares two strings, returning 3t* if
+they are equal and 3nil* if they are not.  The comparison ignores
+the extra "font" bits in 16-bit strings
+and ignores alphabetic case.  3equal* calls 3string-equal* if
+applied to two strings.
+	The optional arguments 2idx1* and 2idx2* are the starting
+indices into the strings.  The optional arguments 2lim1* and 2lim2*
+are the final indices; the comparison stops just 2before* the final index.
+2lim1* and 2lim2* default to the lengths of the strings.  These arguments are provided
+so that you can efficiently compare substrings.
+.lisp
+.exdent 96 Examples:
+(string-equal "Foo" "foo") => t
+(string-equal "foo" "bar") => nil
+(string-equal "element" "select" 0 1 3 4) => t
+.end_lisp
+.end_defun
+
+.defun %string-equal string1 idx1 string2 idx2 count
+3%string-equal* is the microcode primitive which 3string-equal* calls.
+It returns 3t* if the 2count* characters of 2string1* starting
+at 2idx1* are 3char-equal* to the 2count* characters of 2string2*
+starting at 2idx2*, or 3nil* if the characters are not equal or
+if 2count* runs off the length of either array.
+
+Instead of a fixnum, 2count* may also be 3nil*.  In this case,
+3%string-equal* compares
+the substring from 2idx1* to 3(string-length 2string1*)*
+against the substring from 2idx2* to 3(string-length 2string2*)*.
+If the lengths of these substrings differ, then they are not equal and
+3nil* is returned.
+
+Note that 2string1* and 2string2* must really be strings; the
+usual coercion of symbols and fixnums to strings is not performed.
+This function is documented because certain programs which require
+high efficiency and are willing to pay the price of less generality
+may want to use 3%string-equal* in place of 3string-equal*.
+
+.lisp
+.exdent 96 Examples:
+1To compare the two strings 2foo* and 2bar*:*
+(%string-equal 2foo* 0 2bar* 0 nil)
+1To see if the string 2foo* starts with the characters 3"bar"*:*
+(%string-equal 2foo* 0 "bar" 0 3)
+.end_lisp
+.end_defun
+
+.defun string-lessp string1 string2
+	3string-lessp* compares two strings using dictionary order
+(as defined by 3char-lessp*).
+The result is 3t* if 2string1* is the lesser, or 3nil*
+if they are equal or 2string2* is the lesser.
+.end_defun
+
+.defun string-compare string1 string2 &optional (idx1 0) (idx2 0) lim1 lim2
+3string-compare* compares two strings using dictionary order (as defined
+by 3char-lessp*).  The arguments are interpreted as in 3string-equal*.
+The result is 30* if the strings are equal, a negative number if 2string1*
+is less than 2string2*, or a positive number if 2string1* is greater than
+2string2*.  If the strings are not equal, the absolute value of the
+number returned is one greater than the index (in 2string1*) where the first
+difference occurred.
+.end_defun
+
+.defun substring string start &optional end area
+	This extracts a substring of 2string*, starting at the
+character specified by 2start* and going up to but not including
+the character specified by 2end*.  2start* and 2end* are
+0-origin indices.  The length of the returned string is 2end* minus
+2start*.  If 2end* is not specified it defaults to the length
+of 2string*.  The area in which the result is to be consed may be
+optionally specified.
+.lisp
+.exdent 96 Example:
+(substring "Nebuchadnezzar" 4 8) => "chad"
+.end_lisp
+.end_defun
+
+.defun nsubstring string start &optional end area
+3nsubstring* is the same as 3substring* except that the substring
+is not copied; instead an indirect array (see (indirect-array)) is created which shares part
+of the argument 2string*.  Modifying one string will modify the other.
+
+Note that 3nsubstring* does not necessarily use less storage than
+3substring*; an 3nsubstring* of any length uses at least as much
+storage as a 3substring* 12 characters long.  So you shouldn't use
+this just "for efficiency"; it is intended for uses in which it is important
+to have a substring which, if modified, will cause the original string
+to be modified too.
+.end_defun
+
+.defun string-append &rest strings
+Any number of strings are copied and concatenated into a single string.
+With a single argument, 3string-append* simply copies it.
+If the first argument is an array, the result will be an array of the same type.
+Thus 3string-append* can be
+used to copy and concatenate any type of 1-dimensional array.
+.lisp
+.exdent 96 Example:
+(string-append #/! "foo" #/!) => "!foo!"
+.end_lisp
+.end_defun
+
+.defun string-nconc modified-string &rest strings
+3string-nconc* is like 3string-append* except that instead
+of making a new string containing the concatenation of its arguments,
+3string-nconc* modifies its first argument.  2modified-string*
+must have a fill-pointer so that additional characters can be tacked
+onto it.  Compare this with 3array-push-extend*
+((array-push-extend-fun)).  The value of 3string-nconc* is
+2modified-string* or a new, longer copy of it; in the latter case
+the original copy is forwarded to the new copy (see 3adjust-array-size*,
+(adjust-array-size-fun)).  Unlike 3nconc*, 3string-nconc*
+with more than two arguments modifies only its first argument, not
+every argument but the last.
+.end_defun
+
+.defun string-trim char-set string
+	This returns a 3substring* of 2string*, with all characters
+in 2char-set* stripped off of the beginning and end.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.lisp
+.exdent 96 Example:
+(string-trim '(#\sp) "  Dr. No  ") => "Dr. No"
+(string-trim "ab" "abbafooabb") => "foo"
+.end_lisp
+.end_defun
+
+.defun string-left-trim char-set string
+	This returns a 3substring* of 2string*, with all characters
+in 2char-set* stripped off of the beginning.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.end_defun
+
+.defun string-right-trim char-set string
+	This returns a 3substring* of 2string*, with all characters
+in 2char-set* stripped off of the end.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.end_defun
+
+.defun string-reverse string
+	Returns a copy of 2string* with the order of characters reversed.
+This will reverse a 1-dimensional array of any type.
+.end_defun
+
+.defun string-nreverse string
+	Returns 2string* with the order of characters reversed,
+smashing the original string, rather than creating a new one.
+If 2string* is a number, it is simply
+returned without consing up a string.
+This will reverse a 1-dimensional array of any type.
+.end_defun
+
+.defun string-pluralize string
+3string-pluralize* returns a string containing the plural of the
+word in the argument 2string*.  Any added characters go in the same
+case as the last character of 2string*.
+.lisp
+.exdent 96 Example:
+(string-pluralize "event") => "events"
+(string-pluralize "Man") => "Men"
+(string-pluralize "Can") => "Cans"
+(string-pluralize "key") => "keys"
+(string-pluralize "TRY") => "TRIES"
+.end_lisp
+For words with multiple plural forms depending on the
+meaning, 3string-pluralize* cannot always do the right thing.
+.end_defun
+
+.section "String Searching"
+
+.defun string-search-char char string &optional (from 0) to
+3string-search-char* searches through 2string* starting at the index 2from*,
+which defaults to the beginning, and returns the index of the first
+character which is 3char-equal* to 2char*, or 3nil* if none is found.
+If the 2to* argument is supplied, it is used in place of 3(string-length 2string*)*
+to limit the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-search-char #/a "banana") => 1
+.end_lisp
+.end_defun
+
+.defun %string-search-char char string from to
+3%string-search-char* is the microcode primitive which 3string-search-char*
+and other functions call.  2string* must be an array and 2char*, 2from*,
+and 2to* must be fixnums.  Except for this lack of type-coercion, and the fact
+that none of the arguments is optional, 3%string-search-char* is the same as
+3string-search-char*.  This function is documented for the benefit of
+those who require the maximum possible efficiency in string searching.
+.end_defun
+
+.defun string-search-not-char char string &optional (from 0) to
+3string-search-not-char* searches through 2string* starting at the index 2from*,
+which defaults to the beginning, and returns the index of the first
+character which is 2not* 3char-equal* to 2char*, or 3nil* if none is found.
+If the 2to* argument is supplied, it is used in place of 3(string-length 2string*)*
+to limit the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-search-not-char #/b "banana") => 1
+.end_lisp
+.end_defun
+
+.defun string-search key string &optional (from 0) to
+3string-search* searches for the string 2key* in the string
+2string*.  The search begins at 2from*, which defaults to the
+beginning of 2string*.  The value returned is the index of the first
+character of the first instance of 2key*, or 3nil* if none is
+found.
+If the 2to* argument is supplied, it is used in place of 3(string-length 2string*)*
+to limit the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-search "an" "banana") => 1
+(string-search "an" "banana" 2) => 3
+.end_lisp
+.end_defun
+
+.defun string-search-set char-set string &optional (from 0) to
+3string-search-set* searches through 2string* looking for
+a character which is in 2char-set*.  The search begins at the index 2from*,
+which defaults to the beginning.  It returns the index of the first
+character which is 3char-equal* to some element of 2char-set*,
+or 3nil* if none is found.
+If the 2to* argument is supplied, it is used in place of 3(string-length 2string*)*
+to limit the extent of the search.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.lisp
+.exdent 96 Example:
+(string-search-set '(#/n #/o) "banana") => 2
+(string-search-set "no" "banana") => 2
+.end_lisp
+.end_defun
+
+.defun string-search-not-set char-set string &optional (from 0) to
+3string-search-not-set* searches through 2string* looking for
+a character which is not in 2char-set*.  The search begins at the index 2from*,
+which defaults to the beginning.  It returns the index of the first
+character which is not 3char-equal* to any element of 2char-set*,
+or 3nil* if none is found.
+If the 2to* argument is supplied, it is used in place of 3(string-length 2string*)*
+to limit the extent of the search.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.lisp
+.exdent 96 Example:
+(string-search-not-set '(#/a #/b) "banana") => 2
+.end_lisp
+.end_defun
+
+.defun string-reverse-search-char char string &optional from (to 0)
+3string-reverse-search-char* searches through 2string* in reverse order, starting
+from the index one less than 2from*, which defaults to the length of 2string*,
+and returns the index of the first character which is 3char-equal*
+to 2char*, or 3nil* if none is found.  Note that the index returned
+is from the beginning of the string, although the search starts from the end.
+If the 2to* argument is supplied, it limits the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-reverse-search-char #/n "banana") => 4
+.end_lisp
+.end_defun
+
+.defun string-reverse-search-not-char char string &optional from (to 0)
+3string-reverse-search-not-char* searches through 2string* in reverse order, starting
+from the index one less than 2from*, which defaults to the length of 2string*,
+and returns the index of the first character which is 2not* 3char-equal*
+to 2char*, or 3nil* if none is found.  Note that the index returned
+is from the beginning of the string, although the search starts from the end.
+If the 2to* argument is supplied, it limits the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-reverse-search-not-char #/a "banana") => 4
+.end_lisp
+.end_defun
+
+.defun string-reverse-search key string &optional from (to 0)
+3string-reverse-search* searches for the string 2key* in the string 2string*.
+The search proceeds in reverse order, starting
+from the index one less than 2from*, which defaults to the length of 2string*,
+and returns the index of the first (leftmost) character of the first instance found,
+or 3nil* if none is found.  Note that the index returned
+is from the beginning of the string, although the search starts from the end.
+The 2from* condition, restated, is that the instance of 2key* found
+is the rightmost one whose rightmost character is before the 2from*'th character
+of 2string*.
+If the 2to* argument is supplied, it limits the extent of the search.
+.lisp
+.exdent 96 Example:
+(string-reverse-search "na" "banana") => 4
+.end_lisp
+.end_defun
+
+.defun string-reverse-search-set char-set string &optional from (to 0)
+3string-reverse-search-set* searches through 2string* in reverse order, starting
+from the index one less than 2from*, which defaults to the length of 2string*,
+and returns the index of the first character which is 3char-equal*
+to some element of 2char-set*, or 3nil* if none is found.
+Note that the index returned
+is from the beginning of the string, although the search starts from the end.
+If the 2to* argument is supplied, it limits the extent of the search.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.lisp
+(string-reverse-search-set "ab" "banana") => 5
+.end_lisp
+.end_defun
+
+.defun string-reverse-search-not-set char-set string &optional from (to 0)
+3string-reverse-search-not-set* searches through 2string* in reverse order, starting
+from the index one less than 2from*, which defaults to the length of 2string*,
+and returns the index of the first character which is not 3char-equal*
+to any element of 2char-set*, or 3nil* if none is found.
+Note that the index returned
+is from the beginning of the string, although the search starts from the end.
+If the 2to* argument is supplied, it limits the extent of the search.
+2char-set* is a set of characters, which can be represented as a list
+of characters or a string of characters.
+.lisp
+(string-reverse-search-not-set '(#/a #/n) "banana") => 0
+.end_lisp
+.end_defun
+
+See also 3intern* ((intern-fun)), which given a string will return "the" symbol
+with that print name.
+
+.section I/O to Strings
+
+The special forms in this section allow you to create I/O streams which
+input from or output to a string rather than a real I/O device.
+See (streams) for documentation of I/O streams.
+
+.defspec with-input-from-string (var string [index] [limit]) body...
+The form
+.lisp
+(with-input-from-string (2var* 2string*)
+    2body*)
+.end_lisp
+evaluates the forms in 2body* with the variable 2var* bound to a stream
+which reads characters from the string which is the value of the form
+2string*.  The value of the special form is the value of the last
+form in its body.
+
+The stream is a function that only works inside the 3with-input-from-string*
+special form, so be careful what you do with it.
+You cannot use it after control leaves the body, and you cannot nest
+two 3with-input-from-string* special forms and use both streams
+since the special-variable bindings associated with the streams will
+conflict.  It is done this way to avoid any allocation of memory.
+
+After 2string* you may optionally specify two additional "arguments".
+The first is 2index*:
+.lisp
+(with-input-from-string (2var* 2string* 2index*)
+    2body*)
+.end_lisp
+uses 2index* as the starting index into the string, and sets 2index*
+to the index of the first character not read when 3with-input-from-string*
+returns.  If the whole string is read, it will be set to the
+length of the string.  Since 2index* is
+updated it may not be a general expression; it must be a variable
+or a 3setf*-able reference.  The 2index* is not updated
+in the event of an abnormal exit from the body, such as a 3*throw*.
+The value of 2index* is not updated until 3with-input-from-string*
+returns, so you can't use its value within the body to see how far
+the reading has gotten.
+
+Use of the 2index* feature prevents multiple values from being
+returned out of the body, currently.
+
+.lisp
+(with-input-from-string (2var* 2string* 2index* 2limit*)
+    2body*)
+.end_lisp
+uses the value of the form 2limit*, if the value is not 3nil*, in
+place of the length of the string.  If you want to specify a 2limit*
+but not an 2index*, write 3nil* for 2index*.
+.end_defspec
+
+.defspec with-output-to-string (var [string] [index]) body...
+This special form provides a variety of ways to send output to a string
+through an I/O stream.
+
+.lisp
+(with-output-to-string (2var*)
+  2body*)
+.end_lisp
+evaluates the forms in 2body* with 2var* bound to a stream
+which saves the characters output to it in a string.  The value of
+the special form is the string.
+
+.lisp
+(with-output-to-string (2var* 2string*)
+  2body*)
+.end_lisp
+will append its output to the string which is the value of the form 2string*.
+(This is like the 3string-nconc* function; see (string-nconc-fun).)
+The value returned is the value of the last form in the body, rather than the string.
+Multiple values are not returned.  2string* must have an array-leader;
+element 0 of the array-leader will be used as the fill-pointer.
+If 2string*
+is too small to contain all the output, 3adjust-array-size* will be used to
+make it bigger.
+
+.lisp
+(with-output-to-string (2var* 2string* 2index*)
+  2body*)
+.end_lisp
+is similar to the above except that 2index* is a variable or 3setf*-able
+reference which contains the index of the next character to be stored into.
+It must be initialized outside the 3with-output-to-string* and will be updated
+upon normal exit.
+The value of 2index* is not updated until 3with-output-to-string*
+returns, so you can't use its value within the body to see how far
+the writing has gotten.  The presence of 2index* means that 2string*
+is not required to have a fill-pointer; if it does have one it will be updated.
+
+The stream is a "downward closure" simulated with special variables,
+so be careful what you do with it.
+You cannot use it after control leaves the body, and you cannot nest
+two 3with-output-to-string* special forms and use both streams
+since the special-variable bindings associated with the streams will
+conflict.  It is done this way to avoid any allocation of memory.
+.end_defspec
+
+It is OK to use a 3with-input-from-string* and 3with-output-to-string*
+nested within one another, so long as there is only one of each.
+
+Another way of doing output to a string is to use the 3format* facility
+(see (format-fun)).
+
+.section "Maclisp-Compatible Functions"
+
+The following functions are provided primarily for Maclisp compatibility.
+
+.defun alphalessp string1 string2
+3(alphalessp 2string1 string2*)* is equivalent to
+3(string-lessp 2string1 string2*)*.
+.end_defun
+
+.defun getchar string index
+	Returns the 2index*'th character of 2string*
+as a symbol.  Note that 1-origin indexing is used.  This function
+is mainly for Maclisp compatibility; 3aref* should be used
+to index into strings (however, 3aref* will not coerce symbols
+or numbers into strings).
+.end_defun
+
+.defun getcharn string index
+	Returns the 2index*'th character of 2string*
+as a fixnum.  Note that 1-origin indexing is used.  This function
+is mainly for Maclisp compatibility; 3aref* should be used
+to index into strings (however, 3aref* will not coerce symbols
+or numbers into strings).
+.end_defun
+
+.defun ascii x
+	3ascii* is like 3character*, but returns a symbol
+whose printname is the character instead of returning a fixnum.
+.lisp
+.exdent 96 Examples:
+(ascii 101) => A
+(ascii 56) => /.
+.end_lisp
+The symbol returned is interned in the current package (see (package)).
+.end_defun
+
+.defun maknam char-list
+	3maknam* returns
+an uninterned symbol whose print-name is a string made up of the characters in 2char-list*.
+.lisp
+.exdent 96 Example:
+(maknam '(a b #/0 d)) => ab0d
+.end_lisp
+.end_defun
+
+.defun implode char-list
+	3implode* is like 3maknam* except that the returned symbol
+is interned in the current package.
+.end_defun
+
+.nopara
+The 3samepnamep* function is also provided; see (samepnamep-fun).

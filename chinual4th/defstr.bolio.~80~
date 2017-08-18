@@ -1,0 +1,1357 @@
+.c This file is part of the Lisp Machine manual.	-*-Bolio-*-
+.c Defstruct.
+.c This needs more work.  More examples are needed.
+.c Everything needs more work....
+
+.chapter "Defstruct"
+.setq defstruct section-page
+.setq defstruct-chapter chapter-number
+.cindex structures
+.cindex defstruct
+.cindex record (structure)
+.c Macro-defining macros!!!!!
+.cindex macro defining macros
+
+.section "Introduction to Structure Macros"
+
+	3defstruct* provides a facility in Lisp for creating and
+using aggregate datatypes with named elements.  These are like
+"structures" in PL/I, or "records" in PASCAL.  In the last two chapters we
+saw how to use macros to extend the control structures of Lisp; here we
+see how they can be used to extend Lisp's data structures as well.
+
+	To explain the basic idea, assume you were writing a Lisp
+program that dealt with space ships.  In your program, you want to
+represent a space ship by a Lisp object of some kind.  The interesting
+things about a space ship, as far as your program is concerned, are
+its position (X and Y), velocity (X and Y), and mass.  How do you
+represent a space ship?
+
+	Well, the representation could be a list of the x-position,
+y-position, and so on.  Equally well it could be an array of five
+elements, the zeroth being the x-position, the first being the
+y-position, and so on.  The problem with both of these representations
+is that the "elements" (such as x-position) occupy places in the object
+which are quite arbitrary, and hard to remember (Hmm, was the mass the
+third or the fourth element of the array?).  This would make programs
+harder to write and read.  It would not be obvious when reading
+a program that an expression such as 3(cadddr ship1)* or 3(aref ship2 3)*
+means "the y component of the ship's velocity", and it would be very easy
+to write 3caddr* in place of 3cadddr*.
+
+What we would like to see are names, easy to remember and to understand.
+If the symbol 3foo* were bound to a representation of a space ship, then
+.lisp
+(ship-x-position foo)
+.end_lisp
+could return its x-position, and
+.lisp
+(ship-y-position foo)
+.end_lisp
+its y-position, and so forth.  The 3defstruct* facility does just this.
+
+	3defstruct* itself is a macro which defines a structure.  For the
+space ship example above, we might define the structure by saying:
+.lisp
+(defstruct (ship)
+     ship-x-position
+     ship-y-position
+     ship-x-velocity
+     ship-y-velocity
+     ship-mass)
+.end_lisp
+
+This says that every 3ship* is an object with five named components.
+(This is a very simple case of 3defstruct*; we will see the general form
+later.)  The evaluation of this form does several things.  First, it
+defines 3ship-x-position* to be a function which, given a ship, returns
+the x component of its position.  This is called an 2accessor function*,
+because it 2accesses* a component of a structure.
+'cindex accessor function
+3defstruct* defines the other four accessor functions analogously.
+
+3defstruct* will also define 3make-ship* to be a macro which expands
+into the necessary Lisp code to create a 3ship* object.  So 3(setq x
+(make-ship))* will make a new ship, and set 3x* to it.  This macro is
+called the 2constructor macro*, because it constructs a new structure.
+'cindex constructor macro
+
+We also want to be able to change the contents of a structure.  To do this,
+we use the 3setf* macro (see (setf-fun)), as follows (for example):
+.lisp
+(setf (ship-x-position x) 100)
+.end_lisp
+Here 3x* is bound to a ship, and after the evaluation of the 3setf*
+form, the 3ship-x-position* of that ship will be 100.  Another way
+to change the contents of a structure is to use the alterant macro,
+which is described later, in (using-defstruct-alterant).
+
+How does all this map into the familiar primitives of Lisp?  In this simple
+example, we left the choice of implementation technique up to
+3defstruct*; it will choose to represent a ship as an array.  The array has
+five elements, which are the five components of the ship.  The accessor
+functions are defined thus:
+.lisp
+(defun ship-x-function (ship)
+  (aref ship 0))
+.end_lisp
+The constructor macro 3(make-ship)* expands into 3(make-array 5)*, which
+makes an array of the appropriate size to be a ship.  Note that a program which
+uses ships need not contain any explicit knowledge that ships are represented
+as five-element arrays; this is kept hidden by 3defstruct*.
+
+The accessor functions are not actually ordinary functions; instead they
+are 3subst*s (see (subst)).  This difference has two implications: it allows
+3setf* to understand the accessor functions, and it allows the compiler to
+substitute the body of an accessor function directly into any function that uses it,
+making compiled programs that use 3defstruct* exactly equal in efficiency to
+programs that "do it by hand."  Thus writing 3(ship-mass s)* is exactly
+equivalent to writing 3(aref s 4)*, and writing 3(setf (ship-mass s) m)*
+is exactly equivalent to writing 3(aset m s 4)*, when the program is compiled.
+It is also possible to tell 3defstruct* to implement the accessor
+functions as macros; this is not normally done in Zetalisp, however.
+
+	We can now use the 3describe-defstruct* function to look at the
+3ship* object, and see what its contents are:
+.lisp
+(describe-defstruct x 'ship) =>
+
+#<art-q-5 17073131> is a ship
+   ship-x-position:              100
+   ship-y-position:              nil
+   ship-x-velocity:              nil
+   ship-y-velocity:              nil
+   ship-mass:                    nil
+#<art-q-5 17073131>
+.end_lisp
+(The 3describe-defstruct* function is explained more fully on
+(describe-defstruct-fun).)
+
+	By itself, this simple example provides a powerful structure
+definition tool.  But, in fact, 3defstruct* has many other features.  First
+of all, we might want to specify what kind of Lisp object to use for the
+"implementation" of the structure.  The example above implemented a "ship"
+as an array, but 3defstruct* can also implement structures as array-leaders,
+lists, and other things.  (For array-leaders, the accessor functions call
+3array-leader*, for lists, 3nth*, and so on.)
+
+	Most structures are implemented as arrays.  Lists take slightly less
+storage, but elements near the end of a long list are slower to access.
+Array leaders allow you to have a homogeneous aggregate (the array)
+and a heterogeneous aggregate with named elements (the leader) tied
+together into one object.
+
+	3defstruct* allows you to specify to the constructor
+macro what the various elements of the structure should be initialized
+to.  It also lets you give, in the 3defstruct* form, default values
+for the initialization of each element.
+
+	The 3defstruct* in Zetalisp also works in various
+dialects of Maclisp, and so it has some features that are not useful in
+Zetalisp.  When possible, the Maclisp-specific features attempt
+to do something reasonable or harmless in Zetalisp, to make it
+easier to write code that will run equally well in Zetalisp and
+Maclisp.  (Note that this 3defstruct* is not necessarily the default
+one installed in Maclisp!)
+
+.section "How to Use Defstruct"
+.cindex slot
+
+.defmac defstruct
+A call to 3defstruct* looks like:
+.lisp
+(defstruct (2name* 2option-1* 2option-2* ...)
+	   2slot-description-1*
+	   2slot-description-2*
+	   ...)
+.end_lisp
+2name* must be a symbol; it is the name of the structure.  It is given a
+3si:defstruct-description* property that describes the attributes and elements of the
+structure; this is intended to be used by programs that examine Lisp
+programs, that want to display the contents of structures in a helpful
+way.  2name* is used for other things, described below.
+
+Each 2option* may be either a symbol, which should be one of the recognized
+option names, listed in the next section, or a list, whose car should be one of the
+option names and the rest of which should be "arguments" to the option.
+Some options have arguments that default; others require that arguments be
+given explicitly.
+
+Each 2slot-description* may be in any of three forms:
+.lisp
+1(1)*	2slot-name*
+1(2)*	3(2slot-name* 2default-init*)*
+1(3)*	((2slot-name-1* 2byte-spec-1* 2default-init-1*)
+	 (2slot-name-2* 2byte-spec-2* 2default-init-2*)
+		...)
+.end_lisp
+Each 2slot-description* allocates one element of the physical structure,
+even though in form (3) several slots are defined.
+
+Each 2slot-name* must always be a symbol; an accessor function is defined
+for each slot.
+
+In form (1), 2slot-name* simply defines a slot with the given name.  An
+accessor function will be defined with the name 2slot-name* (but see the
+3:conc-name* option, (defstruct-conc-name-option)).  Form (2) is
+similar, but allows a default initialization for the slot.  Initialization
+is explained further on (defstruct-initialization).  Form (3) lets you pack
+several slots into a single element of the physical underlying structure, using
+the byte field feature of 3defstruct*, which is explained on
+(defstruct-byte-field).
+.end_defmac
+
+Because evaluation of a 3defstruct* form causes many functions and macros
+to be defined, you must take care not to define the same name with two
+different 3defstruct* forms.  A name can only have one function
+definition at a time; if it is redefined, the latest definition is the one
+that takes effect, and the earlier definition is clobbered.  (This is no
+different from the requirement that each 3defun* which is intended to
+define a distinct function must have a distinct name.)
+
+To systematize this necessary carefulness, as well as for
+clarity in the code, it is conventional to prefix the names of all of the
+accessor functions with some text unique to the structure.  In the example
+above, all the names started with 3ship-*.  The 3:conc-name*
+option can be used to provide such prefixes automatically (see (defstruct-conc-name-option)).
+Similarly, the conventional name for the constructor macro in the example
+above was 3make-ship*, and the conventional name for the alterant macro
+(see (using-defstruct-alterant)) was 3alter-ship*.
+
+.nopara
+The 3describe-defstruct* function lets you examine an instance of
+a structure.
+
+.defun describe-defstruct instance &optional name
+3describe-defstruct* takes an 2instance* of a structure, and prints
+out a description of the instance, including the contents of each of its
+slots.  2name* should be the name of the structure; you must provide
+the name of the structure so that 3describe-defstruct* can know what
+structure 2instance* is an instance of, and therefore figure out what
+the names of the slots of 2instance* are.
+
+If 2instance* is a named structure, you don't have to provide 2name*,
+since it is just the named structure symbol of 2instance*.
+Normally the 3describe* function (see (describe-fun)) will call
+3describe-defstruct* if it is asked to describe a named structure;
+however some named structures have their own idea of how to describe themselves.
+See (named-structure) for more information about named structures.
+.end_defun
+
+.section "Options to Defstruct"
+
+This section explains each of the options that can be given to 3defstruct*.
+
+Here is an example that shows the typical syntax of a call to 3defstruct*
+that gives several options.
+.lisp
+(defstruct (foo (:type :array)
+		(:make-array (:type 'art-8b :leader-length 3))
+		:conc-name
+		(:size-symbol foo))
+  a
+  b)
+.end_lisp
+
+.table 3
+.item :type
+'kindex :type defstruct
+The 3:type* option specifies what kind of Lisp object will be used
+to implement the structure.  It must be given one argument, which must
+be one of the symbols enumerated below, or a user-defined type.
+If the option itself is not
+provided, the type defaults to 3:array*.  You can define your
+own types; this is explained in (defining-your-own-defstruct-types).
+
+.table 3 0 500
+.item :array
+'kindex :array defstruct
+Use an array, storing components in the body of the array.
+.item :named-array
+'kindex :named-array defstruct
+Like 3:array*, but make the array a named structure (see
+(named-structure)) using the name of the structure as the named
+structure symbol.  Element 30* of the array will hold the named
+structure symbol and so will not be used to hold a component of the
+structure.
+.item :array-leader
+'kindex :array-leader defstruct
+Use an array, storing components in the leader of the array.
+(See the 3:make-array* option, described below.)
+.item :named-array-leader
+'kindex :named-array-leader defstruct
+Like 3:array-leader*, but make the array a named structure (see
+(named-structure)) using the name of the structure as the named
+structure symbol.  Element 31* of the leader will hold the named
+structure symbol and so will not be used to hold a component of the
+structure.
+.item :list
+'kindex :list defstruct
+Use a list.
+.item :named-list
+'kindex :named-list defstruct
+Like 3:list*, but the first element of the list will hold the
+symbol that is the name of the structure and so will not be used
+as a component.
+.item :fixnum-array
+'kindex :fixnum-array defstruct
+Like 3:array*, but the type of the array is 3art-32b*.
+.item :flonum-array
+'kindex :flonum-array defstruct
+Like 3:array*, but the type of the array is 3art-float*.
+.item :tree
+'kindex :tree defstruct
+The structure is implemented out of a binary tree of conses, with
+the leaves serving as the slots.
+.item :fixnum
+'kindex :fixnum defstruct
+This unusual type implements the structure as a single fixnum.  The
+structure may only have one slot.  This is only useful with the
+byte field feature (see (defstruct-byte-field)); it lets you store
+a bunch of small numbers within fields of a fixnum, giving the
+fields names.
+.item :grouped-array
+'kindex :grouped-array defstruct
+This is described in (grouped-array).
+.end_table
+
+.item :constructor
+'kindex :constructor defstruct
+This option takes one argument, which specifies the name of the constructor
+macro.  If the argument is not provided or if the option itself is not
+provided, the name of the constructor is made by concatenating the
+string 3"make-"* to the name of the structure.  If the argument is
+provided and is 3nil*, no constructor is defined.  Use of the constructor
+macro is explained in (using-defstruct-constructor).
+
+.item :alterant
+'kindex :alterant defstruct
+This option takes one argument, which specifies the name of the alterant
+macro.  If the argument is not provided or if the option itself is not
+provided, the name of the alterant is made by concatenating the
+string 3"alter-"* to the name of the structure.  If the argument is
+provided and is 3nil*, no alterant is defined.  Use of the alterant
+macro is explained in (using-defstruct-alterant).
+
+.item :default-pointer
+'kindex :default-pointer defstruct
+'setq defstruct-default-pointer-option page
+Normally, the accessors defined by 3defstruct* expect to
+be given exactly one argument.  However, if the 3:default-pointer*
+argument is used, the argument to each accessor is optional.  If you use
+an accessor in the usual way it will do the usual thing, but if you
+invoke it without its argument, it will behave as if you had invoked it
+on the result of evaluating the form which is the argument to the
+3:default-pointer* argument.  Here is an example:
+
+.lisp
+(defstruct (room (:default-pointer *default-room*))
+   room-name
+   room-contents)
+
+(room-name x) ==> (aref x 0)
+(room-name)   ==> (aref *default-room* 0)
+.end_lisp
+
+If the argument to the 3:default-pointer* argument is not given, it
+defaults to the name of the structure.
+
+.item :conc-name
+'kindex :conc-name defstruct
+'setq defstruct-conc-name-option page
+It is conventional to begin the names of all the accessor functions of
+a structure with a specific prefix, usually
+the name of the structure followed by a hyphen.  The 3:conc-name*
+option allows you to specify this prefix and have it concatenated
+onto the front of all the slot names to make the names of the accessor
+functions.  The argument should be a symbol; its print-name is used as
+the prefix.  If 3:conc-name* is specified without an argument, the prefix will be the
+name of the structure followed by a hyphen.  If you do not specify the
+3:conc-name* option, the names of the accessors are the same as the slot
+names, and it is up to you to name the slots according to some suitable convention.
+
+The constructor and alterant macros are given slot names, not accessor names.
+It is important to keep this in mind when using 3:conc-name*, since it
+causes the slot and accessor names to be different.  Here is an example:
+.lisp
+(defstruct (door :conc-name)
+   knob-color
+   width)
+
+(setq d (make-door knob-color 'red width 5.0))
+
+(door-knob-color d) ==> red
+.end_lisp
+
+.item :include
+'kindex :include defstruct
+'setq defstruct-include-option page
+This option is used for building a new structure definition as an extension of an old
+structure definition.  Suppose you have a structure called 3person* that
+looks like this:
+
+.lisp
+(defstruct (person :conc-name)
+   name
+   age
+   sex)
+.end_lisp
+
+Now suppose you want to make a new structure to represent an astronaut.
+Since astronauts are people too, you would like them to also have the
+attributes of name, age, and sex, and you would like Lisp functions
+that operate on 3person* structures to operate just as well on
+3astronaut* structures.  You can do this by defining 3astronaut*
+with the 3:include* option, as follows:
+
+.lisp
+(defstruct (astronaut (:include person))
+   helmet-size
+   (favorite-beverage 'tang))
+.end_lisp
+
+The 3:include* option inserts the slots of the included structure at
+the front of the list of slots for this structure.  That is, an
+3astronaut* will have five slots; first the three defined in
+3person*, and then after those the two defined in 3astronaut*
+itself.  The accessor functions defined by the 3person* structure
+can be applied to instances of the 3astronaut* structure, and they
+will work correctly.  The following examples illustrate how you can
+use 3astronaut* structures:
+
+.lisp
+(setq x (make-astronaut name 'buzz
+			age 45.
+			sex t
+			helmet-size 17.5))
+
+(person-name x) => buzz
+(favorite-beverage x) => tang
+.end_lisp
+
+Note that the 3:conc-name* option was 2not* inherited from the
+included structure; it only applies to the accessor functions of 3person*
+and not to those of 3astronaut*.  Similarly, the 3:default-pointer*
+and 3:but-first* options, as well as the 3:conc-name* option, only
+apply to the accessor functions for the structure in which they are enclosed; they are not
+inherited if you 3:include* a structure that uses them.
+
+The argument to the 3:include* option is required, and must be the
+name of some previously defined structure of the same type as this
+structure.  3:include* does not work with structures of type
+3:tree* or of type 3:grouped-array*.
+
+The following is an advanced feature.  Sometimes, when one structure
+includes another, the default values for the slots that came from the
+included structure are not what you want.  The new structure can specify
+different default values for the included slots than the included
+structure specifies, by giving the 3:include* option as:
+
+.lisp
+(:include 2name new-init-1 ... new-init-n*)
+.end_lisp
+
+Each 2new-init* is either the name of an included slot or a list of
+the form 3(2name-of-included-slot init-form*)*.  If it is just a
+slot name, then in the new structure the slot will have no initial
+value.  Otherwise its initial value form will be replaced by the
+2init-form*.  The old (included) structure is unmodified.
+
+For example, if we had wanted to define 3astronaut* so that the
+default age for an astronaut is 345.*, then we could have said:
+.lisp
+(defstruct (astronaut (:include person (age 45.)))
+   helmet-size
+   (favorite-beverage 'tang))
+.end_lisp
+
+.item :named
+'kindex :named defstruct
+This means that you want to use one of the "named" types.  If you
+specify a type of 3:array*, 3:array-leader*, or 3:list*, and give
+the 3:named* option, then the 3:named-array*,
+3:named-array-leader*, or 3:named-list* type will be used instead.
+Asking for type 3:array* and giving the 3:named* option as well
+is the same as asking for the type 3:named-array*; the only difference
+is stylistic.
+
+.item :make-array
+'kindex :make-array defstruct
+'setq defstruct-make-array-option page
+If the structure being defined is implemented as an array, this option
+may be used to control those aspects of the array that are not otherwise constrained by
+3defstruct*.  For example, you might want to control the area in which
+the array is allocated.  Also, if you are creating a structure of type
+3:array-leader*, you almost certainly want to specify the dimensions
+of the array to be created, and you may want to specify the type of the
+array.  Of course, this option is only meaningful if the structure is,
+in fact, being implemented by an array.
+
+The argument to the 3:make-array* option should be a list of alternating
+keyword symbols to the 3make-array* function (see (make-array-fun)),
+and forms whose values are the arguments to those keywords.  For example,
+3(:make-array (:type 'art-16b))* would request that the type of the
+array be 3art-16b*.  Note that the keyword symbol is 2not* evaluated.
+
+3defstruct* overrides any of the 3:make-array* options that it
+needs to.  For example, if your structure is of type 3:array*, then
+3defstruct* will supply the size of that array regardless of what you
+say in the 3:make-array* option.
+
+Constructor macros for structures implemented as arrays all allow the
+keyword 3:make-array* to be supplied.  Attributes supplied therein
+overide any 3:make-array* option attributes supplied in the original
+3defstruct* form.  If some attribute appears in neither the invocation
+of the constructor nor in the 3:make-array* option to 3defstruct*,
+then the constructor will chose appropriate defaults.
+
+If a structure is of type 3:array-leader*, you probably want to
+specify the dimensions of the array.  The dimensions of an array are
+given to 3:make-array* as a position argument rather than a keyword
+argument, so there is no way to specify them in the above syntax.  To
+solve this problem, you can use the keyword 3:dimensions* or the
+keyword 3:length* (they mean the same thing), with a value that is
+anything acceptable as 3make-array*'s first argument.
+
+.item :times
+'kindex :times defstruct
+This option is used for structures of type 3:grouped-array* to control
+the number of repetitions of the structure that will be allocated by the
+constructor macro.  (See (grouped-array).)  The constructor macro will
+also allow 3:times* to be used as a keyword that will override the value
+given in the original 3defstruct* form.  If 3:times* appears in
+neither the invocation of the constructor nor in the 3:make-array* option
+to 3defstruct*, then the constructor will only allocate one instance of
+the structure.
+
+.item :size-symbol
+'kindex :size-symbol defstruct
+'setq defstruct-size-symbol-option page
+The 3:size-symbol* option allows a user to specify a global variable whose
+value will be the "size" of the structure; this variable is declared with
+3defconst*.  The exact meaning of the size
+varies, but in general this number is the one you would need to know if
+you were going to allocate one of these structures yourself.  The symbol
+will have this value both at compile time and at run time.  If this
+option is present without an argument, then the name of the structure is
+concatenated with 3"-size"* to produce the symbol.
+.c [The name :size-symbol is not so hot.]
+
+.item :size-macro
+'kindex :size-macro defstruct
+This is similar to the 3:size-symbol* option.  A macro of no arguments
+is defined that expands into the size of the structure.  The name of
+this macro defaults as with 3:size-symbol*.
+
+.item :initial-offset
+'kindex :initial-offset defstruct
+This allows you to tell 3defstruct* to skip over a certain
+number of slots before it starts allocating the slots described in the
+body.  This option requires an argument (which must be a fixnum) which
+is the number of slots you want 3defstruct* to skip.  To make use of
+this option requires that you have some familiarity with how 3defstruct*
+is implementing your structure; otherwise, you will be unable to make
+use of the slots that 3defstruct* has left unused.
+
+.item :but-first
+'kindex :but-first defstruct
+This option is best explained by example:
+
+.lisp
+(defstruct (head (:type :list)
+		 (:default-pointer person)
+		 (:but-first person-head))
+  nose
+  mouth
+  eyes)
+.end_lisp
+
+The accessors expand like this:
+
+.lisp
+(nose x)	==> (car (person-head x))
+(nose)		==> (car (person-head person))
+.end_lisp
+
+The idea is that 3:but-first*'s argument will be an accessor from some
+other structure, and it is never expected that this structure will be
+found outside of that slot of that other structure.  Actually, you can
+use any one-argument function, or a macro that acts like a one-argument
+function.  It is an error for
+the 3:but-first* option to be used without an argument.
+
+.item :displace
+'kindex :displace defstruct
+Normally all of the macros defined by 3defstruct* will be simple
+displacing macros.  They will use the function 3displace* to actually
+change the original macro form, so that it will not have to be expanded
+over and over (see (displace-fun)).  The 3:displace* option
+allows the user to supply some other function to use instead of
+3displace*.
+
+The argument to the 3:displace* option should be a two argument
+function that will be called whenever a macro expansion occurs.  The
+two arguments will be the original form and the form resulting from
+macro expansion.  The value returned by this function will be used for
+further evaluation.  Note that the function 3displace* is the function
+used if the 3:displace* option isn't given.  The function 3progn* will
+cause the macro to be expanded every time.
+
+Giving the 3:displace* argument with no arguments, or with an argument
+of 3t*, or with an argument of 3displace*, is the same is not giving
+it at all.  Giving an argument of 3nil* or 3progn* means to use
+regular macros instead of displacing macros.
+
+Note that accessor functions are normally 3subst*s rather than macros (unless you give the
+3:callable-accessors* option with argument 3nil*).  If the accessors
+are 3subst*s, they are not affected by 3:displace*.
+However, the constructor and alterant macros, and the 3:size-macro*,
+are still affected.
+
+.item :callable-accessors
+'kindex :callable-accessors defstruct
+This option controls whether accessors are really functions,
+and therefore "callable", or whether they are really macros.  With
+an argument of 3t*, or with no argument, or if the option is not
+provided, then the accessors are really functions.  Specifically,
+they are 3subst*s, so that they have all the efficiency of macros
+in compiled programs, while still being function objects that
+can be manipulated (passed to 3mapcar*, etc.).  If
+the argument is 3nil* then the accessors will really be macros;
+either displacing macros or not, depending on the 3:displace* argument.
+
+.item :eval-when
+'kindex :eval-when defstruct
+Normally the functions and macros defined by 3defstruct* are defined at
+eval-time, compile-time, and load-time.  This option allows the user
+to control this behavior.  The argument to the 3:eval-when* option
+is just like the list that is the first subform of an 3eval-when*
+special form (see (eval-when-fun)).  For example,
+3(:eval-when (:eval :compile))*
+will cause the functions and macros to be defined only when the code is running
+interpreted or inside the compiler.
+
+.item :property
+'kindex :property defstruct
+'setq defstruct-property-option page
+For each structure defined by defstruct, a property list is maintained
+for the recording of arbitrary properties about that structure.  (That
+is, there is one property list per structure definition, not one for
+each instantiation of the structure.)
+
+The 3:property* option can be used to give a 3defstruct* an
+arbitrary property.  3(:property 2property-name value*)* gives the
+3defstruct* a 2property-name* property of 2value*.  Neither
+argument is evaluated.  To access the property list, the user will have
+to look inside the 3defstruct-description* structure himself (see
+(defstruct-description)).
+
+.item 2type*
+In addition to the options listed above, any currently defined type
+(any legal argument to the 3:type* option) can be used as an option.
+This is mostly for compatibility with the old version of 3defstruct*.
+It allows you to say just 2type* instead of 3(:type 2type*)*.  It
+is an error to give an argument to one of these options.
+
+.item 2other*
+Finally, if an option isn't found among those listed above,
+3defstruct* checks the property list of the name of the option to see if
+it has a non-nil 3:defstruct-option* property.  If it does have such a
+property, then if the option was of the form 3(2option-name value*)*,
+it is treated just like 3(:property 2option-name value*)*.  That is,
+the 3defstruct* is given an 2option-name* property of 2value*.  It is an
+error to use such an option without a value.
+
+This provides a primitive way for you to define your own options to
+3defstruct*, particularly in connection with user-defined types (see
+(defining-your-own-defstruct-types)).  Several of the options listed above
+are actually implemented using this mechanism.
+.end_table
+
+.section "Using the Constructor and Alterant Macros"
+
+After you have defined a new structure with 3defstruct*, you can
+create instances of this structure using the constructor macro, and
+you can alter the values of its slots using the alterant macro.  By
+default, 3defstruct* defines both the constructor and the alterant,
+forming their names by concatenating 3"make-"* and 3"alter-"*,
+respectively, onto the name of the structure.  You can specify the names
+yourself by passing the name you want to use as the argument to the
+3:constructor* or 3:alterant* options, or specify that you don't
+want the macro created at all by passing 3nil* as the argument.
+
+.subsection Constructor Macros
+.setq using-defstruct-constructor section-page
+.cindex constructor macro
+
+A call to a constructor macro, in general, has the form
+.lisp
+(2name-of-constructor-macro*
+        2symbol-1* 2form-1*
+        2symbol-2* 2form-2*
+        ...)
+.end_lisp
+	Each 2symbol* may be either the name of a 2slot* of the structure,
+or a specially recognized keyword.  All the 2forms* are evaluated.
+
+'setq defstruct-initialization page
+	If 2symbol* is the name of a 2slot* (2not* the name of an accessor),
+then that element of
+the created structure will be initialized to the value of 2form*.  If
+no 2symbol* is present for a given slot, then the slot will be
+initialized to the result of evaluating the default initialization form specified in
+the call to 3defstruct*.  (In other words, the
+initialization form specified to the constructor overrides the initialization form
+specified to 3defstruct*.)  If the 3defstruct* itself also did not
+specify any initialization, the element's initial value is undefined.
+You should always specify the initialization, either in the 3defstruct*
+or in the constructor macro, if you care about the initial value of the slot.
+
+Notes: The order of evaluation of the initialization forms is 2not*
+necessarily the same as the order in which they appear in the constructor
+call, nor the order in which they appear in the 3defstruct*; you should
+make sure your code does not depend on the order of evaluation.  The forms
+are re-evaluated on every constructor-macro call, so that if, for example,
+the form 3(gensym)* were used as an initialization form, either in a call
+to a constructor macro or as a default initialization in the 3defstruct*, then every call
+to the constructor macro would create a new symbol.
+
+	There are two symbols which are specially recognized by the
+constructor.  They are 3:make-array*, which should only be used for
+3:array* and 3:array-leader* type structures (or the named versions
+of those types), and 3:times*, which should only be used for
+3:grouped-array* type structures.  If one of these symbols appears instead
+of a slot name, then it is interpreted just as the 3:make-array*
+option or the 3:times* option (see (defstruct-make-array-option)),
+and it overrides what was requested in that option.  For example:
+.lisp
+(make-ship ship-x-position 10.0
+	   ship-y-position 12.0
+	   :make-array (:leader-length 5 :area disaster-area))
+.end_lisp
+
+.subsection By-position Constructor Macros
+
+If the 3:constructor* option is given as
+3(:constructor 2name* 2arglist*)*, then instead of making a keyword
+driven constructor, 3defstruct* defines a "function style" constructor,
+taking arguments whose meaning is determined by the argument's position
+rather than by a keyword.
+The 2arglist* is used to describe what the arguments to the
+constructor will be.  In the simplest case something like
+3(:constructor make-foo (a b c))* defines 3make-foo* to be a three-argument
+constructor macro whose arguments are used to initialize the
+slots named 3a*, 3b*, and 3c*.
+
+In addition, the keywords 3&optional*, 3&rest*, and 3&aux* are
+recognized in the argument list.  They work in the way you might expect,
+but there are a few fine points worthy of explanation:
+
+.lisp
+(:constructor make-foo 
+	(a &optional b (c 'sea) &rest d &aux e (f 'eff)))
+.end_lisp
+
+This defines 3make-foo* to be a constructor of one or more arguments.
+The first argument is used to initialize the 3a* slot.  The second
+argument is used to initialize the 3b* slot.  If there isn't any
+second argument, then the default value given in the body of the
+3defstruct* (if given) is used instead.  The third argument is used to
+initialize the 3c* slot.  If there isn't any third argument, then the
+symbol 3sea* is used instead.  Any arguments following the third
+argument are collected into a list and used to initialize the 3d*
+slot.  If there are three or fewer arguments, then 3nil* is placed in
+the 3d* slot.  The 3e* slot 2is not initialized*; its initial
+value is undefined.  Finally, the 3f* slot is initialized to contain
+the symbol 3eff*.
+
+	The actions taken in the 3b* and 3e* cases were carefully
+chosen to allow the user to specify all possible behaviors.  Note that
+the 3&aux* "variables" can be used to completely override the default
+initializations given in the body.
+
+	Since there is so much freedom in defining constructors this
+way, it would be cruel to only allow the 3:constructor* option to be
+given once.  So, by special dispensation, you are allowed to give the
+3:constructor* option more than once, so that you can define several
+different constructors, each with a different syntax.
+
+	Note that even these "function style" constructors do not
+guarantee that their arguments will be evaluated in the order that you
+wrote them.  Also note that you cannot specify the 3:make-array*
+nor 3:times* information in this form of constructor macro.
+
+.subsection Alterant Macros
+.setq using-defstruct-alterant section-page
+.cindex alterant macro
+
+A call to the alterant macro, in general, has the form
+.lisp
+(2name-of-alterant-macro* 2instance-form*
+     2slot-name-1* 2form-1*
+     2slot-name-2* 2form-2*
+     2...*)
+.end_lisp
+2instance-form* is evaluated, and should return an instance of the
+structure.  Each 2form* is evaluated, and the corresponding slot is
+changed to have the result as its new value.  The slots are altered
+after all the 2forms* are evaluated, so you can exchange the values
+of two slots, as follows:
+.lisp
+(alter-ship enterprise
+    ship-x-position (ship-y-position enterprise)
+    ship-y-position (ship-x-position enterprise))
+.end_lisp
+
+As with the constructor macro, the order of evaluation of the 2forms* is
+undefined.  Using the alterant macro can produce more efficient Lisp
+than using consecutive 3setf*s when you are altering two byte fields
+of the same object, or when you are using the 3:but-first* option.
+
+.section "Byte Fields"
+'setq defstruct-byte-field page
+	The byte field feature of 3defstruct* allows you to specify that
+several slots of your structure are bytes (see
+(byte-manipulation-functions)) in an integer stored in one
+element of the structure.  For example, suppose we had the following
+structure:
+
+.lisp
+(defstruct (phone-book-entry (:type :list))
+  name
+  address
+  (area-code 617.)
+  exchange
+  line-number)
+.end_lisp
+
+This will work correctly.  However, it wastes space.  Area codes and
+exchange numbers are always less than 31000.*, and so both can fit
+into 310.* bit fields when expressed as binary numbers.  Since Lisp
+Machine fixnums have (more than) 320.* bits, both of these
+values can be packed into a single fixnum.  To tell 3defstruct* to do
+so, you can change the structure definition to the following:
+
+.lisp
+(defstruct (phone-book-entry (:type :list))
+  name
+  address
+  ((area-code #o1212 617.)
+   (exchange #o0012))
+  line-number)
+.end_lisp
+
+The magic octal numbers 3#o1212* and 3#o0012* are byte specifiers to be used
+with the functions 3ldb* and 3dpb*.  The accessors, constructor, and
+alterant will now operate as follows:
+
+.lisp
+(area-code pbe)	==> (ldb #o1212 (caddr pbe))
+(exchange pbe)	==> (ldb #o0012 (caddr pbe))
+.end_lisp
+.lisp
+
+(make-phone-book-entry
+   name "Fred Derf"
+   address "259 Octal St."
+   exchange ex
+   line-number 7788.)
+
+==> (list "Fred Derf" "259 Octal St." (dpb ex 12 2322000) 17154)
+
+.end_lisp
+.lisp
+(alter-phone-book-entry pbe
+   area-code ac
+   exchange ex)
+
+==> ((lambda (g0530)
+       (setf (nth 2 g0530)
+	     (dpb ac 1212 (dpb ex 12 (nth 2 g0530)))))
+     pbe)
+.end_lisp
+
+Note that the alterant macro is optimized to only read and write the
+second element of the list once, even though you are altering two
+different byte fields within it.  This is more efficient than using two
+3setf*s.  Additional optimization by the alterant macro occurs if the
+byte specifiers in the 3defstruct* slot descriptions are constants.
+However, you don't need to worry about the details of how the alterant
+macro does its work.
+
+If the byte specifier is 3nil*, then the accessor will
+be defined to be the usual kind that accesses the entire Lisp object,
+thus returning all the byte field components as a fixnum.  These slots
+may have default initialization forms.
+
+The byte specifier need not be a constant; a variable or, indeed, any
+Lisp form, is legal as a byte specifier.  It will be evaluated each
+time the slot is accessed.  Of course, unless you are doing something
+very strange you will not want the byte specifier to change between
+accesses.
+
+Constructor macros initialize
+words divided into byte fields as if they were deposited in in the
+following order:
+
+ 1) Initializations for the entire word given in the defstruct form.
+
+ 2) Initializations for the byte fields given in the defstruct form.
+
+ 3) Initializations for the entire word given in the constructor macro
+form. 
+
+ 4) Initializations for the byte fields given in the constructor macro
+form. 
+
+Alterant macros work similarly: the modification for the entire Lisp
+object is done first, followed by modifications to specific byte fields.
+If any byte fields being initialized or altered overlap each other, the
+action of the constructor and alterant will be unpredictable.
+
+.section "Grouped Arrays"
+.setq grouped-array section-page
+.cindex grouped array
+
+	The grouped array feature allows you to store several instances
+of a structure side-by-side within an array.  This feature is somewhat
+limited; it does not support the 3:include* and 3:named* options.
+
+	The accessor functions are defined to take an extra argument, which
+should be an integer, and is the index into the array of where this
+instance of the structure starts.  This index should normally be a multiple
+of the size of the structure, for things to make sense.  Note that the
+index is the 2first* argument to the accessor function and the structure
+is the 2second* argument, the opposite of what you might expect.  This
+is because the structure is 3&optional* if the 3:default-pointer* option
+is used.
+
+	Note that the "size" of the structure (for purposes of the 3:size-symbol*
+and 3:size-macro* options) is the number of elements in 2one* instance of the structure;
+the actual length of the array is the product of the size of the structure and the
+number of instances.  The number of instances to be created by the constructor
+macro is given as the argument to the 3:times* option to 3defstruct*, or 
+the 3:times* keyword of the constructor macro.
+
+.section Named Structures
+
+'setq named-structure page
+.cindex named structure
+
+	The 2named structure* feature provides a very simple form of
+user-defined data type.  Any array may be made a named structure,
+although usually the 3:named* option of 3defstruct* is used to
+create named structures.  The principal advantages to a named structure
+are that it has a more informative printed representation than a normal
+array and that the 3describe* function knows how to give a detailed
+description of it.  (You don't have to use 3describe-defstruct*,
+because 3describe* can figure out what the names of the slots of the
+structure are by looking at the named structure's name.) Because of
+these improved user-interface features it is recommended that "system"
+data structures be implemented with named structures.
+
+	Another kind of user-defined data type, more advanced but less
+efficient when just used as a record structure, is provided by the
+2flavor* feature (see (flavor)).
+
+	A named structure has an associated symbol, called its "named
+structure symbol", which represents what user-defined type it is an
+instance of; the 3typep* function, applied to the named structure,
+will return this symbol.  If the array has a leader, then the symbol is
+found in element 1 of the leader; otherwise it is found in element 0 of
+the array.  (Note: if a numeric-type array is to be a named structure,
+it must have a leader, since a symbol cannot be stored in any element
+of a numeric array.)
+
+	If you call 3typep* with two arguments, the first being
+an instance of a named structure and the second being its named
+structure symbol, 3typep* will return 3t*.  3t* will also
+be returned if the second argument is the named structure symbol of
+a 3:named* 3defstruct* included (using the 3:include* option,
+see (defstruct-include-option)), directly or indirectly, by the 3defstruct* for this
+structure.  For example, if the structure 3astronaut* includes
+the structure 3person*, and 3person* is a named structure,
+then giving 3typep* an instance of an 3astronaut* as the first
+argument, and the symbol 3person* as the second argument, will
+return 3t*.  This reflects the fact that an astronaut is, in fact,
+a person, as well as being an astronaut.
+
+You may associate with a named structure a function that will handle
+various operations that can be done on the named structure.  Currently,
+you can control how the named structure is printed, and what 3describe*
+will do with it.
+
+To provide such a handler function, make the function be the 3named-structure-invoke*
+property of the named structure symbol.  The functions
+which know about named structures will apply this handler function to
+several arguments.  The first is a "keyword" symbol to
+identify the calling function, and the second is the named structure
+itself.  The rest of the arguments passed depend on the caller; any
+named structure function should have a "3&rest*" parameter to
+absorb any extra arguments that might be passed.  Just what
+the function is expected to do depends on the keyword it is passed
+as its first argument.  The following are the keywords defined at present:
+.table 3
+
+.item :which-operations
+Should return a list of the names of the operations the function handles.
+
+.item :print-self
+The arguments are 3:print-self*, the named structure, the stream to output to,
+the current depth in
+list-structure, and 3t* if slashification is enabled (3prin1*
+versus 3princ*).  The printed representation of the named structure
+should be output to the stream.  If the named structure symbol
+is not defined as a function, or 3:print-self* is not in its
+3:which-operations* list, the printer will default to a reasonable
+printed representation, namely:
+.lisp
+#<2named-structure-symbol* 2octal-address*>
+.end_lisp
+
+.item :describe
+'setq named-structure-describe-method page
+The arguments are 3:describe* and the named structure.  It should
+output a description of itself to 3standard-output*.  If the named
+structure symbol is not defined as a function, or 3:describe* is not
+in its 3:which-operations* list, the describe system will
+check whether the named structure was created by using the 3:named*
+option of 3defstruct*; if so, the names and values of the structure's
+fields will be enumerated.
+.end_table
+
+Here is an example of a simple named-structure handler function:
+.lisp
+(defun (person named-structure-invoke) (op self &rest args)
+  (selectq op
+    (:which-operations '(:print-self))
+    (:print-self
+      (format (first args)
+	      (if (third args) "#<person ~A>" "~A")
+	      (person-name self)))
+    (otherwise (ferror nil "Illegal operation ~S" op))))
+.end_lisp
+For this definition to have any effect, the person 3defstruct* used
+as an example earlier must be modified to include the 3:named* attribute.
+
+This handler causes a person structure to include its name in its printed
+representation; it also causes 3princ* of a person to print just the
+name, with no "3#<*" syntax.  Even though the astronaut structure of
+our examples 3:include*s the person structure, this named-structure
+handler will not be invoked when an astronaut is printed, and an astronaut
+will not include his name in his printed representation.  This is because
+named structures are not as general as flavors (see (flavor)).
+
+.nopara
+The following functions operate on named structures.
+
+.defun named-structure-p x
+This semi-predicate returns 3nil* if 2x* is not a named structure; otherwise
+it returns 2x*'s named structure symbol.
+.end_defun
+
+.defun named-structure-symbol x
+2x* should be a named structure.  This returns 2x*'s named structure
+symbol: if 2x* has an array leader, element 1 of the leader is returned,
+otherwise element 0 of the array is returned.
+.end_defun
+
+.defun make-array-into-named-structure array
+2array* is made to be a named structure, and is returned.
+.end_defun
+
+.defun named-structure-invoke operation structure &rest args
+2operation* should be a keyword symbol, and 2structure* should be a
+named structure.  The handler function of the named structure symbol,
+found as the value of the 3named-structure-invoke* property of the
+symbol, is called with appropriate arguments.  (This function used
+to take its first two arguments in the opposite order, and that
+argument order will continue to work indefinitely, but it should
+not be used in new programs.)
+.end_defun
+
+See also the 3:named-structure-symbol* keyword to 3make-array*, (make-array-fun).
+
+.section The si:defstruct-description Structure
+'setq defstruct-description page
+	This section discusses the internal structures used by
+3defstruct* that might be useful to programs that want to interface
+to 3defstruct* nicely.  For example, if you want to write a program
+that examines structures and displays them the way 3describe*
+(see (describe-fun)) and the Inspector do, your program will work
+by examining these structures.
+The information in this section is also
+necessary for anyone who is thinking of defining his own structure
+types.
+
+	Whenever the user defines a new structure using 3defstruct*,
+3defstruct* creates an instance of the 3si:defstruct-description* structure.
+This structure can be found as the 3si:defstruct-description* property of
+the name of the structure; it contains such useful information as the
+name of the structure, the number of slots in the structure, and so on.
+	The 3si:defstruct-description* structure is defined as follows,
+in the 3system-internals* package (also called the 3si* package):
+(This is a simplified version of the real definition.  There are other slots
+in the structure which we aren't telling you about.)
+
+.lisp
+(defstruct (defstruct-description
+		(:default-pointer description)
+		(:conc-name defstruct-description-))
+	   name
+	   size
+	   property-alist
+	   slot-alist) 
+.end_lisp
+
+	The 3name* slot contains the symbol supplied by the user to be
+the name of his structure, such as 3spaceship* or
+3phone-book-entry*.
+	The 3size* slot contains the total number of locations in an
+instance of this kind of structure.  This is 2not* the same number as
+that obtained from the 3:size-symbol* or 3:size-macro* options to
+3defstruct*.  A named structure, for example, usually uses up an extra
+location to store the name of the structure, so the 3:size-macro* option
+will get a number one larger than that stored in the 3defstruct*
+description.
+	The 3property-alist* slot contains an alist with pairs of the
+form 3(2property-name* . 2property*)* containing properties placed there
+by the 3:property* option to 3defstruct* or by property names used as
+options to 3defstruct* (see the 3:property* option, (defstruct-property-option)).
+	The 3slot-alist* slot contains an alist of pairs of the form
+3(2slot-name* . 2slot-description*)*.  A 2slot-description* is
+an instance of the 3defstruct-slot-description* structure.  The
+3defstruct-slot-description* structure is defined something like
+this, also in the 3si* package:
+(This is a simplified version of the real definition.  There are other slots
+in the structure which we aren't telling you about.)
+
+.lisp
+'setq defstruct-slot-description-structure page
+(defstruct (defstruct-slot-description
+		(:default-pointer slot-description)
+		(:conc-name defstruct-slot-description-))
+	   number
+	   ppss
+	   init-code
+	   ref-macro-name)
+.end_lisp
+	The 3number* slot contains the number of the location of this
+slot in an instance of the structure.  Locations are numbered
+starting with 30*, and continuing up to one less than the size of the
+structure.  The actual location of the slot is determined by the
+reference-consing function associated with the type of the structure; see
+(defstruct-reference-consing-function).
+	The 3ppss* slot contains the byte specifier code for this slot if
+this slot is a byte field of its location.  If this slot is the entire
+location, then the 3ppss* slot contains 3nil*.
+	The 3init-code* slot contains the initialization code supplied
+for this slot by the user in his 3defstruct* form.  If there is no
+initialization code for this slot then the init-code slot contains the
+symbol 3si:%%defstruct-empty%%*.
+	The 3ref-macro-name* slot contains the symbol that is defined as
+a macro or a subst that expands into a reference to this slot (that is, the name
+of the accessor function).
+
+.section Extensions to Defstruct
+.setq defining-your-own-defstruct-types section-page
+
+	The macro 3defstruct-define-type* can be used to teach 3defstruct*
+about new types that it can use to implement structures.
+
+.defmac defstruct-define-type
+This macro is used for teaching 3defstruct* about new types; it is described
+in the rest of this chapter.
+.end_defmac
+
+.subsection An Example
+
+	Let us start by examining a sample call to
+3defstruct-define-type*.  This is how the 3:list* type of structure might
+have been defined:
+
+.lisp
+(defstruct-define-type :list
+	(:cons (initialization-list description keyword-options) 
+	       :list
+	       `(list . ,initialization-list))
+	(:ref (slot-number description argument)
+	      `(nth ,slot-number ,argument)))
+.end_lisp
+
+This is the simplest possible form of 3defstruct-define-type*.  It
+provides 3defstruct* with two Lisp forms: one for creating forms to
+construct instances of the structure, and one for creating forms to
+become the bodies of accessors for slots of the structure.
+
+The keyword 3:cons* is followed by a list of three variables that will
+be bound while the constructor-creating form is evaluated.  The first,
+3initialization-list*, will be bound to a list of the initialization
+forms for the slots of the structure.  The second, 3description*, will
+be bound to the 3defstruct-description* structure for the structure
+(see (defstruct-description)).  The third variable and the 3:list* keyword
+will be explained later.
+
+The keyword 3:ref* is followed by a list of three variables that will
+be bound while the accessor-creating form is evaluated.  The first,
+3slot-number*, will bound to the number of the slot that the new accessor
+should reference.  The second, 3description*, will be bound to the
+3defstruct-description* structure for the structure.  The third, 3argument*,
+will be bound to the form that was provided as the argument to the accessor.
+
+.subsection Syntax of defstruct-define-type
+
+	The syntax of 3defstruct-define-type* is:
+
+.lisp
+(defstruct-define-type 2type*
+	2option-1*
+	2option-2*
+	...)
+.end_lisp
+where each 2option* is either the symbolic name of an option or a list of
+the form 3(2option-name* .  2rest*)*.  Different options interpret
+2rest* in different ways.  The symbol 2type* is given an
+3si:defstruct-type-description* property of a structure that describes the type
+completely.
+
+
+.subsection Options to defstruct-define-type
+
+	This section is a catalog of all the options currently known
+about by 3defstruct-define-type*.
+
+.table 3
+.item :cons
+'kindex :cons defstruct-define-type
+'setq defstruct-reference-consing-function page
+The 3:cons* option to 3defstruct-define-type* is how you
+supply 3defstruct* with the necessary code that it needs to cons up a
+form that will construct an instance of a structure of this type.
+
+The 3:cons* option has the syntax:
+.lisp
+(:cons (2inits* 2description* 2keywords*) 2kind*
+       2body*)
+.end_lisp
+2body* is some code that should construct and return a piece
+of code that will construct, initialize, and return an instance of a
+structure of this type.
+
+The symbol 2inits* will be bound to the information that the
+constructor conser should use to initialize the slots of the
+structure.  The exact form of this argument is determined by the
+symbol 2kind*.  There are currently two kinds of initialization.
+There is the 3:list* kind, where 2inits* is bound to a list of
+initializations, in the correct order, with 3nil*s in uninitialized
+slots.  And there is the 3:alist* kind, where 2inits* is bound to an
+alist with pairs of the form 3(2slot-number* . 2init-code*)*.
+
+The symbol 2description* will be bound to the instance of the
+3defstruct-description* structure (see (defstruct-description)) that
+3defstruct* maintains for this particular structure.  This is so that
+the constructor conser can find out such things as the total size of
+the structure it is supposed to create.
+
+The symbol 2keywords* will be bound to an alist with pairs of the form
+3(2keyword* . 2value*)*, where each 2keyword* was a keyword supplied to
+the constructor macro that wasn't the name of a slot, and 2value* was the Lisp
+object that followed the keyword.  This is how you can make your own special
+keywords, like the existing 3:make-array* and 3:times* keywords.  See the
+section on using the constructor macro, (using-defstruct-constructor).  You
+specify the list of acceptable keywords with
+the 3:keywords* option (see (defstruct-define-type-keywords)).
+	It is an error not to supply the 3:cons* option to
+3defstruct-define-type*.
+
+.item :ref
+'kindex :ref defstruct-define-type
+The 3:ref* option to 3defstruct-define-type* is how the user
+supplies 3defstruct* with the necessary code that it needs to cons up a
+form that will reference an instance of a structure of this type.
+
+The 3:ref* option has the syntax:
+.lisp
+(:ref (2number* 2description* 2arg-1* ... 2arg-n*)
+      2body*)
+.end_lisp
+2body* is some code that should construct and return a piece
+of code that will reference an instance of a structure of this type.
+
+The symbol 2number* will be bound to the location of the slot
+that is to be referenced.  This is the same number that is found
+in the number slot of the 3defstruct-slot-description* structure
+(see (defstruct-slot-description-structure)).
+
+The symbol 2description* will be bound to the instance of the
+3defstruct-description* structure that 3defstruct* maintains for this
+particular structure.
+
+The symbols 2arg-i* are bound to the forms supplied to the accessor as
+arguments.  Normally there should be only one of these.  The 2last* argument
+is the one that will be defaulted by the 3:default-pointer* option (see
+(defstruct-default-pointer-option)).  3defstruct* will check that the user
+has supplied exactly 2n* arguments to the accessor function before calling the
+reference consing code.
+
+It is an error not to supply the 3:ref* option to
+3defstruct-define-type*. 
+
+.item :overhead
+'kindex :overhead defstruct-define-type
+The 3:overhead* option to 3defstruct-define-type* is how the user
+declares to 3defstruct* that the implementation of this particular type
+of structure "uses up" some number of locations in the object
+actually constructed.  This option is used by various "named" types of
+structures that store the name of the structure in one location.
+
+The syntax of 3:overhead* is: 3(:overhead 2n*)* where 2n* is a
+fixnum that says how many locations of overhead this type needs.
+
+This number is only used by the 3:size-macro* and 3:size-symbol*
+options to 3defstruct* (see (defstruct-size-symbol-option)).
+
+.item :named
+'kindex :named defstruct-define-type
+The 3:named* option to 3defstruct-define-type* controls the use of
+the 3:named* option to 3defstruct*.  With no argument, the 3:named* option
+means that this type is an acceptable "named structure".  With an
+argument, as in 3(:named 2type-name*)*, the symbol 2type-name* should be
+the name of some other structure type that 3defstruct* should use if
+someone asks for the named version of this type.  (For example, in the
+definition of the 3:list* type the 3:named* option is used like this:
+3(:named :named-list)*.)
+
+.item :keywords
+'kindex :keywords defstruct-define-type
+'setq defstruct-define-type-keywords page
+The 3:keywords* option to 3defstruct-define-type* allows the user to
+define additional constructor keywords for this type of structure.  (The
+3:make*-array constructor keyword for structures of type 3:array* is an
+example.)  The syntax is: 3(:keywords 2keyword-1* ... 2keyword-n*)* where
+each 2keyword* is a symbol that the constructor conser expects to find in
+the 2keywords* alist (explained above).
+
+.item :defstruct
+'kindex :defstruct defstruct-define-type
+The 3:defstruct* option to 3defstruct-define-type* allows the user
+to run some code and return some forms as part of the expansion of the
+3defstruct* macro.
+
+The 3:defstruct* option has the syntax:
+.lisp
+(:defstruct (2description*)
+	    2body*)
+.end_lisp
+2body* is a piece of code that will be run whenever 3defstruct*
+is expanding a 3defstruct* form that defines a structure of this type.
+The symbol 2description* will be bound to the instance of the
+3defstruct-description* structure that 3defstruct* maintains for this
+particular structure.
+
+The value returned by the 2body* should be a 2list*
+of forms to be included with those that the 3defstruct* expands into.
+Thus, if you only want to run some code at 3defstruct*-expand time, and
+you don't want to actually output any additional code, then you should
+be careful to return 3nil* from the code in this option.
+.end_table

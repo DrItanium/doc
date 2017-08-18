@@ -1,0 +1,65 @@
+.c -*- Bolio -*-
+.c Title page and preface for Lisp machine manual
+
+.headings off
+
+.space 10
+.center 9Lisp Machine Manual*
+.space 4
+.center Fourth Edition
+.space
+.center July 1981
+.space 5
+.center Daniel Weinreb
+.center David Moon
+.space 12
+.nopara
+This report describes research done at the Artificial Intelligence
+Laboratory of the Massachusetts Institute of Technology.  Support for the
+laboratory's artificial intelligence research is provided in part by the
+Advanced Research Projects Agency of the Department of Defense under Office
+of Naval Research Contract number N00014-80-C-0505.
+.page
+.space 40
+.nofill
+ c   Copyright by the Massachusetts Institute of Technology; Cambridge, Mass. 02139
+All rights reserved.
+.fill
+.page
+.space 2
+.center 5Preface*
+
+The Lisp Machine manual describes both the language and the "operating system"
+of the Lisp Machine.  The language, a dialect of Lisp called Zetalisp,
+is completely documented
+by this manual.  The software environment and operating-system-like parts of
+the system contain many things which are still in a state of flux.
+This manual confines itself primarily to the stabler parts of the
+system, and does not address the window system and user interface at all.
+That documentation will be released as a separate volume at a later time.
+
+Any comments, suggestions, or criticisms will be welcomed.  Please send
+Arpa network mail to BUG-LMMAN@MIT-AI.
+
+Those not on the Arpanet may send U.S. mail to
+.lisp
+1Daniel L. Weinreb or David A. Moon
+Room 926
+545 Technology Square
+Cambridge, Mass. 02139*
+.end_lisp
+.space 2
+.center 5Note*
+
+The Lisp Machine is a product of the efforts of many people too numerous to list here
+and of the unique environment of the M.I.T. Artificial Intelligence Laboratory.
+
+Portions of this manual were written by Richard Stallman, Mike McMahon, and
+Alan Bawden.  The chapter on the LOOP iteration macro is a reprint of Laboratory for
+Computer Science memo TM-169, by Glenn Burke.
+
+.page
+.headings on
+.c Next line fixes a bug which I really don't feel like finding
+.c (It's in the third edition, too.)
+.nopara

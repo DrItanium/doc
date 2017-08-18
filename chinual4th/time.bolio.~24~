@@ -1,0 +1,347 @@
+.c -*- Mode:Bolio; Package:TIME -*-
+
+.chapter Dates and Times
+.cindex dates and times
+.cindex times and dates
+.setq time section-page
+.setq time-chapter chapter-number
+
+The 3time:* package contains a set of functions for manipulating dates and
+times: finding the current time, reading and printing dates and times,
+converting between formats, and other miscellany regarding peculiarities
+of the calendar system.  It also includes functions for accessing the
+Lisp Machine's microsecond timer.
+
+Times are represented in two different formats by the functions in the 3time*
+package.  One way is to represent a time by many numbers, indicating a year, a
+month, a date, an hour, a minute, and a second (plus, sometimes, a day of the
+week and timezone).   The year is relative to 1900 (that is, if it is 1981, the
+2year* value would be 381*); however, the functions that take a year as an
+argument will accept either form.  The month is 1 for January, 2 for February,
+etc.  The date is 1 for the first day of a month.  The hour is a number from 0
+to 23.  The minute and second are numbers from 0 to 59.  Days of the week are
+fixnums, where 0 means Monday, 1 means Tuesday, and so on.  A timezone
+is specified as the number of hours west of GMT; thus in Massachusetts the timezone
+is 5.  Any adjustment for daylight savings time is separate from this.
+
+'cindex universal time
+
+This "decoded" format is convenient for printing out times into a readable
+notation, but it is inconvenient for programs to make sense of these numbers,
+and pass them around as arguments (since there are so many of them).  So there
+is a second representation, called Universal Time, which measures a time as the
+number of seconds since January 1, 1900, at midnight GMT.  This "encoded" format
+is easy to deal with inside programs, although it doesn't make much sense to
+look at (it looks like a huge integer).  So both formats are provided; there are
+functions to convert between the two formats; and many functions exist in two
+forms, one for each format.
+
+The Lisp Machine hardware includes a timer that counts once every
+microsecond.  It is controlled by a crystal and so is fairly accurate.
+The absolute value of this timer doesn't mean anything useful, since it
+is initialized randomly; what you do with the timer is to read it at the
+beginning and end of an interval, and subtract the two values to get the
+length of the interval in microseconds.  These relative times allow you to time
+intervals of up to an hour (32 bits) with microsecond accuracy.
+
+The Lisp Machine keeps track of the time of day by maintaining a
+"timebase", using the microsecond clock to count off the seconds.
+When the machine first comes up, the timebase is initialized by querying
+hosts on the Chaos net to find out the current time.
+
+There is a similar timer which counts in 60ths of a second rather than
+microseconds; it is useful for measuring intervals of a few seconds or
+minutes with less accuracy.  Periodic housekeeping functions of the system
+are scheduled based on this timer.
+
+.section Getting and Setting the Time
+
+.defun time:get-time
+Get the current time, in decoded form.  Return seconds, minutes, hours, date,
+month, year, day-of-the-week, and daylight-savings-time-p, with the same
+meanings as 3time:decode-universal-time* (see (time:decode-universal-time-fun)).
+.end_defun
+
+.defun time:get-universal-time
+Returns the current time, in Universal Time form.
+.end_defun
+
+.defun time:set-local-time &optional new-time
+Set the local time to 2new-time*.  If 2new-time* is supplied, it must be
+either a universal time or a suitable argument to 3time:parse*
+(see (time:parse-fun)).  If it is not supplied, or if there is an error
+parsing the argument, you will be prompted for the new time.  Note that
+you will not normally need to call this function; it is mainly useful when
+the timebase gets screwed up for one reason or another.
+.end_defun
+
+.subsection Elapsed Time in 60ths of a Second
+.cindex 60ths of a second
+
+The following functions deal with a different kind of time.  These are not
+calendrical date/times, but simply elapsed time in 60ths of a second.  These
+times are used for many internal purposes where the idea is to measure a small
+interval accurately, not to depend on the time of day or day of month.
+
+.defun time
+Returns a number which increases by 1 every 1/60 of a second,
+and wraps around roughly once a day.  Use the 3time-lessp* and
+3time-difference* functions to avoid getting in trouble due to the
+wrap-around.  3time* is completely incompatible with the Maclisp
+function of the same name.
+.end_defun
+
+.defun time-lessp time1 time2
+3t* if 2time1* is earlier than 2time2*, compensating for
+wrap-around, otherwise 3nil*.
+.end_defun
+
+.defun time-difference time1 time2
+Assuming 2time1* is later than 2time2*, returns the number of 60ths
+of a second difference between them, compensating for wrap-around.
+.end_defun
+
+.subsection Elapsed Time in Microseconds
+.cindex microseconds
+
+.defun time:microsecond-time
+Return the value of the microsecond timer, as a bignum.  The values
+returned by this function "wrap around" about once per hour.
+.end_defun
+
+.defun time:fixnum-microsecond-time
+Return the value of the low 23 bits of the microsecond timer, as a
+fixnum.  This is like 3time:microsecond-time*, with the advantage that
+it returns a value in the same format as the 3time* function, except
+in microseconds rather than 60ths of a second.  This means that you can
+compare fixnum-microsecond-times with 3time-lessp* and
+3time-difference*.  3time:fixnum-microsecond-time* is also a bit
+faster, but has the disadvantage that since you only see the low bits of
+the clock, the value can "wrap around" more quickly (about every eight seconds).
+Note that the Lisp Machine garbage collector is so designed that the
+bignums produced by 3time:microsecond-time* are garbage-collected
+quickly and efficiently, so the overhead for creating the bignums is
+really not high.
+.end_defun
+
+.section Printing Dates and Times
+
+The functions in this section create printed representations of times and
+dates in various formats, and send the characters to a stream.  To any
+of these functions, you may pass 3nil* as the 2stream* parameter,
+and the function will return a string containing the printed representation
+of the time, instead of printing the characters to any stream.
+
+.defun time:print-current-time &optional (stream 3standard-output*)
+Print the current time, formatted as in 311/25/80 14:50:02*, to
+the specified stream.
+.end_defun
+
+.defun time:print-time seconds minutes hours date month year &optional (stream 3standard-output*)
+Print the specified time, formatted as in 311/25/80 14:50:02*, to
+the specified stream.
+.end_defun
+
+.defun time:print-universal-time universal-time &optional (stream 3standard-output*) (timezone 3time:*timezone**)
+Print the specified time, formatted as in 311/25/80 14:50:02*, to the specified stream.
+.end_defun
+
+.defun time:print-current-date &optional (stream 3standard-output*)
+Print the current time, formatted as in 3Tuesday the twenty-fifth of
+November, 1980; 3:50:41 pm*, to the specified stream. 
+.end_defun
+
+.defun time:print-date seconds minutes hours date month year day-of-the-week &optional (stream 3standard-output*)
+Print the specified time, formatted as in 3Tuesday the twenty-fifth of
+November, 1980; 3:50:41 pm*, to the specified stream.
+.end_defun
+
+.defun time:print-universal-date universal-time &optional (stream 3standard-output*) (timezone 3time:*timezone**)
+Print the specified time, formatted as in 3Tuesday the twenty-fifth of
+November, 1980; 3:50:41 pm*, to the specified stream.
+.end_defun
+
+.defun time:print-brief-universal-time universal-time &optional (stream 3standard-output*) reference-time
+This is like 3time:print-universal-time* except that it omits seconds and
+only prints those parts of 2universal-time* that differ from
+2reference-time*, a universal time that defaults to the current time.
+Thus the output will be in one of the following three forms:
+.lisp
+02:59		;1the same day*
+3/4 14:01	;1a different day in the same year*
+8/17/74 15:30	;1a different year*
+.end_lisp
+.end_defun
+
+
+.section Reading Dates and Times
+
+These functions will accept most reasonable printed representations of date and time
+and convert them to the standard internal forms.  The following are
+representative formats that are accepted by the parser.
+
+.lisp
+"March 15, 1960" "15 March 1960" "3//15//60"
+"15//3//60" "3//15//1960" "3-15-60" "15-3-1960"
+"3-15" "15-March-60" "15-Mar-60" "March-15-60"
+"1130." "11:30" "11:30:17" "11:30 pm" "11:30 AM" "1130" "113000"
+"11.30" "11.30.00" "11.3" "11 pm" "12 noon"
+"midnight" "m" "Friday, March 15, 1980" "6:00 gmt" "3:00 pdt"
+"15 March 60" "15 march 60 seconds"
+"Fifteen March 60" "The Fifteenth of March, 1960;"
+"One minute after March 3, 1960"
+"Two days after March 3, 1960"
+"Three minutes after 23:59:59 Dec 31, 1959"
+"Now" "Today" "Yesterday" "two days after tomorrow"
+"one day before yesterday" "the day after tomorrow"
+"five days ago"
+.end_lisp
+
+.defun time:parse string &optional (start 30*) (end 3nil*) (futurep 3t*) base-time must-have-time date-must-have-year time-must-have-second (day-must-be-valid 3t*)
+Interpret 2string* as a date and/or time, and return seconds, minutes,
+hours, date, month, year, day-of-the-week, daylight-savings-time-p, and relative-p.
+2start* and 2end* delimit a substring
+of the string; if 2end* is 3nil*, the end of the string is used.
+2must-have-time* means that 2string* must not be empty.
+2date-must-have-year* means that a year must be explicitly specified.
+2time-must-have-second* means that the second must be specified.
+2day-must-be-valid* means that if a day of the week is given, then it
+must actually be the day that corresponds to the date.  2base-time* provides
+the defaults for unspecified components; if it is 3nil*, the current time
+is used.  2futurep* means that the time should be interpreted as being
+in the future; for example, if the base time is 5:00 and the string refers
+to the time 3:00, that means the next day if 2futurep* is non-3nil*, but
+it means two hours ago if 2futurep* is 3nil*.  The 2relative-p*
+returned value is 3t* if the string included a relative part, such
+as "one minute after" or "two days before" or "tomorrow" or "now"; otherwise,
+it is 3nil*.  If the parse encounters an error, the first returned value is a string
+giving an error message.
+.end_defun
+
+.defun time:parse-universal-time string &optional (start 30*) (end 3nil*) (futurep 3t*) base-time must-have-time date-must-have-year time-must-have-second (day-must-be-valid 3t*)
+This is the same as 3time:parse* except that it returns one integer,
+representing the time in Universal Time, and the 2relative-p* value.
+If the parse encounters an error, the first returned value is a string
+giving an error message.
+.end_defun
+
+.section Time Conversions
+
+.defun time:decode-universal-time universal-time &optional (timezone 3time:*timezone**)
+Convert 2universal-time* into its decoded representation.  The
+following values are returned: seconds, minutes, hours, date, month,
+year, day-of-the-week, daylight-savings-time-p.
+2daylight-savings-time-p* tells you whether or not
+daylight savings time is in effect; if so, the value of 2hour* has been
+adjusted accordingly.  You can specify 2timezone* explicitly if you
+want to know the equivalent representation for this time in other parts
+of the world.
+.end_defun
+
+.defun time:encode-universal-time seconds minutes hours date month year &optional timezone
+Convert the decoded time into Universal Time format, and return the
+Universal Time as an integer.  If you don't specify 2timezone*, it
+defaults to the current timezone adjusted for daylight savings time; if
+you provide it explicitly, it is not adjusted for daylight savings time.
+2year* may be absolute, or relative to 1900 (that is, 381* and 31981*
+both work).
+.end_defun
+
+.defvar time:*timezone*
+The value of 3time:*timezone** is the time zone in which this Lisp Machine
+resides, expressed in terms of the number of hours west of GMT this time
+zone is.  This value does not change to reflect daylight savings time; it
+tells you about standard time in your part of the world.
+.end_defvar
+
+.section Internal Functions
+
+These functions provide support for those listed above.  Some user programs
+may need to call them directly, so they are documented here.
+
+.defun time:initialize-timebase
+Initialize the timebase by querying Chaos net hosts to find out the
+current time.  This is called automatically during system initialization.
+You may want to call it yourself to correct the time if it appears to be
+inaccurate or downright wrong.  See also 3time:set-local-time*,
+(time:set-local-time-fun).
+.end_defun
+
+.defun time:daylight-savings-time-p hours date month year
+Return 3t* if daylight savings time is in effect for the specified
+hour; otherwise, return 3nil*. 
+2year* may be absolute, or relative to 1900 (that is, 381* and 31981*
+both work).
+.end_defun
+
+.defun time:daylight-savings-p
+Return 3t* if daylight savings time is currently in effect; otherwise,
+return 3nil*.
+.end_defun
+
+.defun time:month-length month year
+Return the number of days in the specified 2month*; you must supply
+a 2year* in case the month is February (which has a different length
+during leap years).
+2year* may be absolute, or relative to 1900 (that is, 381* and 31981*
+both work).
+.end_defun
+
+.defun time:leap-year-p year
+Return 3t* if 2year* is a leap year; otherwise return 3nil*.
+2year* may be absolute, or relative to 1900 (that is, 381* and 31981*
+both work).
+.end_defun
+
+.defun time:verify-date date month year day-of-the-week
+If the day of the week of the date specified by 2date*, 2month*, and
+2year* is the same as 2day-of-the-week*, return 3nil*; otherwise,
+return a string which contains a suitable error message.  2year* may
+be absolute, or relative to 1900 (that is, 381* and 31981* both
+work).
+.end_defun
+
+.defun time:day-of-the-week-string day-of-the-week &optional (mode 3':long*)
+Return a string representing the day of the week.  As usual, 30* means
+Monday, 31* means Tuesday, and so on.  Possible values of 2mode*
+are:
+.table 3
+.kitem :long
+Return the full English name, such as 3"Monday"*, 3"Tuesday"*, etc.  This
+is the default.
+.kitem :short
+Return a three-letter abbreviation, such as 3"Mon"*, 3"Tue"*, etc.
+.kitem :medium
+Same as 3:short*, but use 3"Tues"* and 3"Thurs"*.
+.kitem :french
+Return the French name, such as 3"Lundi"*, 3"Mardi"*, etc.
+.kitem :german
+Return the German name, such as 3"Montag"*, 3"Dienstag"*, etc.
+.end_table
+.end_defun
+
+.defun time:month-string month &optional (mode 3':long*)
+Return a string representing the month of the year.  As usual, 31* means January,
+32* means February, etc.  Possible values of 2mode* are:
+.table 3
+.kitem :long
+Return the full English name, such as 3"January"*, 3"February"*, etc.  This
+is the default.
+.kitem :short
+Return a three-letter abbreviation, such as 3"Jan"*, 3"Feb"*, etc.
+.kitem :medium
+Same as 3:short*, but use 3"Sept"*, 3"Novem"*, and 3"Decem"*.
+.kitem :roman
+Return the Roman numeral for 2month* (this convention is used in Europe).
+.kitem :french
+Return the French name, such as 3"Janvier"*, 3"Fevrier"*, etc.
+.kitem :german
+Return the German name, such as 3"Januar"*, 3"Februar"*, etc.
+.end_table
+.end_defun
+
+.defun time:timezone-string &optional (timezone 3time:*timezone**) (daylight-savings-p 3(time:daylight-savings-p)*)
+Return the three-letter abbreviation for this time zone.  For example, if
+2timezone* is 35*, then either 3"EST"* (Eastern Standard Time) or 3"CDT"*
+(Central Daylight Time) will be used, depending on 2daylight-savings-p*.
+.end_defun
