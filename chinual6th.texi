@@ -2936,9 +2936,9 @@ are not needed on the Lisp Machine; @code{funcall} is just as efficient.
 @code{arraycall} is provided for compatibility; it ignores its first
 subform (the Maclisp array type) and is otherwise identical to @code{aref}.
 @code{subrcall} and @code{lsubrcall} are not provided.
-'findex "subrcall"
-'findex "lsubrcall"
-@c 'findex "arraycall"  -- commented out since it does exist after all
+@findex "subrcall"
+@findex "lsubrcall"
+@c @findex "arraycall"  -- commented out since it does exist after all
 
 @defun apply f &rest args
 @defunx lexpr-funcall f &rest args
@@ -5128,7 +5128,7 @@ If this counts down to zero before a suitable @code{catch}
 is found, the @code{*unwind-stack} terminates and
 @i{that frame} returns @i{value} to whoever called it.
 This is similar to Maclisp's @code{freturn} function.
-'findex "freturn"
+@findex "freturn"
 
 If @i{action} is non-@code{nil}, whenever the @code{*unwind-stack} would be
 ready to terminate (either due to @i{active-frame-count} or due to
@@ -5457,34 +5457,34 @@ However, as a matter of convenience, @code{car} and @code{cdr} of @code{nil} ret
 @code{car} or @code{cdr} of anything else is an error.
 
 @defun c...r x
-'findex caaaar
-'findex caaadr
-'findex caaar
-'findex caadar
-'findex caaddr
-'findex caadr
-'findex caar
-'findex cadaar
-'findex cadadr
-'findex cadar
-'findex caddar
-'findex cadddr
-'findex caddr
-'findex cadr
-'findex cdaaar
-'findex cdaadr
-'findex cdaar
-'findex cdadar
-'findex cdaddr
-'findex cdadr
-'findex cdar
-'findex cddaar
-'findex cddadr
-'findex cddar
-'findex cdddar
-'findex cddddr
-'findex cdddr
-'findex cddr
+@findex caaaar
+@findex caaadr
+@findex caaar
+@findex caadar
+@findex caaddr
+@findex caadr
+@findex caar
+@findex cadaar
+@findex cadadr
+@findex cadar
+@findex caddar
+@findex cadddr
+@findex caddr
+@findex cadr
+@findex cdaaar
+@findex cdaadr
+@findex cdaar
+@findex cdadar
+@findex cdaddr
+@findex cdadr
+@findex cdar
+@findex cddaar
+@findex cddadr
+@findex cddar
+@findex cdddar
+@findex cddddr
+@findex cdddr
+@findex cddr
 All of the compositions of up to four @code{car}'s and @code{cdr}'s are
 defined as functions in their own right.  The names of these functions
 begin with @code{c} and end with @code{r}, and in between is a sequence of
@@ -22723,7 +22723,7 @@ input.
 	@code{loop} considers the act of @i{stepping} to have four
 possible parts.  Each iteration-driving clause has some or all of these
 four parts, which are executed in this order:
-@table @i 200 450
+@table @i
 @item pre-step-endtest
 This is an endtest which determines if it is safe to step to the next
 value of the iteration variable.
@@ -23086,7 +23086,7 @@ below.  The @i{datum-i} are optional;  they are passed in to
 @end defmac
 
 The handler will be called with the following arguments:
-@table @i 250 500
+@table @i
 @item path-name
 The name of the path that caused the path function to be invoked.
 @item variable
@@ -23126,7 +23126,7 @@ path function may be able to handle different paths.
 @end table
 	The handler should return a list of either six or ten
 elements:
-@table @i 250 500
+@table @i
 @item variable-bindings
 This is a list of variables that need to be bound.  The entries in it
 may be of the form @i{variable} or (@i{variable} @i{expression}).

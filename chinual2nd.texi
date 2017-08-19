@@ -1433,7 +1433,7 @@ conditionals, and @code{cond}, which is a more general conditional.
 @cindex exits
 Non-local exits are similar to the @i{leave}, @i{exit}, and
 @i{escape} constructs in many modern languages.
-'c French, Italian, ...
+@c French, Italian, ...
 They are similar to
 a @i{return}, but are more general.  In Lisp, their scope is
 determined at run-time.  They are implemented as the @code{catch} and
@@ -6614,7 +6614,7 @@ Fixnum arrays do not exist (however, see the Lisp machine's small-positive-numbe
 arrays).  Flonum arrays exist but you do not use them in the same way; no
 declarations are required or allowed.
 "Un-garbage-collected" arrays do not exist.
-'c yet??? --weak links
+@c yet??? --weak links
 Readtables and obarrays are represented as arrays, but unlike Maclisp special
 array types are not used.  See the descriptions
 of @code{read} ((read-fun)) and @code{intern} ((intern-fun)) for
@@ -14222,7 +14222,7 @@ Clear whole piece of paper.
 @defun tv-clear-pc-ppr-except-margins pc-ppr
 Clear all of @i{pc-ppr} except the margins, which are unaffected.
 This is useful if the margins contain decorative graphics
-'c What Fredkin calls "decorative computer art"
+@c What Fredkin calls "decorative computer art"
 such as outlines.
 @end defun
 
@@ -16166,7 +16166,7 @@ Calling @code{untrace} with no arguments will untrace all functions currently be
 
 Unlike Maclisp, if there is an error @code{trace} (or @code{untrace}) will
 invoke
-'c shaft you by invoking
+@c shaft you by invoking
 the error system and give an English message, instead of returning
 lists with question marks in them.  Also, the @code{remtrace} function
 is not provided, since it is unnecessary.
