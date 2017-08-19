@@ -363,9 +363,9 @@ have seen them before, they are: `s-expression', which means a Lisp
 object;  `dotted pair', which means a cons; and `atom', which means,
 roughly, symbols and numbers and sometimes other things, but not
 conses.   The terms `list' and `tree' are defined in (list-and-tree).
-'cindex "s-expression"
-'cindex "dotted pair"
-'cindex "atom"
+@cindex "s-expression"
+@cindex "dotted pair"
+@cindex "atom"
 
 	The characters acute accent (@code{'}) (also called "single quote") and
 semicolon (`@code{;}') have special meanings when typed to Lisp; they are
@@ -696,10 +696,10 @@ stands for `predicate').
 	The following predicates are for testing data types.  These predicates
 return @code{t} if the argument is of the type indicated by the name of the function,
 @code{nil} if it is of some other type.
-'cindex "data type"
+@cindex "data type"
 
 @defun symbolp object
-'cindex "symbol"
+@cindex "symbol"
 @code{t} if @i{object} is a symbol, otherwise @code{nil}.
 @end defun
 
@@ -708,7 +708,7 @@ return @code{t} if the argument is of the type indicated by the name of the func
 @end defun
 
 @defun listp object
-'cindex "cons"
+@cindex "cons"
 @code{t} if @i{object} is a cons, otherwise @code{nil}.
 Note that this means @code{(listp nil)} is @code{nil} even though @code{nil} is the empty list.
 
@@ -734,7 +734,7 @@ treatment of @code{nil} is not of concern.]
 @end defun
 
 @defun atom object
-'cindex "atom"
+@cindex "atom"
 @code{t} if @i{object} is not a cons,
 otherwise @code{nil}.  This is the same as @code{(not (consp @i{object}))}.
 @end defun
@@ -746,7 +746,7 @@ changed, @code{consp} will @i{never} be true of @code{nil}.
 @end defun
 
 @defun numberp object
-'cindex "number"
+@cindex "number"
 @code{t} if @i{object} is any kind of number,
 otherwise @code{nil}.
 @end defun
@@ -800,12 +800,12 @@ part is zero.
 @end defun
 
 @defun stringp object
-'cindex "string"
+@cindex "string"
 @code{t} if @i{object} is a string, otherwise @code{nil}.
 @end defun
 
 @defun arrayp object
-'cindex "array"
+@cindex "array"
 @code{t} if @i{object} is an array, otherwise @code{nil}.
 Note that strings are arrays.
 @end defun
@@ -833,8 +833,8 @@ that allows only 0 and 1 as elements.
 @end defun
 
 @defun functionp object &optional allow-special-forms
-'cindex "function"
-'cindex "applicable function"
+@cindex "function"
+@cindex "applicable function"
 @code{t} if @i{object} is a function (essentially, something
 that is acceptable as the first argument to @code{apply}), otherwise @code{nil}.
 In addition to interpreted, compiled, and microcoded functions, @code{functionp}
@@ -870,18 +870,18 @@ for certain special forms.  See the definition @code{macro-function}
 ((macro-function-fun)) to find out how to do this properly.
 
 @defun closurep object
-'cindex "closure"
+@cindex "closure"
 @code{t} if @i{object} is a closure, otherwise @code{nil}.
 @end defun
 
 @defun entityp object
-'cindex "entity"
+@cindex "entity"
 @code{t} if @i{object} is an entity, otherwise @code{nil}.
 See (entity) for information about entities.
 @end defun
 
 @defun locativep object
-'cindex "locative"
+@cindex "locative"
 @code{t} if @i{object} is a locative, otherwise @code{nil}.
 @end defun
 
@@ -1203,7 +1203,6 @@ This is actually a special case of using a defstruct name
 as a type specifier, but it is mentioned specifically because
 Common Lisp defines this type.
 @item common
-'setq common-type-spec page
 All objects of types defined by Common Lisp.  This is all Lisp objects
 except closures, entities, stack groups, locatives, instances,
 select-methods, and compiled and microcode functions.  (A few kinds
@@ -3029,7 +3028,7 @@ prepared to accept all the arguments which come from @code{x} and
 @end defun
 
 @defspec quote object
-'cindex "quote"
+@cindex "quote"
 @code{(quote @i{object})} simply returns @i{object}.  @code{quote} is used to
 include constants in a form.  It is useful specifically because
 @i{object} is not evaluated; the @code{quote} is how you make a form that
@@ -3184,7 +3183,7 @@ For comments within code about the code, it is better to use semicolons.
 @end defspec
 
 @section  Declarations
-'cindex declaration
+@cindex declaration
 
 Declarations provide auxiliary information on how to execute a function
 or expression properly.  The most important declarations are @code{special}
@@ -3844,12 +3843,12 @@ of small functions, each of which implements a simple operation.
 These functions operate by calling one another, and so larger
 operations are defined in terms of smaller ones.
 
-'cindex "recursion"
+@cindex "recursion"
 	A function may always call itself in Lisp.  The calling of
 a function by itself is known as @i{recursion}; it is analogous
 to mathematical induction.
 
-'cindex "iteration"
+@cindex "iteration"
 	The performing of an action repeatedly (usually with some
 changes between repetitions) is called @i{iteration}, and is provided as
 a basic control structure in most languages.  The @i{do} statement of
@@ -3859,7 +3858,7 @@ iteration primitives.  Lisp provides two general iteration facilities:
 facilities.  (@code{loop} is sufficiently complex that it is explained
 in its own chapter later in the manual; see (loop-fun).)
 
-'cindex "conditional"
+@cindex "conditional"
 	A @i{conditional} construct is one which allows a program
 to make a decision, and do one thing or another based on some logical
 condition.  Lisp provides the simple one-way conditionals @code{and} and @code{or},
@@ -3868,8 +3867,8 @@ conditionals such as @code{cond} and @code{selectq}.
 The choice of which form to use in any particular situation is a matter
 of personal taste and style.
 
-'cindex "non-local exit"
-'cindex "exit"
+@cindex "non-local exit"
+@cindex "exit"
 	There are some @i{non-local exit} control structures, analogous
 to the @i{leave}, @i{exit}, and @i{escape} constructs in many modern
 languages.
@@ -4292,7 +4291,7 @@ returned.  Example:
 It should be noted that things that print the same are not necessarily @code{eq} to each other.
 In particular, numbers with the same value
 need not be @code{eq}, and two similar lists are usually not @code{eq}.
-'cindex "eq versus equal"
+@cindex "eq versus equal"
 @lisp
 @exdent Examples:
 (eq 'a 'b) => nil
@@ -4319,8 +4318,8 @@ of the same type they are @code{eql} if they are @code{=}.
 @defun equal x y
 The @code{equal} predicate returns @code{t} if its arguments are similar
 (isomorphic) objects.
-'cindex "eq versus equal"
-'cindex "equal versus ="
+@cindex "eq versus equal"
+@cindex "equal versus ="
 Two numbers are @code{equal} if they have the same value and type (for
 example, a float is never @code{equal} to a fixnum, even if @code{=} is true of them).
 For conses, @code{equal} is defined
@@ -4401,7 +4400,7 @@ the same instructions.
 
 
 @section  "Iteration"
-'cindex "iteration"
+@cindex "iteration"
 
 @defspec do
 The @code{do} special form provides a simple generalized iteration facility,
@@ -4986,9 +4985,9 @@ than @code{let}.
 
 @section  Dynamic Non-Local Exits
 @cindex dynamic non-local exit
-'cindex "non-local exit"
-'cindex catch
-'cindex throw
+@cindex "non-local exit"
+@cindex catch
+@cindex throw
 @cindex tag
 
 @defspec catch tag body...
@@ -5109,7 +5108,7 @@ The error occurs in the environment of the @code{throw}; no unwinding has yet ta
 The proceed type @code{:new-tag} expects one argument, a tag to throw to instead.
 .end_defcondition
 
-'cindex unwinding a stack
+@cindex unwinding a stack
 @defun *unwind-stack tag value active-frame-count action
 This is a generalization of @code{throw} provided for program-manipulating
 programs such as the debugger.
@@ -5147,8 +5146,8 @@ Note that if both @i{active-frame-count} and @i{action} are @code{nil},
 @code{*unwind-stack} is identical to @code{throw}.
 @end defun
 
-'cindex unwind protection
-'cindex cleanup handler
+@cindex unwind protection
+@cindex cleanup handler
 @defspec unwind-protect protected-form cleanup-form...
 Sometimes it is necessary to evaluate a form and make sure that
 certain side-effects take place after the form is evaluated;
@@ -5230,7 +5229,7 @@ want @code{unwind-protect}.
 @end defmac
 
 @section  "Mapping"
-'cindex "mapping"
+@cindex "mapping"
 
 @defun map fcn &rest lists
 @defunx mapl fcn &rest lists
@@ -5345,14 +5344,14 @@ You can also do what the mapping functions do in a different way by using
 @end defun
 
 @chapter Manipulating List Structure
-'cindex cons
-'cindex car
-'cindex cdr
-'cindex "list"
-'cindex "tree"
-'cindex "circular list"
-'cindex "elements (of a list)"
-'cindex "dotted list"
+@cindex cons
+@cindex car
+@cindex cdr
+@cindex "list"
+@cindex "tree"
+@cindex "circular list"
+@cindex "elements (of a list)"
+@cindex "dotted list"
 
 This chapter discusses functions that manipulate conses, and
 higher-level structures made up of conses such as lists and trees.
@@ -5525,7 +5524,7 @@ the arguments is reversed.
 @end defun
 
 @defun cons-in-area x y area-number
-'cindex "area"
+@cindex "area"
 Creates a cons in a specific @i{area}.  (Areas are
 an advanced feature of storage management, explained in chapter
 (area-chapter); if you aren't interested in them, you can safely skip
@@ -6906,7 +6905,7 @@ list.
 (pairlis '(beef clams kitty) '(roast fried yu-shiang))
    => ((beef . roast) (clams . fried) (kitty . yu-shiang))
 @end lisp
-'cindex kitty, yu-shiang
+@cindex kitty, yu-shiang
 
 If @i{tail} is non-@code{nil}, it should be another alist.  The new
 alist continues with @i{tail} following the newly constructed mappings.
@@ -7204,7 +7203,7 @@ or @code{(ncons @i{data})} to store @i{data} in the car of the property list.
 Suppose that, inside a program which deals with blocks, the property
 list of the symbol @code{b1} contains this list (which would be the
 value of @code{(symbol-plist 'b1)}):
-'cindex "blocks"
+@cindex "blocks"
 @lisp
 	(color blue on b6 associated-with (b2 b3 b4))
 @end lisp
@@ -7670,7 +7669,7 @@ this problem by providing a secondary search, sometimes known as a
 textbook on computer algorithms.
 
 @defun sxhash tree &optional ok-to-use-address
-'cindex "hash table"
+@cindex "hash table"
 @code{sxhash} computes a hash code of a tree, and returns it as a fixnum.
 A property of @code{sxhash} is that @code{(equal @i{x y})} always implies
 @code{(= (sxhash @i{x}) (sxhash @i{y}))}.  The number returned by @code{sxhash} is
@@ -10320,7 +10319,7 @@ implementation of @i{stack groups}; these types are called
 @code{art-stack-group-head, art-special-pdl}, and @code{art-reg-pdl}.  Their elements
 may be any Lisp object; their use is explained in the section on
 stack groups (see (stack-group)).
-'cindex "stack group"
+@cindex "stack group"
 
 .defconst array-types
 The value of @code{array-types} is a list of all of the array type symbols
@@ -10390,8 +10389,7 @@ by a @code{defstruct} (see (defstruct-fun)).
 	By convention, element 0 of the array leader of an array is used
 to hold the number of elements in the array that are ``active''.  When the
 zeroth element is used this way, it is called a @i{fill pointer}.
-'cindex "fill pointer"
-'setq fill-pointer page
+@cindex "fill pointer"
 Many array-processing functions recognize the fill pointer.
 For instance, if a string (an array of type @code{art-string}) has
 seven elements, but its fill pointer contains the value five, then only elements
@@ -12508,7 +12506,7 @@ in each element.
 @end lisp
 
 If @code{fooarray} contained these items before the sort:
-'cindex scream
+@cindex scream
 
 @lisp
 (Tokens (The alien lurks tonight))
@@ -13929,8 +13927,8 @@ same function, the name of the function is unaffected; both @code{foo} and
 @code{bar} are defined to be the same function, and the name of that
 function is @code{foo}, not @code{bar}.
 
-'cindex basic definition
-'cindex encapsulation
+@cindex basic definition
+@cindex encapsulation
 A function spec's definition in general consists of a @i{basic
 definition} surrounded by @i{encapsulations}.  Both the basic
 definition and the encapsulations are functions, but of recognizably
@@ -14044,7 +14042,6 @@ numbered 0, the next 1, etc.  Internal functions are remembered inside
 the compiled function object of their containing function.
 
 @item (:internal @i{function-spec} @i{symbol})
-'setq flet-function-spec page
 If a Lisp function uses @code{flet} to name an internal function,
 you can use the local name defined with @code{flet} in the
 @code{:internal} function spec instead of a number.  Here is an
@@ -15932,7 +15929,7 @@ To test whether an object is an entity, use the @code{entityp} predicate
 
 @chapter Stack Groups
 @cindex stack group
-'cindex coroutine
+@cindex coroutine
 
 	A @i{stack group} (usually abbreviated `SG') is a type of Lisp
 object useful for implementation of certain advanced control structures
@@ -16580,7 +16577,7 @@ only important property is that it not be an atom.
 Now we can compare the fringes of two trees with no allocation of memory whatsoever.
 
 @chapter Locatives
-'cindex locative
+@cindex locative
 
 	A @i{locative} is a type of Lisp object used as a @i{pointer}
 to a @i{cell}.  Locatives are inherently a more low level construct
@@ -16588,7 +16585,7 @@ than most Lisp objects; they require some knowledge of the nature of
 the Lisp implementation.
 
 @section  Cells and Locatives
-'cindex cell
+@cindex cell
 
 	A @i{cell} is a machine word that can hold a (pointer to a)
 Lisp object.  For example, a symbol has five cells: the print name cell,
@@ -16874,7 +16871,6 @@ The pointer field points to the structure that describes the
 instance's flavor.
 @item dtp-null
 'vindex dtp-null
-'setq dtp-null-var page
 Nothing to do with @code{nil}.  This type code identifies a void marker.
 An attempt to refer to the contents of a cell that contains a
 @code{dtp-null} signals an error.  This is how ``unbound variable'' and
@@ -18337,7 +18333,7 @@ Stops the machine.
 @end defun
 
 @chapter "Areas"
-'cindex area
+@cindex area
 
 Storage in the Lisp Machine is divided into @i{areas}.  Each area
 contains related objects, of any type.  Areas are intended to give the
@@ -18872,7 +18868,7 @@ You can control explicitly whether a form is evaluated by the compiler,
 and whether it is written into the QFASL file to be executed when the
 file is loaded, using the @code{eval-when} construct.  You might want a
 form to be:
-'cindex eval-when
+@cindex eval-when
 @table @strong
 @item Put into the QFASL file (compiled, of course), or not.
 @item Evaluated within the compiler, or not.
@@ -18948,7 +18944,7 @@ The @code{special} or @code{unspecial} is performed at
 @item (proclaim ...)
 is performed at @code{(load compile eval)} time.
 
-'cindex special variable
+@cindex special variable
 @item (special ...) 1or* (unspecial ...)
 @code{(load compile eval)}
 
@@ -19431,7 +19427,7 @@ Refer to the file @code{SYS: SYS; QNEW LISP} for more information on the
 warnings data base.
 
 @section  Compiler Source-Level Optimizers
-'cindex optimizer, compiler
+@cindex optimizer, compiler
 
 The compiler stores optimizers for source code on property lists so as
 to make it easy for the user to add them.  An optimizer can be used to
@@ -22010,7 +22006,6 @@ some other iteration variable, allowing such constructs as
 @item for @i{var} from @i{expr1} @{to @i{expr2}@} @{by @i{expr3}@}
 @c @item for @i{var} @{@i{data-type}@} from @i{expr1} @{to @i{expr2}@} @{by @i{expr3}@}
 .loop_keyword_index for
-'setq loop-arithmetic-stepping page
 This performs numeric iteration.  @i{var} is initialized to
 @i{expr1}, and on each succeeding iteration is incremented by
 @i{expr3} (default @code{1}).  If the @code{to} phrase is given, the
@@ -22128,7 +22123,6 @@ section (loop-destructuring-section).
 @c and (loop-data-type-section).
 
 @c 	Occasionally there are various implementational reasons 
-@c 'setq loop-nodeclare-clause page
 @c for a variable @i{not} to be given a local type declaration.  If
 @c this is necessary, the @code{nodeclare} clause may be used:
 @c @code
@@ -22862,7 +22856,6 @@ To satisfy the anthropomorphic among you, @code{his}, @code{her}, or
 iteration paths are shown in section (predefined-paths-section).
 
 	Very often, iteration paths step internal variables which the
-'setq loop-using-crock page
 user does not specify, such as an index into some data-structure.
 Although in most cases the user does not wish to be concerned with
 such low-level matters, it is occasionally useful to have a handle on
@@ -23362,14 +23355,14 @@ later.)  The evaluation of this form does several things.  First, it
 defines @code{ship-x-position} to be a function which, given a ship, returns
 the @i{x} component of its position.  This is called an @i{accessor function},
 because it @i{accesses} a component of a structure.
-'cindex accessor function
+@cindex accessor function
 @code{defstruct} defines the other four accessor functions analogously.
 
 @code{defstruct} also defines @code{make-ship} to be a macro or function
 (you can specify which one) that can create a @code{ship} object.  So @code{(setq s
 (make-ship))} makes a new ship, and sets @code{s} to it.  This is
 called the @i{constructor}, because it constructs a new structure.
-'cindex constructor
+@cindex constructor
 
 We also want to be able to change the contents of a structure.  To do this,
 we use the @code{setf} macro (see (setf-fun)), as follows (for example):
@@ -23731,7 +23724,6 @@ In Common Lisp programs, the default for @code{:alterant} is @code{nil};
 no alterant is defined.  In traditional programs, the default is @code{alter-@i{name}}.
 
 @item :predicate defstruct
-'setq defstruct-predicates page
 Causes @code{defstruct} to generate a predicate
 to recognize instances of the structure.  Naturally it only works for
 ``named'' types.  The argument to the @code{:predicate} option is the name of
@@ -23768,7 +23760,6 @@ Generates a function approximately like:
 
 @item :default-pointer
 'kindex :default-pointer defstruct
-'setq defstruct-default-pointer-option page
 Normally, the accessors defined by @code{defstruct} expect to
 be given exactly one argument.  However, if the @code{:default-pointer}
 argument is used, the argument to each accessor is optional.  If
@@ -23790,7 +23781,6 @@ defaults to the name of the structure.
 
 @item :conc-name
 'kindex :conc-name defstruct
-'setq defstruct-conc-name-option page
 It is conventional to begin the names of all the accessor functions of
 a structure with a specific prefix, usually
 the name of the structure followed by a hyphen.  The @code{:conc-name}
@@ -23824,7 +23814,6 @@ causes the slot and accessor names to be different.  Here is an example:
 
 @item :include
 'kindex :include defstruct
-'setq defstruct-include-option page
 Builds a new structure definition as an extension of an old
 structure definition.  Suppose you have a structure called @code{person} that
 looks like this:
@@ -23941,7 +23930,6 @@ see (cli-defstruct).
 
 @item :make-array
 'kindex :make-array defstruct
-'setq defstruct-make-array-option page
 If the structure being defined is implemented as an array, this option
 may be used to control those aspects of the array that are not otherwise constrained by
 @code{defstruct}.  For example, you might want to control the area in which
@@ -23994,7 +23982,6 @@ only one instance of the structure.
 
 @item :size-macro
 'kindex :size-macro defstruct
-'setq defstruct-size-macro-option page
 Defines a special macro to expand into the size of this structure.  The
 exact meaning of the size varies, but in general this number is the one
 you would need to know if you were going to allocate one of these
@@ -24072,7 +24059,6 @@ The default is @code{t} in Common Lisp programs, @code{nil} in
 traditional programs.  See (using-defstruct-constructor) for more information.
 
 @item :property defstruct
-'setq defstruct-property-option page
 For each structure defined by defstruct, a property list is maintained
 for the recording of arbitrary properties about that structure.  (That
 is, there is one property list per structure definition, not one for
@@ -24189,7 +24175,6 @@ which can also specify a documentation string for it:
 (:constructor @i{name-of-constructor} [@i{doc-string}])
 @end lisp
 
-'setq defstruct-initialization page
 If a @i{keyword} matches the name of a slot (@i{not} the name of an
 accessor), then the corresponding @i{value} is used to initialize that
 slot of the new structure.  Any slots whose values are not specified in
@@ -24333,7 +24318,6 @@ than using consecutive @code{setf}s when you are altering two byte fields
 of the same object, or when you are using the @code{:but-first} option.
 
 @section  Byte Fields
-'setq defstruct-byte-field page
 	The byte field feature of @code{defstruct} allows you to specify that
 several slots of your structure are bytes (see
 (byte-manipulation-functions)) in an integer stored in one
@@ -24465,7 +24449,6 @@ the @code{:times} keyword of the constructor or the argument to the
 
 @section  Named Structures
 
-'setq named-structure page
 @cindex named structure
 
 	The @i{named structure} feature provides a very simple form of
@@ -24582,7 +24565,6 @@ depth in list-structure, and the current value of @code{*print-escape*}.  If
 or if there is no handler function, @code{print} uses @code{#s} syntax.
 
 @item :describe
-'setq named-structure-describe-method page
 Is invoked by @code{describe} and should output a description of the
 structure to @code{*standard-output*}.  If there is no handler function
 or @code{:describe} is not in its @code{:which-operations} list,
@@ -24737,7 +24719,6 @@ may not specify how to print them (they do not understand @code{named-structure-
 @end defmac
 
 @section  The si:defstruct-description Structure
-'setq defstruct-description page
 	This section discusses the internal structures used by
 @code{defstruct} that might be useful to programs that want to interface
 to @code{defstruct} nicely.  For example, if you want to write a program
@@ -24795,7 +24776,6 @@ an instance of the @code{defstruct-slot-description} structure.  The
 this (with other slots that are omitted here), also in the @code{si} package:
 
 @lisp
-'setq defstruct-slot-description-structure page
 (defstruct (defstruct-slot-description
 		(:default-pointer slot-description)
 		:conc-name)
@@ -24895,7 +24875,6 @@ about by @code{si:defstruct-define-type}.
 @table @code
 @item :cons
 'kindex :cons si:defstruct-define-type
-'setq defstruct-reference-consing-function page
 Specifies the code to cons up a form that will construct an instance
 of a structure of this type.
 
@@ -25000,7 +24979,6 @@ uses type @code{:named-list}.
 
 @item :cons-keywords
 'kindex :cons-keywords si:defstruct-define-type
-'setq defstruct-define-type-keywords page
 Defines additional constructor keywords for this type of structure.
 Using these keywords, one may specify additional information
 about a structure at the time it is created (``consed'') using one of
@@ -26837,7 +26815,6 @@ in order for such code to function.
 
 @item :abstract-flavor
 'kindex :abstract-flavor defflavor
-'setq abstract-flavor-option page
 This option marks the flavor as one that is not supposed to be
 instantiated (that is, is supposed to be used only as a component of other
 flavors).  An attempt to instantiate the flavor signals an error.
@@ -26869,7 +26846,6 @@ combination style for a given operation, then they must agree on the
 specification, or else an error is signaled.
 
 @item :instance-area-function defflavor
-'setq instance-area-function page
 The argument is the name of a function to be used when this flavor is
 instantiated, to determine which area to create the new instance in.
 Use a function name rather than an explicit lambda expression.
@@ -26887,7 +26863,6 @@ If a flavor does not have or inherit an instance area function,
 its instances are created in @code{default-cons-area}.
 
 @item :instantiation-flavor-function defflavor
-'setq instantiation-flavor-function page
 You can define a flavor @code{foo} so that, when you try to instantiate it,
 it calls a function to decide what flavor it should really instantiate
 (not necessarily @code{foo}).  This is done by giving @code{foo} an
@@ -27359,7 +27334,6 @@ Only untyped methods and @code{:pass-on} methods are allowed.
 The @code{:pass-on} methods are called first.
 
 @item :case
-'setq case-method-combination page
 With @code{:case} method combination, the combined method automatically
 does a @code{selectq} dispatch on the first argument of the operation,
 known as the @i{suboperation}.  Methods of type @code{:case} can be used,
@@ -30466,7 +30440,6 @@ if the argument is 1, or `ies' if it is not.  @code{~:@@P} does the same thing,
 but backs up first.
 
 @item ~T
-'setq format-t-operation page
 Spaces over to a given column.  @code{~@i{n},@i{m}T} outputs
 sufficient spaces to move the cursor to column @i{n}.  If the cursor
 is already past column @i{n}, it outputs spaces to move it to
@@ -30532,7 +30505,6 @@ Foo:    This is
 @end lisp
 
 @item ~(@i{str}~)
-'setq format-case-convert page
 Performs output with case conversion.
 The formatting specified by @i{str} is done, with all the letters in the
 resulting output being converted to upper or lower case according to
@@ -30572,7 +30544,7 @@ For example,
 "~[Siamese ~;Manx ~;Persian ~;Tortoise-Shell ~
    ~;Tiger ~;Yu-Shiang ~]kitty"
 @end lisp
-'cindex kitty, yu-shiang
+@cindex kitty, yu-shiang
 The @i{arg}th
 alternative is selected; @code{0} selects the first.
 If a prefix parameter is given (i.e. @code{~@i{n}[}),
@@ -32493,7 +32465,7 @@ is a list, and the third is equivalent to the second (although
 @code{print} would never produce it).  The fourth is a dotted list;
 the cdr of the last cons cell (the second one) is not @code{nil}, but
 @code{quux}.
-'cindex dotted list
+@cindex dotted list
 
 The reader always allocates new cons cells to represent parentheses.
 They are never shared with other structure, not even part of the same read.
@@ -32761,7 +32733,6 @@ is @code{haha}.
 
 @item #=
 @itemx ##
-'setq circular-structure-reading page
 Are used to represent circular structure or shared structure.
 7#@i{n}=* preceding an object ``labels'' that object with the label @i{n},
 a decimal integer.  This has no effect on the way the object labeled
@@ -32867,7 +32838,6 @@ except that 7#c* is allowed in Common Lisp syntax and the other is not.
 
 @cindex conditionalization, read-time
 @item #+
-'setq sharp-plus page
 This abbreviation provides a read-time conditionalization facility.  It
 is used as 7#+@i{feature} @i{form}*.  If @i{feature} is a symbol, then
 this is read as @i{form} if @i{feature} is present in the list
@@ -33052,7 +33022,6 @@ the form @code{(values)} does.
 @end defun
 
 @defmac grindef function-spec...
-'setq grind page
 Prints the definitions of one or more functions, with indentation to make the code
 readable.  Certain other ``pretty-printing'' transformations are performed:  The @code{quote}
 special form is represented with the @code{'} character.  Displacing macros are
@@ -33666,7 +33635,7 @@ properties besides being a break.
 @item si:whitespace
 A token separator that can be ignored, such as `@code{ }'.
 @item si:single
-'cindex single-character symbol
+@cindex single-character symbol
 A self-delimiting single-character symbol.  The initial readtable does not
 contain any of these.
 @item si:escape
@@ -36292,7 +36261,6 @@ can be implemented by particular file system hosts.
 
 @table @i
 @item direction
-'setq probe-streams page
 'kindex :direction open
 Controls which direction of I/O can be done on the resulting stream.
 The possible values are @code{:input} (the default), @code{:output}, @code{nil},
@@ -39576,7 +39544,7 @@ network servers.
 @end defun
 
 @chapter Packages
-'cindex package
+@cindex package
 @cindex name spaces
 
 	A Lisp program is a collection of function definitions.
@@ -41233,7 +41201,7 @@ specify should be a string.  If you do not specify this, the standard file
 type @code{:qfasl} is used.
 
 @item :module
-'cindex module
+@cindex module
 Allows assigning a name to a set of files within the system.  This name
 can then be used instead of repeating the filenames.  The format is
 @code{(:module @i{name} @i{files} @i{options}...)}.  @i{files} is usually
@@ -44050,7 +44018,7 @@ If non-@code{nil}, @code{warn} signals an error rather than just printing a mess
 
 @defmac check-type place type-spec [description]
 @defmacx check-arg-type place type-spec [description]
-'cindex argument checking
+@cindex argument checking
 Signals a correctable error if the value of @i{place} does not
 fit the type @i{type-spec}.  @i{place} is something that @code{setf} can store in.
 @i{type-spec} is a type specifier, a suitable second argument to @code{typep},
@@ -47099,7 +47067,6 @@ you what they look like:
 The disassembled code looks like this:
 
 @lisp
-'setq push-number-use page
 24 MOVE D-PDL ARG|0           ;X
 25 = ARG|1                    ;Y
 26 BR-NIL 35
@@ -47997,7 +47964,7 @@ so on.  A timezone is specified as the number of hours west of GMT; thus
 in Massachusetts the timezone is 5.  Any adjustment for daylight savings
 time is separate from this.
 
-'cindex universal time
+@cindex universal time
 
 This ``decoded'' format is convenient for printing out times into a readable
 notation, but it is inconvenient for programs to make sense of these numbers

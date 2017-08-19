@@ -13312,7 +13312,6 @@ and is given the keyboard (made to be the @code{kbd-job}).
 @end defun
 
 When the keyboard belongs to some job other than the top-level job,
-'setq call-key page
 the "CALL" key is interpreted specially to mean "Return the keyboard to the
 top-level job."  If the user types a "CALL", the current @code{kbd-job} will
 be made process-disabled and TVOB-disabled, the top-level job will be made
