@@ -16156,7 +16156,7 @@ Length of the special PDL to be created.  Defaults to 2000 octal.
 
 @item :swap-sv-on-call-out
 @itemx :swap-sv-of-sg-that-calls-me
-'kindex :swap-sv-of-sg-that-calls-me make-stack-group
+@kindex :swap-sv-of-sg-that-calls-me make-stack-group
 These flags default to 1.  If these are 0, the system does not maintain
 separate binding environments for each stack group.  You do not want
 to use this feature.
@@ -18437,11 +18437,11 @@ so that you can use @code{make-area} as the initialization of a @code{defvar}.
 Here are the meanings of the keywords:
 @table @i
 @item name
-'kindex :name make-area
+@kindex :name make-area
 A symbol that will be the name of the area.  This item is required.
 
 @item size
-'kindex :size make-area
+@kindex :size make-area
 The maximum allowed size of the area, in words.  Defaults to infinite.
 (Actually, the default is the largest positive fixnum; but the area is
 not limited to that size!)
@@ -18449,7 +18449,7 @@ If the number of words allocated to the area reaches this size, attempting
 to cons an object in the area will signal an error.
 
 @item region-size
-'kindex :region-size make-area
+@kindex :region-size make-area
 The approximate size, in words, for regions within this area.  The
 default is the area size if a @code{:size} argument was given, otherwise it is a
 suitable medium size.  Note that if you specify @code{:size} and not
@@ -18459,14 +18459,14 @@ larger than the default region size to avoid creating very many regions
 and possibly overflowing the system's fixed-size region tables.
 
 @item representation
-'kindex :representation make-area
+@kindex :representation make-area
 The type of object to be contained in the area's initial region.
 The argument to this keyword can be @code{:list}, @code{:structure}, or a numeric code.
 @code{:structure} is the default.  If you are only going to cons lists in your
 area, you should specify @code{:list} so you don't get a useless structure region.
 
 @item gc
-'kindex :gc make-area
+@kindex :gc make-area
 The type of garbage-collection to be employed.  The choices are
 @code{:dynamic} (which is the default), @code{:static}, and @code{:temporary}.
 @code{:static} means that the area will not be copied by the garbage
@@ -18476,7 +18476,7 @@ requested.  @code{:temporary} is like @code{:static}, but in addition you are
 allowed to use @code{si:reset-temporary-area} on this area.
 
 @item read-only
-'kindex :read-only make-area
+@kindex :read-only make-area
 With an argument of @code{t}, causes the area to be made read-only.  Defaults
 to @code{nil}.  If an area is read-only, then any attempt to change anything
 in it (altering a data object in the area or creating a new object in the
@@ -18484,7 +18484,7 @@ area) will signal an error unless @code{sys:%inhibit-read-only}
 (see (sys:%inhibit-read-only-var)) is bound to a non-@code{nil} value.
 
 @item pdl
-'kindex :pdl make-area
+@kindex :pdl make-area
 With an argument of @code{t}, makes the area suitable for storing
 regular-pdls of stack-groups.  This is a special attribute due to the
 pdl-buffer hardware.  Defaults to @code{nil}.  Areas for which this is @code{nil}
@@ -18494,7 +18494,7 @@ take page faults to check whether the referenced location is really in
 the pdl-buffer.
 
 @item room
-'kindex :room make-area
+@kindex :room make-area
 With an argument of @code{t}, adds this area to the list of areas that are
 displayed by default by the @code{room} function (see (room-fun)).
 @end table
@@ -23497,20 +23497,20 @@ keywords and values (unevaluated).  These slot option keywords are
 defined:
 @table @code
 @item :read-only @i{flag}
-'kindex :read-only "defstruct slot option"
+@kindex :read-only "defstruct slot option"
 If @i{flag} is non-@code{nil}, this specifies that this slot should not be changed in
 an existing structure.  @code{setf} will not be allowed on the slot's
 accessor.
 
 @item :type @i{type-spec}
-'kindex :type "defstruct slot option"
+@kindex :type "defstruct slot option"
 Declares that the contents of this slot must be of type @i{type-spec}.
 The Lisp machine compiler does not use this information,
 but sometimes it enables @code{defstruct} to deduce that it
 can pack the structure into less space by using a specialized array type.
 
 @item :documentation @i{documentation-string}
-'kindex :documentation "defstruct slot option"
+@kindex :documentation "defstruct slot option"
 Makes @i{documentation-string} the documentation for the slot's accessor
 function.  It also goes in the @code{si:defstruct-slot-description-documentation}
 for this slot in the @code{defstruct-description} structure.
@@ -23585,7 +23585,7 @@ that gives several options.
 
 @table @code
 @item :type
-'kindex :type defstruct
+@kindex :type defstruct
 The @code{:type} option specifies what kind of Lisp object to use
 to implement the structure.  It must be given one argument, which must
 be one of the symbols enumerated below, or a user-defined type.
@@ -23596,10 +23596,10 @@ own types; this is explained in (defining-your-own-defstruct-types).
 
 @table @code
 @item :list
-'kindex :list defstruct
+@kindex :list defstruct
 Uses a list.
 @item :named-list
-'kindex :named-list defstruct
+@kindex :named-list defstruct
 Like @code{:list}, but the first element of the list holds the
 symbol that is the name of the structure and so is not used
 as a component.
@@ -23607,13 +23607,13 @@ as a component.
 @item :array
 @itemx :typed-array
 @itemx :vector
-'kindex :array defstruct
-'kindex :typed-array defstruct
-'kindex :vector defstruct
+@kindex :array defstruct
+@kindex :typed-array defstruct
+@kindex :vector defstruct
 These are all synonymous.
 They use an array, storing components in the body of the array.
 @item :named-array
-'kindex :named-array defstruct
+@kindex :named-array defstruct
 Like @code{:array}, but makes the array a named structure (see
 (named-structure)) using the name of the structure as the named
 structure symbol.  Element 0 of the array holds the named
@@ -23621,24 +23621,24 @@ structure symbol and so is not used to hold a component of the
 structure.
 @item :named-typed-array
 @itemx :named-vector
-'kindex :named-typed-array defstruct
-'kindex :named-vector defstruct
+@kindex :named-typed-array defstruct
+@kindex :named-vector defstruct
 These two synonyms are
 like @code{:named-array} but the array always has a leader and the
 named structure symbol is stored there.  As a result, it is
 possible to use the @code{:subtype} option to specify a restricted
 array type, such as @code{art-8b}.
 @item :phony-named-vector
-'kindex :phony-named-vector defstruct
+@kindex :phony-named-vector defstruct
 This is what you get in Common Lisp if you say
 @code{(:type :vector)} and @code{:named}.
 
 @item :array-leader
-'kindex :array-leader defstruct
+@kindex :array-leader defstruct
 Use an array, storing components in the leader of the array.
 (See the @code{:make-array} option, described below.)
 @item :named-array-leader
-'kindex :named-array-leader defstruct
+@kindex :named-array-leader defstruct
 Like @code{:array-leader}, but makes the array a named structure (see
 (named-structure)) using the name of the structure as the named
 structure symbol.  Element 1 of the leader holds the named
@@ -23646,25 +23646,25 @@ structure symbol and so is not used to hold a component of the
 structure.
 
 @item :fixnum-array
-'kindex :fixnum-array defstruct
+@kindex :fixnum-array defstruct
 Like @code{:array}, but the type of the array is @code{art-32b}.
 @item :flonum-array
-'kindex :flonum-array defstruct
+@kindex :flonum-array defstruct
 Like @code{:array}, but the type of the array is @code{art-float}.
 @item :named-fixnum-array
 @itemx :named-flonum-array
-'kindex :named-fixnum-array defstruct
-'kindex :named-flonum-array defstruct
+@kindex :named-fixnum-array defstruct
+@kindex :named-flonum-array defstruct
 Like @code{:fixnum-array} or @code{:flonum-array} but also a named structure, with a leader
 to hold the named structure symbol.
 
 @item :tree
-'kindex :tree defstruct
+@kindex :tree defstruct
 The structure is implemented out of a binary tree of conses, with
 the leaves serving as the slots.
 
 @item :fixnum
-'kindex :fixnum defstruct
+@kindex :fixnum defstruct
 This unusual type implements the structure as a single fixnum.  The
 structure may only have one slot.  This is only useful with the
 byte field feature (see (defstruct-byte-field)); it lets you store
@@ -23672,7 +23672,7 @@ a bunch of small numbers within fields of a fixnum, giving the
 fields names.
 
 @item :grouped-array
-'kindex :grouped-array defstruct
+@kindex :grouped-array defstruct
 This is described in (grouped-array).
 @end table
 
@@ -23696,7 +23696,7 @@ to make the structure more compact.
 See (type-specifiers) for more information on type specifiers.
 
 @item :constructor
-'kindex :constructor defstruct
+@kindex :constructor defstruct
 Specifies how to make a constructor for the structure.  In the simplest
 use, there is one argument, which specifies the name to give to the
 standard keyword-argument constructor.  If the argument is not provided
@@ -23707,7 +23707,7 @@ is defined.  More complicated usage is explained in
 (using-defstruct-constructor).
 
 @item :alterant
-'kindex :alterant defstruct
+@kindex :alterant defstruct
 Takes one argument, which specifies the name of the alterant
 macro.  If the argument is not provided, the name of the alterant is
 made by concatenating the string @code{"alter-"} to the name of the
@@ -23754,7 +23754,7 @@ Generates a function approximately like:
 @end lisp
 
 @item :default-pointer
-'kindex :default-pointer defstruct
+@kindex :default-pointer defstruct
 Normally, the accessors defined by @code{defstruct} expect to
 be given exactly one argument.  However, if the @code{:default-pointer}
 argument is used, the argument to each accessor is optional.  If
@@ -23775,7 +23775,7 @@ If the argument to the @code{:default-pointer} argument is not given, it
 defaults to the name of the structure.
 
 @item :conc-name
-'kindex :conc-name defstruct
+@kindex :conc-name defstruct
 It is conventional to begin the names of all the accessor functions of
 a structure with a specific prefix, usually
 the name of the structure followed by a hyphen.  The @code{:conc-name}
@@ -23808,7 +23808,7 @@ causes the slot and accessor names to be different.  Here is an example:
 @end lisp
 
 @item :include
-'kindex :include defstruct
+@kindex :include defstruct
 Builds a new structure definition as an extension of an old
 structure definition.  Suppose you have a structure called @code{person} that
 looks like this:
@@ -23911,7 +23911,7 @@ If the @code{:read-only} option is specified as @code{nil} when @code{t}
 would have been inherited, an error is signaled.
 
 @item :named
-'kindex :named defstruct
+@kindex :named defstruct
 This means that you want to use one of the ``named'' types.  If you
 specify a type of @code{:array}, @code{:array-leader}, or @code{:list}, and give
 the @code{:named} option, then the @code{:named-array},
@@ -23924,7 +23924,7 @@ The @code{:named} option works quite differently in Common Lisp programs;
 see (cli-defstruct).
 
 @item :make-array
-'kindex :make-array defstruct
+@kindex :make-array defstruct
 If the structure being defined is implemented as an array, this option
 may be used to control those aspects of the array that are not otherwise constrained by
 @code{defstruct}.  For example, you might want to control the area in which
@@ -23966,7 +23966,7 @@ keyword @code{:length} (they mean the same thing), with a value that is
 anything acceptable as @code{make-array}'s first argument.
 
 @item :times
-'kindex :times defstruct
+@kindex :times defstruct
 Used for structures of type @code{:grouped-array} to control
 the number of repetitions of the structure to be allocated by the
 constructor.  (See (grouped-array).)  The constructor also accepts a
@@ -23976,7 +23976,7 @@ constructor nor as a @code{defstruct} option, the constructor allocates
 only one instance of the structure.
 
 @item :size-macro
-'kindex :size-macro defstruct
+@kindex :size-macro defstruct
 Defines a special macro to expand into the size of this structure.  The
 exact meaning of the size varies, but in general this number is the one
 you would need to know if you were going to allocate one of these
@@ -23994,13 +23994,13 @@ Example:
 @end lisp
 
 @item :size-symbol
-'kindex :size-symbol defstruct
+@kindex :size-symbol defstruct
 Like @code{:size-macro} but defines a global variable rather than a macro.
 The size of the structure is the variable's value.  Use of @code{:size-macro}
 is considered cleaner.
 
 @item :initial-offset
-'kindex :initial-offset defstruct
+@kindex :initial-offset defstruct
 This allows you to tell @code{defstruct} to skip over a certain
 number of slots before it starts allocating the slots described in the
 body.  This option requires an argument (which must be a fixnum), which
@@ -24010,7 +24010,7 @@ is implementing your structure; otherwise, you will be unable to make
 use of the slots that @code{defstruct} has left unused.
 
 @item :but-first
-'kindex :but-first defstruct
+@kindex :but-first defstruct
 This option is best explained by example:
 
 @lisp
@@ -24869,7 +24869,7 @@ about by @code{si:defstruct-define-type}.
 
 @table @code
 @item :cons
-'kindex :cons si:defstruct-define-type
+@kindex :cons si:defstruct-define-type
 Specifies the code to cons up a form that will construct an instance
 of a structure of this type.
 
@@ -24911,7 +24911,7 @@ the @code{:cons-keywords} option (see (defstruct-define-type-keywords)).
 @code{si:defstruct-define-type}.
 
 @item :ref
-'kindex :ref si:defstruct-define-type
+@kindex :ref si:defstruct-define-type
 Specifies the code to cons up a form that will reference an
 instance of a structure of this type.
 
@@ -24943,7 +24943,7 @@ It is an error not to supply the @code{:ref} option to
 @code{si:defstruct-define-type}. 
 
 @item :overhead
-'kindex :overhead si:defstruct-define-type
+@kindex :overhead si:defstruct-define-type
 Declares to @code{defstruct} that the implementation of this particular type
 of structure ``uses up'' some number of locations in the object
 actually constructed.  This option is used by various ``named'' types of
@@ -24960,7 +24960,7 @@ This number is used only by the @code{:size-macro} and @code{:size-symbol}
 options to @code{defstruct} (see (defstruct-size-macro-option)).
 
 @item :named
-'kindex :named si:defstruct-define-type
+@kindex :named si:defstruct-define-type
 Controls the use of the @code{:named} option to @code{defstruct}.  With no
 argument, the @code{:named} option means that this type is one which
 records the structure type name somehow (not necessarily by using an
@@ -24973,7 +24973,7 @@ saying that a @code{defstruct} that specifies @code{(:list :named)} really
 uses type @code{:named-list}.
 
 @item :cons-keywords
-'kindex :cons-keywords si:defstruct-define-type
+@kindex :cons-keywords si:defstruct-define-type
 Defines additional constructor keywords for this type of structure.
 Using these keywords, one may specify additional information
 about a structure at the time it is created (``consed'') using one of
@@ -24988,7 +24988,7 @@ that the constructor conser expects to find in the @i{keywords} alist
 @code{:keywords} is an old name for the @code{:cons-keywords} option.
 
 @item :defstruct-keywords
-'kindex :defstruct-keywords si:defstruct-define-type
+@kindex :defstruct-keywords si:defstruct-define-type
 Defines additional @code{defstruct} options allowed for this
 type of structure.  (The @code{:subtype} option for structures of type
 @code{:array} is an example.)  These options take effect at the time
@@ -25045,7 +25045,7 @@ and @i{body} is some code to evaluate to get the defining form.  For example:
 @end lisp
 
 @item :defstruct
-'kindex :defstruct si:defstruct-define-type
+@kindex :defstruct si:defstruct-define-type
 The @code{:defstruct} option to @code{si:defstruct-define-type} allows the user
 to run some code and return some forms as part of the expansion of the
 @code{defstruct} macro.
@@ -26518,7 +26518,7 @@ variable list at the top of the @code{defflavor}.
 
 @table @code
 @item :gettable-instance-variables
-'kindex :gettable-instance-variables defflavor
+@kindex :gettable-instance-variables defflavor
 Enables automatic generation of methods for getting the values of
 instance variables.  The operation name is the name of the variable, in
 the keyword package (i.e. it has a colon in front of it).
@@ -26532,7 +26532,7 @@ same operation name as one of the automatically generated methods, the
 explicit definition overrides the automatic one.
 
 @item :settable-instance-variables
-'kindex :settable-instance-variables defflavor
+@kindex :settable-instance-variables defflavor
 Enables automatic generation of methods for setting the values of
 instance variables.  The operation name is `@code{:set-}' followed by the
 name of the variable.  All settable instance
@@ -26545,7 +26545,7 @@ with suboperations taken from the names of the variables, so that
 @code{:set} can be used to set them.
 
 @item :inittable-instance-variables
-'kindex :inittable-instance-variables defflavor
+@kindex :inittable-instance-variables defflavor
 The instance variables listed as arguments, or all instance variables
 listed in this @code{defflavor} if the keyword is given alone, are made
 @i{inittable}.  This means that they can be initialized through use of a
@@ -26553,7 +26553,7 @@ keyword (a colon followed by the name of the variable) as an init-option
 argument to @code{make-instance}.
 
 @item :special-instance-variables
-'kindex :special-instance-variables defflavor
+@kindex :special-instance-variables defflavor
 The instance variables listed as arguments, or all instance variables
 listed in this @code{defflavor} if the keyword is given alone, will
 be bound dynamically when handling messages.  (By default, instance
@@ -26568,7 +26568,7 @@ you automatically when you instantiate the flavor, and gives you a
 warning to remind you to fix the @code{defflavor}.
 
 @item :init-keywords
-'kindex :init-keywords defflavor
+@kindex :init-keywords defflavor
 The arguments are declared to be valid keywords to use in
 @code{instantiate-flavor} when creating an instance of this flavor (or any
 flavor containing it).  The system uses this for error-checking: before
@@ -26583,7 +26583,7 @@ with a non-@code{nil} value, this error check is suppressed.
 Then unrecognized keywords are simply ignored.
 
 @item :default-init-plist
-'kindex :default-init-plist defflavor
+@kindex :default-init-plist defflavor
 The arguments are alternating keywords and value forms, like a
 property list.  When the flavor is instantiated, these properties and
 values are put into the init-plist unless already present.  This allows
@@ -26609,7 +26609,7 @@ this flavor (or any flavor containing it) is instantiated.
 An error is signaled if any required init keyword is missing.
 
 @item :required-instance-variables
-'kindex :required-instance-variables defflavor
+@kindex :required-instance-variables defflavor
 Declares that any flavor incorporating this one that is instantiated
 into an object must contain the specified instance variables.
 An error occurs if there is an attempt to instantiate a flavor that
@@ -26627,7 +26627,7 @@ flavor depends on those variables but that some other flavor must be
 provided to manage them and whatever features they imply.
 
 @item :required-methods
-'kindex :required-methods defflavor
+@kindex :required-methods defflavor
 The arguments are names of operations that any flavor incorporating this
 one must handle.  An error occurs if there is an attempt to instantiate
 such a flavor and it is lacking a method for one of these operations.
@@ -26642,7 +26642,7 @@ handler for the message to be detected when the flavor instantiated or when
 operation is used.
 
 @item :required-flavors
-'kindex :required-flavors defflavor
+@kindex :required-flavors defflavor
 The arguments are names of flavors that any flavor incorporating this one
 must include as components, directly or indirectly.  The difference between
 declaring flavors as required and listing them directly as components at the
@@ -26691,7 +26691,7 @@ It is very common to specify the @i{base flavor} of a mixin with the
 @code{:required-flavors} option in this way.
 
 @item :included-flavors
-'kindex :included-flavors defflavor
+@kindex :included-flavors defflavor
 The arguments are names of flavors to be included in this flavor.  The difference
 between declaring flavors here and declaring them at the top of the @code{defflavor}
 is that when component flavors are combined, if an included flavor is not specified
@@ -26709,7 +26709,7 @@ but not given as a normal component, it is automatically inserted into the list
 of components at a reasonable place.
 
 @item :no-vanilla-flavor
-'kindex :no-vanilla-flavor defflavor
+@kindex :no-vanilla-flavor defflavor
 Normally when a flavor is instantiated, the special flavor
 @code{si:vanilla-flavor} is included automatically at the end of its list of
 components.  The vanilla flavor provides some default methods for the
@@ -26722,7 +26722,7 @@ then @code{si:vanilla-flavor} is not included in that flavor.  This option
 should not be used casually.
 
 @item :default-handler
-'kindex :default-handler defflavor
+@kindex :default-handler defflavor
 The argument is the name of a function that is to be called to handle
 any operation for which there is no method.  Its arguments are
 the arguments of the @code{send} which invoked the operation,
@@ -26734,7 +26734,7 @@ has no default handler, any operation for which there is no method
 signals a @code{sys:unclaimed-message} error.
 
 @item :ordered-instance-variables
-'kindex :ordered-instance-variables defflavor
+@kindex :ordered-instance-variables defflavor
 This option is mostly for esoteric internal system uses.
 The arguments are names of instance variables which must appear first (and in this order)
 in all instances of this flavor, or any flavor depending on this flavor.
@@ -26748,7 +26748,7 @@ positions in the list, requires that you recompile all methods that use
 any of the affected instance variables.
 
 @item :outside-accessible-instance-variables
-'kindex :outside-accessible-instance-variables defflavor
+@kindex :outside-accessible-instance-variables defflavor
 The arguments are instance variables which are to be accessible from
 outside of this flavor's methods.
 A macro (actually a subst) is defined which takes an object of
@@ -26782,13 +26782,13 @@ that the accessed slot really belongs to an instance variable of
 the appropriate name.
 
 @item :accessor-prefix
-'kindex :accessor-prefix defflavor
+@kindex :accessor-prefix defflavor
 Normally the accessor macro created by the @code{:outside-accessible-instance-variables}
 option to access the flavor @i{f}'s instance variable @i{v} is named @i{f-v}.
 Specifying @code{(:accessor-prefix get$)} causes it to be named @code{get$@i{v}} instead.
 
 @item :alias-flavor
-'kindex :alias-flavor defflavor
+@kindex :alias-flavor defflavor
 Marks this flavor as being an alias for another flavor.  This flavor
 should have only one component, which is the flavor it is an alias for,
 and no instance variables or other options.  No methods should be defined for it.
@@ -26809,7 +26809,7 @@ in order for such code to function.
 @code{:alias-flavor} is mainly useful for changing a flavor's name gracefully.
 
 @item :abstract-flavor
-'kindex :abstract-flavor defflavor
+@kindex :abstract-flavor defflavor
 This option marks the flavor as one that is not supposed to be
 instantiated (that is, is supposed to be used only as a component of other
 flavors).  An attempt to instantiate the flavor signals an error.
@@ -26823,7 +26823,7 @@ depend on this one and actually are instantiated will supply what is
 lacking.
 
 @item :method-combination
-'kindex :method-combination defflavor
+@kindex :method-combination defflavor
 Specifies the method combination style to be used for certain
 operations.
 Each argument to this option is a list @code{(@i{style order operation1 operation2}...)}.
@@ -26939,7 +26939,7 @@ says to consider the @code{:size} keyword only if @code{:etherial} is @code{nil}
 for compatibility with Symbolics systems.
 
 @item :documentation
-'kindex :documentation defflavor
+@kindex :documentation defflavor
 Specifies the documentation string for the flavor definition, which is
 made accessible through @code{(documentation @i{flavorname} 'flavor)}.
 
@@ -36256,7 +36256,7 @@ can be implemented by particular file system hosts.
 
 @table @i
 @item direction
-'kindex :direction open
+@kindex :direction open
 Controls which direction of I/O can be done on the resulting stream.
 The possible values are @code{:input} (the default), @code{:output}, @code{nil},
 @code{:probe}, @code{:probe-directory} and @code{:probe-link}.  The first two
@@ -36283,14 +36283,14 @@ that can do input and output, but no file system
 supported by the Lisp Machine has this capability.
 
 @item characters
-'kindex :characters open
+@kindex :characters open
 The possible values are @code{t} (the default), @code{nil}, which means that the
 file is a binary file, and @code{:default}, which means that the file system should
 decide whether the file contains characters or binary data and open it in the
 appropriate mode.
 
 @item byte-size
-'kindex :byte-size open
+@kindex :byte-size open
 The possible values are @code{nil} (the default), a number, which is the number
 of bits per byte, and @code{:default}, which means that the file system should
 choose the byte size based on attributes of the file.  If the file is being
@@ -36332,7 +36332,7 @@ It is the same as using @code{:default} as the value of @i{characters}.
 @end table
 
 @item if-exists
-'kindex :if-exists open
+@kindex :if-exists open
 For output opens, @i{if-exists} specifies what to do if a file with the specified
 name already exists.  There are several values you can use:
 @table @code
@@ -36384,7 +36384,7 @@ The @i{error} argument is irrelevant in this case.
 @end table
 
 @item error
-'kindex :error open
+@kindex :error open
 Specifies what to do if an error is signaled for any reason.
 (Note that the values of the @i{if-exists} and @i{if-does-not-exist} arguments
 control whether an error is signaled in certain circumstances.)
@@ -36402,65 +36402,65 @@ need to know if a different file is substituted should never specify
 wish to permit an alternative file name to be substituted.
 
 @item :submit
-'kindex :submit open
+@kindex :submit open
 If specified as @code{t} when opening a file for output, the file is
 submitted as a batch job if it is closed normally.  The default is
 @code{nil}.  You must specify @code{:direction} @code{:output} as well.
 
 @item deleted
-'kindex :deleted open
+@kindex :deleted open
 The default is @code{nil}.  If @code{t} is specified, and the file system has the
 concept of deleted but not expunged files, it is possible to open a deleted
 file.  Otherwise deleted files are invisible.
 
 @item temporary
-'kindex :temporary open
+@kindex :temporary open
 If @code{t} is specified, the file is marked as
 temporary, if the file system has that concept.  The default is @code{nil}.
 
 @item preserve-dates
-'kindex :preserve-dates open
+@kindex :preserve-dates open
 If @code{t} is specified, the file's reference and
 modification dates are not updated.  The default is @code{nil}.
 
 @item flavor
-'kindex :flavor open
+@kindex :flavor open
 This controls the kind of file to be opened.  The default is @code{nil}, a
 normal file.  Other possible values are @code{:directory} and @code{:link}.
 Only certain file systems recognize this keyword.
 
 @item link-to
-'kindex :link-to open
+@kindex :link-to open
 When creating a file with @i{flavor} @code{:link}, this argument must be
 specified; its value is a pathname or namestring that becomes the target of the link.
 
 @item submit
-'kindex :submit open
+@kindex :submit open
 The value can be either @code{nil} (the default) or @code{t}.
 If the value is @code{t}, and the @code{:direction} is @code{:output}, the
 resulting file will be submitted as a batch job.
 Currently, this option is implemented only for Twenex and VMS.
 
 @item estimated-size
-'kindex :estimated-size open
+@kindex :estimated-size open
 The value may be @code{nil} (the default), which means there is no estimated
 size, or a number of bytes.  Some file systems use this to optimize disk
 allocation.
 
 @item physical-volume
-'kindex :physical-volume open
+@kindex :physical-volume open
 The value may be @code{nil} (the default), or a string that is the name
 of a physical volume on which the file is to be stored.  This is not meaningful
 for all file systems.
 
 @item logical-volume
-'kindex :logical-volume open
+@kindex :logical-volume open
 The value may be @code{nil} (the default), or a string that is the name
 of a logical volume on which the file is to be stored.  This is not meaningful
 for all file systems.
 
 @item super-image
-'kindex :super-image open
+@kindex :super-image open
 The value may be @code{nil} (the default), or @code{t}, which
 disables the special treatment of rubout in ASCII files.  Normally, rubout is
 an escape which causes the following character to be interpreted specially,
@@ -36468,7 +36468,7 @@ allowing all characters from 0 through 376 (octal) to be stored.  This applies t
 ASCII file servers only.
 
 @item raw
-'kindex :raw open
+@kindex :raw open
 The value may be @code{nil} (the default), or @code{t}, which
 disables all character set translation in ASCII files.  This applies to ASCII
 file servers only.
@@ -37272,7 +37272,7 @@ The @i{options} are keywords which modify the operation.  The following options
 are currently defined:
 @table @code
 @item :noerror
-'kindex :noerror fs:directory-list
+@kindex :noerror fs:directory-list
 If a file-system error (such as no such directory) occurs during the operation,
 normally an error is signaled and the user is asked to supply a new pathname.
 However, if @code{:noerror} is specified then, in the event of an error,
@@ -37280,13 +37280,13 @@ a condition object describing the error is returned as the result of @code{fs:di
 This is identical to the @code{:noerror} option to @code{open}.
 
 @item :deleted
-'kindex :deleted fs:directory-list
+@kindex :deleted fs:directory-list
 This is for file servers on which deletion is not permanent.  It specifies
 that deleted (but not yet expunged) files are to be included in the
 directory listing.
 
 @item :sorted
-'kindex :sorted fs:directory-list
+@kindex :sorted fs:directory-list
 This requests that the directory list be sorted by filenames before it
 is returned.
 @end table
@@ -37513,14 +37513,14 @@ completion is performed.  The following option keywords are allowed:
 Looks for files which have been deleted but not yet expunged.
 
 @item :read @t{or} :in
-'kindex :read fs:complete-pathname
-'kindex :in fs:complete-pathname
+@kindex :read fs:complete-pathname
+@kindex :in fs:complete-pathname
 The file is going to be read.  This is the default.
 
 @item :print @t{or} :write @t{or} :out
-'kindex :print fs:complete-pathname
-'kindex :write fs:complete-pathname
-'kindex :out fs:complete-pathname
+@kindex :print fs:complete-pathname
+@kindex :write fs:complete-pathname
+@kindex :out fs:complete-pathname
 The file is going to be written (i.e. a new version is going to be created).
 
 @item :old
@@ -37589,16 +37589,16 @@ following options are currently defined:
 
 @table @code
 @item :ignore
-'kindex :ignore fs:balance-directories
+@kindex :ignore fs:balance-directories
 This option takes one argument, which is a list of file names to ignore
 when making the directory lists.  The default value is @code{nil}.
 
 @item :error
-'kindex :error fs:balance-directories
+@kindex :error fs:balance-directories
 This option is identical to the @code{:error} option to @code{open}.
 
 @item :query-mode
-'kindex :query-mode fs:balance-directories
+@kindex :query-mode fs:balance-directories
 This option takes one argument, which indicates whether or not the user
 should be asked before files are transferred.  If the argument is
 @code{nil}, no querying is done.  If it is @code{:1->2}, then only files
@@ -37608,7 +37608,7 @@ while if it is @code{:2->1}, then files transferred from @i{filespec1} to
 the user is asked about all files.
 
 @item :copy-mode
-'kindex :copy-mode fs:balance-directories
+@kindex :copy-mode fs:balance-directories
 This option is identical to the @code{:copy-mode} option of @code{copy-file},
 and is used to control whether files are treated as binary or textual
 data.
@@ -42019,7 +42019,7 @@ logical host translations if they have changed ((fs:make-logical-pathname-host-
 The following options are accepted:
 @table @code
 @item :systems @i{list}
-'kindex :systems load-patches
+@kindex :systems load-patches
 @i{list} is a list of names of systems to be brought up to date.  If this
 option is not specified, all patchable systems loaded are processed.
 
@@ -45686,7 +45686,7 @@ be either a symbol or a general function-spec.
 	The following @code{trace} options exist:
 @table @code
 @item :break @i{pred}
-'kindex :break trace
+@kindex :break trace
 Causes a breakpoint to be entered after printing
 the entry trace information but before applying the traced function to its
 arguments, if and only if @i{pred} evaluates to non-@code{nil}.  During the
@@ -45694,7 +45694,7 @@ breakpoint, the symbol @code{arglist} is bound to a list of the arguments
 of the function.
 
 @item :exitbreak @i{pred}
-'kindex :exitbreak trace
+@kindex :exitbreak trace
 This is just like @code{break} except that the
 breakpoint is entered after the function has been executed and the exit trace information
 has been printed, but before control returns.    During the
@@ -45703,7 +45703,7 @@ of the function, and the symbol @code{values} is bound to a list of
 the values that the function is returning.
 
 @item :error
-'kindex :error trace
+@kindex :error trace
 Causes the error handler to be called when the function is entered.  Use
 @code{Resume} (or @code{Control-C}) to continue execution of the function.  If this option
 is specified, there is no printed trace output other than the error message
@@ -45711,32 +45711,32 @@ printed by the error handler.  This is semi-obsolete, as @code{breakon} is
 more convenient and does more exactly the right thing.
 
 @item :step
-'kindex :step trace
+@kindex :step trace
 Causes the function to be single-stepped whenever it is called.
 See the documentation on the step facility, (stepper-section).
 
 @item :stepcond @i{pred}
-'kindex :stepcond trace
+@kindex :stepcond trace
 Causes the function to be single-stepped
 only if @i{pred} evaluates to non-@code{nil}.
 
 @item :entrycond @i{pred}
-'kindex :entrycond trace
+@kindex :entrycond trace
 Causes trace information to be printed on function
 entry only if @i{pred} evaluates to non-@code{nil}.
 
 @item :exitcond @i{pred}
-'kindex :exitcond trace
+@kindex :exitcond trace
 Causes trace information to be printed on function
 exit only if @i{pred} evaluates to non-@code{nil}.
 
 @item :cond @i{pred}
-'kindex :cond trace
+@kindex :cond trace
 This specifies both @code{:exitcond} and @code{:entrycond}
 together.
 
 @item :wherein @i{function}
-'kindex :wherein trace
+@kindex :wherein trace
 Causes the function to be traced only when called, directly or indirectly,
 from the specified function @i{function}.  One can give several trace specs to
 @code{trace}, all specifying the same function but with different @code{wherein}
@@ -45750,7 +45750,7 @@ tracing actions occur if the other function is the caller of this function,
 or its caller's caller, or its caller's caller's caller, etc.
 
 @item :argpdl @i{pdl}
-'kindex :argpdl trace
+@kindex :argpdl trace
 Specifies a symbol @i{pdl}, whose value is
 initially set to @code{nil} by @code{trace}.  When the function is traced, a
 list of the current recursion level for the function, the function's
@@ -45762,42 +45762,42 @@ can be used with or without printed trace output.  Each function can be
 given its own pdl, or one pdl may serve several functions.
 
 @item :entryprint @i{form}
-'kindex :entryprint trace
+@kindex :entryprint trace
 The @i{form} is evaluated and the value is included in the trace message
 for calls to the function.  You can give this option multiple times,
 and all the @i{form}'s thus specified are evaluated and printed.
 @code{\\} precedes the values to separate them from the arguments.
 
 @item :exitprint @i{form}
-'kindex :exitprint trace
+@kindex :exitprint trace
 The @i{form} is evaluated and the value is included in the trace message
 for returns from the function.  You can give this option multiple times,
 and all the @i{form}'s thus specified are evaluated and printed.
 @code{\\} precedes the values to separate them from the returned values.
 
 @item :print @i{form}
-'kindex :print trace
+@kindex :print trace
 The @i{form} is evaluated and the value is included in the trace messages
 for both calls to and returns from the function.  Equivalent to
 @code{:exitprint} and @code{:entryprint} at once.
 
 @item :entry @i{list}
-'kindex :entry trace
+@kindex :entry trace
 This specifies a list of arbitrary forms whose
 values are to be printed along with the usual entry-trace.  The list of
 resultant values, when printed, is preceded by @code{\\} to separate it
 from the other information.
 
 @item :exit @i{list}
-'kindex :exit trace
+@kindex :exit trace
 This is similar to @code{entry}, but specifies expressions
 whose values are printed with the exit-trace.  Again, the list of
 values printed is preceded by @code{\\}.
 
 @item :arg  :value  :both  nil
-'kindex :arg trace
-'kindex :value trace
-'kindex :both trace
+@kindex :arg trace
+@kindex :value trace
+@kindex :both trace
 These specify which of the usual trace
 printouts should be enabled.  If @code{:arg} is specified, then on function
 entry the name of the function and the values of its arguments will be
@@ -47863,19 +47863,19 @@ allowed, which specify when to evaluate @i{form}.  They are called
 the @i{when-keywords}.  Here is what they mean:
 @table @code
 @item :normal
-'kindex :normal add-initialization
+@kindex :normal add-initialization
 Only place the form on the list.  Do not evaluate it until the time comes to do
 this kind of initialization.  This is the default unless @code{:system}, @code{:once},
 @code{:site} or @code{:site-option} is specified.
 @item :first
-'kindex :first add-initialization
+@kindex :first add-initialization
 Evaluate the form now if it is not flagged as having been evaluated before.
 This is the default if @code{:system} or @code{:once} is specified.
 @item :now
-'kindex :now add-initialization
+@kindex :now add-initialization
 Evaluate the form now unconditionally as well as adding it to the list.
 @item :redo
-'kindex :redo add-initialization
+@kindex :redo add-initialization
 Do not evaluate the form now, but set the flag to @code{nil} even if the initialization
 is already in the list and flagged @code{t}.
 @end table
