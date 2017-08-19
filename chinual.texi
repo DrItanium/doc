@@ -29401,7 +29401,7 @@ not get an error.  See @code{with-open-file-case}, (with-open-file-case-fun).
 @end defmac
 
 @defun make-synonym-stream symbol-or-locative
-.defun1 make-syn-stream symbol-or-locative
+@defunx make-syn-stream symbol-or-locative
 Creates and returns a @i{synonym} stream (`syn' for
 short).  Any operations sent to this stream are redirected to the stream
 that is the value of the argument (if it is a symbol) or the contents of
@@ -45424,7 +45424,7 @@ The names @code{eh:arg}, @code{eh:val}, etc. are for compatibility with
 the Symbolics system.
 
 @defun eh-arg arg-number-or-name
-.defun1 eh:arg arg-number-or-name
+@defunx eh:arg arg-number-or-name
 When used in an expression evaluated in the debugger, @code{eh-arg}
 returns the value of the specifed argument in the debugger's
 current frame.  Argument names are compared ignoring packages; only
@@ -45433,13 +45433,13 @@ in @code{setf} and @code{locf} to set an argument or get its location.
 @end defun
 
 @defun eh-loc local-number-or-name
-.defun1 eh:loc local-number-or-name
+@defunx eh:loc local-number-or-name
 Like @code{eh-arg} but accesses the current frame's
 local variables instead of its arguments.
 @end defun
 
 @defun eh-val &optional value-number-or-name
-.defun1 eh:val &optional value-number-or-name
+@defunx eh:val &optional value-number-or-name
 @code{eh-val} is used in an expression evaluated in the debugger
 when the current frame is returning multiple values, to examine those
 values.  This is only useful if the function has already begun to
@@ -45456,7 +45456,7 @@ values this frame is returning.
 @end defun
 
 @defun eh-fun
-.defun1 eh:fun
+@defunx eh:fun
 @code{eh-fun} can be called in an expression being evalued inside the
 debugger to return the function-object being called in the
 current frame.  It can be used with @code{setf} and @code{locf}.
@@ -45822,7 +45822,7 @@ following options, if one is given it should be the last option
 specified.
 @end table
 
-.vindex arglist
+@vindex arglist
 In the evaluation of the expression arguments to various @code{trace} options
 such as @code{:cond} and @code{:break}, the value of @code{arglist} is
 a list of the arguments given to the traced function.  Thus
@@ -45835,7 +45835,7 @@ would cause a break in @code{foo} if and only if the first argument to
 before actual function execution, the arguments seen by the function
 will change.
 
-.vindex values
+@vindex values
 In the evaluation of the expression arguments to various @code{trace} options
 such as @code{:cond} and @code{:break} on exit from the traced function,
 the variable @code{values} is bound to a
