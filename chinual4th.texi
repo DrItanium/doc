@@ -226,10 +226,10 @@ also contain "@code{&rest}", which is part of the same syntax.
 
 The descriptions of special forms and macros look like this:
 
-.defspec_no_index do-three-times form
+@defspec_no_index do-three-times form
 This evaluates @i{form} three times and returns the result of the third
 evaluation.
-.end_defspec
+@end defspec
 
 @defmac_no_index with-foo-bound-to-nil form...
 This evaluates the @i{forms} with the symbol @code{foo} bound to @code{nil}.
@@ -276,7 +276,7 @@ form.
 
 This ridiculous special form exhibits all of the syntactic features:
 
-.defspec_no_index twiddle-frob [(frob option...)] @{parameter value@}...
+@defspec_no_index twiddle-frob [(frob option...)] @{parameter value@}...
 This twiddles the parameters of @i{frob}, which defaults to @code{default-frob}
 if not specified.  Each @i{parameter} is the name of one of the adjustable parameters of
 a frob; each @i{value} is what value to set that parameter to.  Any number
@@ -290,16 +290,16 @@ list of them may be omitted and the form may begin directly with the first
 are syntactic keywords and not evaluated.  The returned value is the frob
 whose parameters were adjusted.  An error is signalled if any safety checks
 are violated.
-.end_defspec
+@end defspec
 
 Methods, the message-passing equivalent of ordinary Lisp's functions,
 are described in this style:
 
-.defmethod_no_index flavor-name message-name arg1 arg2 &optional arg3
+@defmethod_no_index flavor-name message-name arg1 arg2 &optional arg3
 This is the documentation of the effect of sending a message
 named @code{message-name}, with arguments @i{arg1}, @i{arg2}, and @i{arg3},
 to an instance of flavor @code{flavor-name}.
-.end_defmethod
+@end defmethod
 
 	Descriptions of variables ("special" or "global" variables) look like this:
 
@@ -740,7 +740,7 @@ In particular, numbers with the same value
 need not be @code{eq}, and two similar lists are usually not @code{eq}.
 @cindex eq versus equal
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (eq 'a 'b) => nil
 (eq 'a 'a) => t
 (eq (cons 'a 'b) (cons 'a 'b)) => nil
@@ -1022,7 +1022,7 @@ can find them easily.
 
 Here are the special forms used for setting variables.
 
-.defspec setq @{variable value@}...
+@defspec setq @{variable value@}...
 The @code{setq} special form is used to set the value of a variable or of
 many variables.  The first @i{value} is evaluated, and the first
 @i{variable} is set to the result.  Then the second @i{value} is
@@ -1030,32 +1030,32 @@ evaluated, the second @i{variable} is set to the result, and so on for
 all the variable/value pairs.  @code{setq} returns the last value, i.e.
 the result of the evaluation of its last subform.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x (+ 3 2 1) y (cons x nil))
 @end lisp
 @code{x} is set to @code{6}, @code{y} is set to @code{(6)}, and the @code{setq} form
 returns @code{(6)}.  Note that the first variable was set before
 the second value form was evaluated, allowing that form to use the new value of @code{x}.
-.end_defspec
+@end defspec
 
-.defspec psetq @{variable value@}...
+@defspec psetq @{variable value@}...
 A @code{psetq} form is just like a @code{setq} form, except
 that the variables are set "in parallel"; first all of the @i{value} forms
 are evaluated, and then the @i{variables} are set to the resulting
 values.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a 1)
 (setq b 2)
 (psetq a b b a)
 a => 2
 b => 1
 @end lisp
-.end_defspec
+@end defspec
 
 Here are the special forms used for binding variables.
 
-.defspec let ((var value)...) body...
+@defspec let ((var value)...) body...
 @code{let} is used to bind some variables to some objects, and evaluate some forms
 (the "body") in the context of those bindings.
 A @code{let} form looks like
@@ -1088,9 +1088,9 @@ gets bound to @code{nil}.  Example:
 @end lisp
 Within the body, @code{a} is bound to @code{6}, @code{b} is bound to @code{foo}, @code{c} is
 bound to @code{nil}, and @code{d} is bound to @code{nil}.
-.end_defspec
+@end defspec
 
-.defspec let* ((var value)...) body...
+@defspec let* ((var value)...) body...
 @code{let*} is the same as @code{let} except that the binding is sequential.  Each
 @i{var} is bound to the value of its @i{vform} before the next @i{vform}
 is evaluated.  This is useful when the computation of a @i{vform} depends on
@@ -1101,9 +1101,9 @@ the value of a variable bound in an earlier @i{vform}.  Example:
  ...)
 @end lisp
 Within the body, @code{a} is bound to @code{3} and @code{b} is bound to @code{6}.
-.end_defspec
+@end defspec
 
-.defspec let-if condition ((var value)...) body...
+@defspec let-if condition ((var value)...) body...
 @code{let-if} is a variant of @code{let} in which the binding of variables is conditional.
 The variables must all be special variables.
 The @code{let-if} special form, typically written as
@@ -1116,9 +1116,9 @@ first evaluates the predicate form @i{cond}.  If the result is non-@code{nil}, t
 @i{val-1}, @i{val-2}, etc. are evaluated and then the variables @i{var-1}, @i{var-2},
 etc. are bound to them.  If the result is @code{nil}, the
 @i{vars} and @i{vals} are ignored.  Finally the body forms are evaluated.
-.end_defspec
+@end defspec
 
-.defspec let-globally ((var value)...) body...
+@defspec let-globally ((var value)...) body...
 @code{let-globally} is similar in form to @code{let} (see (let-fun)).
 The difference is that @code{let-globally} does not @i{bind} the
 variables; instead, it saves the old values and @i{sets} the variables,
@@ -1129,9 +1129,9 @@ the current stack group (see (stack-group)) co-calls some other stack
 group, the old values of the variables are @i{not} restored.  Thus
 @code{let-globally} makes the new values visible in all stack groups and
 processes that don't bind the variables themselves, not just the current stack group.
-.end_defspec
+@end defspec
 
-.defspec progv symbol-list value-list body...
+@defspec progv symbol-list value-list body...
 @code{progv} is a special form to provide the user with extra control
 over binding.  It binds a list of special variables to a list of values,
 and then evaluates some forms.  The lists of special variables and values
@@ -1147,7 +1147,7 @@ After the symbols have been bound to the values, the @i{body} forms are
 evaluated, and finally the symbols' bindings are undone.
 The result returned is the value of the last form in the body.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a 'foo b 'bar)
 
 (progv (list a b 'b) (list b)
@@ -1157,9 +1157,9 @@ The result returned is the value of the last form in the body.
 During the evaluation of the body of this @code{progv}, @code{foo}
 is bound to @code{bar}, @code{bar} is bound to @code{nil}, @code{b} is
 bound to @code{nil}, and @code{a} retains its top-level value @code{foo}.
-.end_defspec
+@end defspec
 
-.defspec progw vars-and-vals-form body...
+@defspec progw vars-and-vals-form body...
 @code{progw} is a somewhat modified kind of @code{progv}.  Like @code{progv}, it
 only works for special variables.
 First, @i{vars-and-val-forms-form} is evaluated.  Its value should be a list
@@ -1180,12 +1180,12 @@ useful for implementing special forms and for functions part of whose
 contract is that they call the interpreter.  For an example of the latter,
 see @code{sys:*break-bindings*} ((sys:*break-bindings*-var)); @code{break} implements
 this by using @code{progw}.
-.end_defspec
+@end defspec
 
 .nopara
 Here are the special forms for defining special variables.
 
-.defspec defvar variable [initial-value] [documentation]
+@defspec defvar variable [initial-value] [documentation]
 @code{defvar} is the recommended way to declare the use of a global variable in a
 program.  Placed at top level in a file,
 @lisp
@@ -1226,9 +1226,9 @@ or is a single form (not a region) evaluated with the editor's
 compile/evaluate from buffer commands,
 if there is an initial-value the variable is always set to it
 regardless of whether it is already bound.
-.end_defspec
+@end defspec
 
-.defspec defconst variable [initial-value] [documentation]
+@defspec defconst variable [initial-value] [documentation]
 @code{defconst} is the same as @code{defvar} except that if an initial value
 is given the variable is always set to it regardless of whether it is
 already bound.  The rationale for this is that @code{defvar} declares a
@@ -1243,7 +1243,7 @@ mind about what the constant value should be, and then you evaluate the
 It is @i{not} the intent of @code{defconst} to declare that the value of
 @i{variable} will never change; for example, @code{defconst} is @i{not} license to the compiler
 to build assumptions about the value of @i{variable} into programs being compiled.
-.end_defspec
+@end defspec
 
 @section Functions
 @cindex lambda list
@@ -1610,7 +1610,7 @@ Some are just fundamental Lisp forms that are very important.
 @defun eval x
 @code{(eval @i{x})} evaluates @i{x}, and returns the result.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x 43 foo 'bar)
 (eval (list 'cons x 'foo))
     => (43 . bar)
@@ -1636,7 +1636,7 @@ They are replaced by Closures (see (closure)).
 @code{(apply @i{f} @i{arglist})} applies the function @i{f} to the list of
 arguments @i{arglist}.  @i{arglist} should be a list; @i{f} can be any function.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq fred '+) (apply fred '(1 2)) => 3
 (setq fred '-) (apply fred '(1 2)) => -1
 (apply 'cons '((+ 2 3) 4)) =>
@@ -1655,7 +1655,7 @@ function @i{f} to the arguments @i{a1}, @i{a2}, ..., @i{an}.
 @i{f} may not
 be a special form nor a macro; this would not be meaningful.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (cons 1 2) => (1 . 2)
 (setq cons 'plus)
 (funcall cons 1 2) => 3
@@ -1675,7 +1675,7 @@ to the arguments @i{a1} through @i{an} followed by the elements of
 the list @i{l}.  Note that since it treats its last argument specially,
 @code{lexpr-funcall} requires at least two arguments.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (lexpr-funcall 'plus 1 1 1 '(1 1 1)) => 6
 
 (defun report-error (&rest args)
@@ -1726,14 +1726,14 @@ prepared to accept all the arguments which come from @code{x} and
 @code{y}, but if it does not want the rest, they are ignored.
 @end defun
 
-.defspec quote object
+@defspec quote object
 @cindex quote
 @code{(quote @i{x})} simply returns @i{x}.  It is useful specifically
 because @i{x} is not evaluated; the @code{quote} is how you make a form
 that returns an arbitrary Lisp object.  @code{quote} is used to include
 constants in a form.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (quote x) => x
 (setq x (quote (some list)))   x => (some list)
 @end lisp
@@ -1745,9 +1745,9 @@ converts any form preceded by a single quote (@code{'}) character into a @code
 @t{is converted by read into}
 (setq x (quote (some list)))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec function f
+@defspec function f
 This means different things depending on whether @i{f} is a function
 or the name of a function.  (Note that in neither case is @i{f} evaluated.)
 The name of a function is a symbol or a function-spec list
@@ -1846,7 +1846,7 @@ In fact, @code{mapc} uses @code{&functional} and so the example given above
 is bogus; in the particular case of the first argument to the function @code{mapc},
 @code{quote} and @code{function} are synonymous.  It is good style to use @code{function}
 (or @code{#'}) anyway, to make the intent of the program completely clear.
-.end_defspec
+@end defspec
 
 @defun false
 Takes no arguments and returns @code{nil}.
@@ -1863,10 +1863,10 @@ as an argument, and you want to pass one that doesn't do anything and
 won't mind being called with any argument pattern, use this.
 @end defun
 
-.defspec comment
+@defspec comment
 @code{comment} ignores its form and returns the symbol @code{comment}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defun foo (x)
     (cond ((null x) 0)
           (t (comment x has something in it)
@@ -1876,7 +1876,7 @@ won't mind being called with any argument pattern, use this.
 semicolon-macro feature of the standard input syntax.  This allows the
 user to add comments to his code which are ignored by the lisp reader. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defun foo (x)
     (cond ((null x) 0)
           (t (1+ (foo (cdr x))))     ;x has something in it
@@ -1889,9 +1889,9 @@ out again, the comment will be lost.  However, this style of operation is hardly
 ever used; usually the source of a function is kept in an editor buffer and
 any changes are made to the buffer, rather than the actual list structure
 of the function.  Thus, this is not a real problem.
-.end_defspec
+@end defspec
 
-.defspec progn body...
+@defspec progn body...
 The @i{body} forms are evaluated in order from left to right and the value
 of the last one is returned.
 @code{progn} is the primitive control structure construct for "compound
@@ -1901,7 +1901,7 @@ they allow multiple forms in their bodies, there are occasions when
 one needs to evaluate a number of forms for their side-effects and
 make them appear to be a single form.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (foo (cdr a)
      (progn (setq b (extract frob))
 	    (car b))
@@ -1910,25 +1910,25 @@ make them appear to be a single form.
 
 (When @i{form1} is @code{'compile}, the @code{progn} form has a special meaning
 to the compiler.  This is discussed on (progn-quote-compile-discussion).)
-.end_defspec
+@end defspec
 
-.defspec prog1 first-form body...
+@defspec prog1 first-form body...
 @code{prog1} is similar to @code{progn}, but it returns the value of its @i{first} form rather
 than its last.
 It is most commonly used to evaluate an expression with side effects, and return
 a value which must be computed @i{before} the side effects happen.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x (prog1 y (setq y x)))
 @end lisp
 interchanges the values of the variables @i{x} and @i{y}.  @code{prog1} never
 returns multiple values.
-.end_defspec
+@end defspec
 
-.defspec prog2 first-form second-form body...
+@defspec prog2 first-form second-form body...
 @code{prog2} is similar to @code{progn} and @code{prog1}, but it returns its
 @i{second} form.  It is included largely for compatibility with old programs.
-.end_defspec
+@end defspec
 
 See also @code{bind} ((bind-fun)), which is a
 subprimitive that gives you maximal control over binding.
@@ -1950,7 +1950,7 @@ as the value of their @code{lambda}-variable.
 @i{i}'th argument to the lexpr.  @i{i} must be a fixnum in this case. It is an error if @i{i} is less than 1 or greater than the number
 of arguments supplied to the lexpr.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defun foo nargs            ;@t{define a lexpr }foo.
     (print (arg 2))         ;@t{print the second argument.}
     (+ (arg 1)              ;@t{return the sum of the first}
@@ -2037,7 +2037,7 @@ is the same as @code{(values 'a 'b 'c)}.
 @code{prog} special forms and their variants, and so they are explained on
 (return-fun).
 
-.defspec multiple-value (variable...) form
+@defspec multiple-value (variable...) form
 @code{multiple-value} is a special
 form used for calling a function which
 is expected to return more than one value.
@@ -2048,7 +2048,7 @@ are ignored.  If there are more variables than values returned,
 extra values of @code{nil} are supplied.  If @code{nil} appears in the @i{var-list},
 then the corresponding value is ignored (you can't use @code{nil} as a variable.)
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (multiple-value (symbol already-there-p)
 	(intern "goo"))
 @end lisp
@@ -2061,9 +2061,9 @@ returned by @code{intern} will be ignored.
 
 @code{multiple-value} is usually used for effect rather than for value; however,
 its value is defined to be the first of the values returned by @i{form}.
-.end_defspec
+@end defspec
 
-.defspec multiple-value-bind (variable...) form body...
+@defspec multiple-value-bind (variable...) form body...
 This is similar to @code{multiple-value}, but locally binds the variables which
 receive the values, rather than setting them, and has a body--a set of forms
 which are evaluated with these local bindings in effect.
@@ -2071,20 +2071,20 @@ First @i{form} is evaluated.  Then the @i{variables} are
 bound to the values returned by @i{form}.  Then the @i{body} forms
 are evaluated sequentially, the bindings are undone, and the result
 of the last @i{body} form is returned.
-.end_defspec
+@end defspec
 
-.defspec multiple-value-list form
+@defspec multiple-value-list form
 @code{multiple-value-list} evaluates @i{form}, and returns a list of
 the values it returned.  This is useful for when you don't know how many values
 to expect.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (multiple-value-list (intern "goo")))
 a => (goo nil #<Package User>)
 @end lisp
 This is similar to the example of @code{multiple-value} above; @code{a} will be set
 to a list of three elements, the three values returned by @code{intern}.
-.end_defspec
+@end defspec
 
 Due to the syntactic structure of Lisp, it is often the case that the value
 of a certain form is the value of a sub-form of it.  For example, the
@@ -2239,7 +2239,7 @@ for generic function calling using message passing; see (flavor).
 
 @section Conditionals
 
-.defspec if
+@defspec if
 @code{if} is the simplest conditional form.  The "if-then" form looks like:
 @lisp
 (if @i{predicate-form} @i{then-form})
@@ -2261,9 +2261,9 @@ one @i{else-form}; they are evaluated sequentially and the result of the
 last one is returned, if the predicate returns @code{nil}.  There is
 disagreement as to whether this consistutes good programming style or
 not.
-.end_defspec
+@end defspec
 
-.defspec cond
+@defspec cond
 The @code{cond} special form consists of the symbol @code{cond} followed by
 several @i{clauses}.  Each clause consists of a predicate form, called
 the @i{antecedent}, followed by zero or more @i{consequent} forms.
@@ -2292,7 +2292,7 @@ were no consequents in the clause.  If @code{cond} runs out of clauses,
 that is, if every antecedent evaluates to @code{nil}, and thus no case is
 selected, the value of the @code{cond} is @code{nil}. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
     (cond ((zerop x)    ;@t{First clause:}
            (+ y 3))     ; (zerop x)@t{ is the antecedent.}
                         ; (+ y 3)@t{ is the consequent.}
@@ -2305,18 +2305,18 @@ selected, the value of the @code{cond} is @code{nil}.
 	   105)		;@t{ is always satisfied.}
        )		;@t{This is the end of the cond.}
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec cond-every
+@defspec cond-every
 @code{cond-every} has the same syntax as @code{cond}, but executes every clause whose
 predicate is satisfied, not just the first.  If a predicate is the symbol
 @code{otherwise}, it is satisfied if and only if no preceding predicate is
 satisfied.  The value returned
 is the value of the last consequent form in the last clause whose predicate
 is satisfied.  Multiple values are not returned.
-.end_defspec
+@end defspec
 
-.defspec and form...
+@defspec and form...
 @code{and} evaluates the @i{form}s one at a time,
 from left to right.  If any @i{form} evaluates to @code{nil}, @code{and}
 immediately returns @code{nil} without evaluating the remaining
@@ -2353,9 +2353,9 @@ You can also use @code{and} as a simple conditional form:
 @end lisp
 
 Note: @code{(and) => t}, which is the identity for the @code{and} operation.
-.end_defspec
+@end defspec
 
-.defspec or form...
+@defspec or form...
 @code{or} evaluates the @i{form}s one by one from left to right.
 If a @i{form} evaluates to @code{nil}, @code{or} proceeds to evaluate the
 next @i{form}.  If there are no more @i{form}s, @code{or} returns @code{nil}.
@@ -2372,9 +2372,9 @@ or as a conditional.
 @cindex fish
 
 Note:  @code{(or) => nil}, the identity for this operation.
-.end_defspec
+@end defspec
 
-.defspec selectq
+@defspec selectq
 @code{selectq} is a conditional which chooses one of its clauses to execute
 by comparing the value of a form against various constants, which are
 typically keyword symbols.
@@ -2414,7 +2414,7 @@ To be useful, this should be the last clause in the @code{selectq}.
 Note that the @i{tests} are @i{not} evaluated; if you want them to
 be evaluated use @code{select} rather than @code{selectq}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (selectq x
   (foo (do-this))
   (bar (do-that))
@@ -2428,13 +2428,13 @@ is equivalent to
       ((memq x '(baz quux mum)) (do-the-other-thing))
       (t (ferror nil "Never heard of ~S" x)))
 @end lisp
-.end_defspec
+@end defspec
 
 .nopara
 Also see @code{defselect} ((defselect-fun)), a special form for defining a function
 whose body is like a @code{selectq}.
 
-.defspec select
+@defspec select
 @code{select} is the same as @code{selectq}, except that the elements of the
 @i{tests} are evaluated before they are used.
 
@@ -2444,7 +2444,7 @@ form?  @code{select} interprets it as a list of two forms.  If you
 want to have a clause whose test is a single form, and that form
 is a list, you have to write it as a list of one form.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (select (frob x)
    (foo 1)
    ((bar baz) 2)
@@ -2459,9 +2459,9 @@ is equivalent to
 	((eq var (current-frob)) 4)
 	(t 3)))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec selector
+@defspec selector
 @code{selector} is the same as @code{select}, except that you get to specify the function
 used for the comparison instead of @code{eq}.  For example,
 @lisp
@@ -2477,16 +2477,16 @@ is equivalent to
 	((equal var '(three . four)) (frob-three x))
 	(t (frob-any x))))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec dispatch
+@defspec dispatch
 @code{(dispatch @i{byte-specifier} @i{number} @i{clauses...})} is the same
 as @code{select} (not @code{selectq}), but the key is obtained by evaluating
 @code{(ldb @i{byte-specifier number})}.
 @i{byte-specifier} and @i{number} are both evaluated.  Byte specifiers
 and @code{ldb} are explained on (ldb-fun).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (princ (dispatch 0202 cat-type
 	   (0 "Siamese.")
 	   (1 "Persian.")
@@ -2499,9 +2499,9 @@ and @code{ldb} are explained on (ldb-fun).
 @cindex kitty
 It is not necessary to include all possible values of the byte which
 will be dispatched on.
-.end_defspec
+@end defspec
 
-.defspec selectq-every
+@defspec selectq-every
 @code{selectq-every} has the same syntax as @code{selectq}, but, like
 @code{cond-every}, executes every selected clause instead of just the first
 one.  If an @code{otherwise} clause is present, it is selected if and only
@@ -2515,9 +2515,9 @@ returned.  Example:
   ((cat bird) (put-in-oven animal))
   ((cat dog man) (beware-of animal)))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec caseq
+@defspec caseq
 The @code{caseq} special form is provided for Maclisp compatibility.  It
 is exactly the same as @code{selectq}.  This is not perfectly compatible
 with Maclisp, because @code{selectq} accepts @code{otherwise} as well as @code{t}
@@ -2525,12 +2525,12 @@ where @code{caseq} would not accept @code{otherwise}, and because Maclisp
 does some error-checking that @code{selectq} does not.  Maclisp programs
 that use @code{caseq} will work correctly so long as they don't use the
 symbol @code{otherwise} as the key.
-.end_defspec
+@end defspec
 
 @section Iteration
 @cindex iteration
 
-.defspec do
+@defspec do
 The @code{do} special form provides a simple generalized iteration facility,
 with an arbitrary number of "index variables" whose values are saved
 when the @code{do} is entered and restored when it is left, i.e. they are
@@ -2625,7 +2625,7 @@ the loop is executed. As with the new-style do, @code{return} and @code{go}
 may be used in the body, and they have the same meaning.
 
 @lisp
-.exdent 96 Examples of the older variety of @code{do}:
+@exdent Examples of the older variety of @code{do}:
 (setq n (array-length foo-array))
 (do i 0 (1+ i) (= i n)
   (aset 0 foo-array i))		@t{;zeroes out the array foo-array}
@@ -2646,7 +2646,7 @@ may be used in the body, and they have the same meaning.
 
 @end lisp
 @lisp
-.exdent 96 Examples of the new form of @code{do}:
+@exdent Examples of the new form of @code{do}:
 (do ((i 0 (1+ i))	@t{; This is just the same as the above example,}
      (n (array-length foo-array)))
     ((= i n))		@t{; but written as a new-style @code{do}.}
@@ -2689,13 +2689,13 @@ and the @i{body} is empty.
 
 @t{is like} (maplist 'f x y) @t{(see (maplist-fun))}.
 @end lisp
-.end_defspec
+@end defspec
 
 .nopara
 Also see @code{loop} ((loop-fun)), a general iteration facility based on a keyword
 syntax rather than a list-structure syntax.
 
-.defspec do-named
+@defspec do-named
 Sometimes one @code{do} is contained inside the body of an outer @code{do}.
 The @code{return} function always returns from the innermost surrounding
 @code{do}, but sometimes you want to return from an outer @code{do} while
@@ -2707,7 +2707,7 @@ return from the @code{do-named}.
 The syntax of @code{do-named} is like @code{do} except that the symbol @code{do} is
 immediately followed by the name, which should be a symbol.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (do-named george ((a 1 (1+ a))
 		  (d 'foo))
 		 ((> a 4) 7)
@@ -2734,15 +2734,15 @@ names are in the same name-space; a @code{return} returns from the
 innermost enclosing iteration form, no matter which of these it is, and
 so you need to use names if you nest any of them within any other and
 want to return to an outer one from inside an inner one.
-.end_defspec
+@end defspec
 
-.defspec dotimes (index count) body...
+@defspec dotimes (index count) body...
 @code{dotimes} is a convenient abbreviation for the most common integer iteration.
 @code{dotimes} performs @i{body}
 the number of times given by the value of @i{count}, with @i{index} bound
 to @code{0}, @code{1}, etc. on successive iterations.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (dotimes (i (// m n))
   (frob i))
 @end lisp
@@ -2768,15 +2768,15 @@ This form searches the array that is the value of @code{a}, looking for
 the symbol @code{foo}.  It returns the fixnum index of the first element
 of @code{a} that is @code{foo}, or else @code{nil} if none of the elements
 are @code{foo}.
-.end_defspec
+@end defspec
 
-.defspec dolist (item list) body...
+@defspec dolist (item list) body...
 @code{dolist} is a convenient abbreviation for the most common list iteration.
 @code{dolist} performs @i{body}
 once for each element in the list which is the value of @i{list}, with
 @i{item} bound to the successive elements.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (dolist (item (frobs foo))
   (mung item))
 @end lisp
@@ -2791,11 +2791,11 @@ is equivalent to:
 except that the name @code{lst} is not used.
 You can use @code{return} and @code{go} and @code{prog}-tags inside the body, as with @code{do}.
 @code{dolist} forms return @code{nil} unless returned from explicitly with @code{return}.
-.end_defspec
+@end defspec
 
 @cindex keywords in argument lists
 
-.defspec keyword-extract
+@defspec keyword-extract
 @code{keyword-extract} is an aid to writing functions which take keyword arguments
 in the standard fashion.  The form
 @lisp
@@ -2840,9 +2840,9 @@ undefined keywords found in @i{key-list}.
 
 You can also use the @code{&key} lambda-list keyword to create functions that take
 keyword arguments; see (&key).
-.end_defspec
+@end defspec
 
-.defspec prog
+@defspec prog
 @code{prog} is a special form which provides temporary variables,
 sequential evaluation of forms, and a "goto" facility.  A typical @code{prog}
 looks like:
@@ -2862,7 +2862,7 @@ of a @code{prog} form does is to evaluate all of the @i{init} forms.  Then
 each variable that had an @i{init} form is bound to its value, and the
 variables that did not have an @i{init} form are bound to @code{nil}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (prog ((a t)  b  (c 5)  (d (car '(zz . pp))))
   @i{<body>}
   )
@@ -2914,7 +2914,7 @@ a variable list), it is the name of the @code{prog}, and @code{return-from}
 @code{do-named}, (do-named-fun).
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (prog (x y z)  ;x, y, z@t{ are prog variables  - temporaries.}
    (setq y (car w) z (cdr w))     ;w@t{ is a free variable.}
 loop
@@ -2931,9 +2931,9 @@ err
    (setq z y)
    (go rejoin))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec prog*
+@defspec prog*
 The @code{prog*} special form is almost the same as @code{prog}.  The only
 difference is that the binding and initialization of the temporary
 variables is done @i{sequentially}, so each one can depend on the
@@ -2943,9 +2943,9 @@ previous ones.  For example,
   (return x))
 @end lisp
 returns the car of the value of @code{z}.
-.end_defspec
+@end defspec
 
-.defspec go tag
+@defspec go tag
 The @code{go} special form is used to do a "go-to" within the
 body of a @code{do} or a @code{prog}.  The @i{tag} must be a symbol.
 It is not evaluated. @code{go} transfers control to the point in the body labelled by a
@@ -2954,7 +2954,7 @@ bodies of lexically containing @code{prog}s and @code{do}s (if any) are examined
 If no tag is found, an error is signalled.
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (prog (x y z)
   (setq x @i{some frob})
 loop
@@ -2965,9 +2965,9 @@ loop
 endtag
   (return z))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec return value...
+@defspec return value...
 @code{return} is used to exit from a @code{prog}-like special form (@code{prog},
 @code{prog*}, @code{do}, @code{do-named}, @code{dotimes}, @code{dolist}, @code{loop},
 etc.) The @i{value} forms are evaluated, and the resulting values are
@@ -2980,7 +2980,7 @@ In addition, @code{break} (see (break-fun)) recognizes the typed-in form
 and not inside a @code{prog}-like form, @code{return} will cause an
 error. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (do ((x x (cdr x))
      (n 0 (* n 2)))
     ((null x) n)
@@ -3035,14 +3035,14 @@ It is legal to write simply @code{(return)}, which will return from the @code{pr
 without returning any values.
 
 See (multiple-value) for more information.
-.end_defspec
+@end defspec
 
-.defspec return-from name value...
+@defspec return-from name value...
 The @i{value} forms are evaluated, and then are
 returned from the innermost containing @code{prog}-like special form whose
 name is @i{name}.  See the description of @code{do-named} ((do-named-fun))
 in which named @code{do}s and @code{prog}s are explained.
-.end_defspec
+@end defspec
 
 @defun return-list list
 This function is like @code{return} except
@@ -3065,7 +3065,7 @@ into the function body.
 @cindex catch
 @cindex throw
 
-.defspec *catch tag body...
+@defspec *catch tag body...
 @code{*catch} is a special form used with the @code{*throw} function to do
 non-local exits.  First @i{tag} is evaluated; the result is called the "tag"
 of the @code{*catch}.  Then the @i{body} forms are evaluated sequentially,
@@ -3105,7 +3105,7 @@ if that was used in place of @code{*throw}; otherwise these values are @code{nil
 To summarize, the four values returned by @code{*catch} are the value,
 the tag, the active-frame-count, and the action.
 @lisp
-.exdent 96 Example
+@exdent Example
 (*catch 'negative
 	(mapcar (function (lambda (x) 
                             (cond ((minusp x)
@@ -3118,7 +3118,7 @@ positive, otherwise the first negative member of @code{y}.
 
 Note that @code{*catch} returns its own extra values, and so it does @i{not}
 propagate multiple values back from the last form.
-.end_defspec
+@end defspec
 
 @defun *throw tag value
 @code{*throw} is used with @code{*catch} as a structured non-local exit mechanism.
@@ -3184,7 +3184,7 @@ Note that if both @i{active-frame-count} and @i{action} are @code{nil},
 
 @cindex unwind protection
 @cindex cleanup handler
-.defspec unwind-protect protected-form cleanup-form...
+@defspec unwind-protect protected-form cleanup-form...
 Sometimes it is necessary to evaluate a form and make sure that
 certain side-effects take place after the form is evaluated;
 a typical example is:
@@ -3237,7 +3237,7 @@ would expect: that is, variables bound outside the scope of the
 inside the @i{protected-form} can't be.  In other words, the stack is
 unwound to the point just outside the @i{protected-form}, then the
 cleanup handler is run, and then the stack is unwound some more.
-.end_defspec
+@end defspec
 
 @defmac catch-all body...
 @code{(catch-all @i{form})} is like @code{(*catch @i{some-tag form})}
@@ -3453,7 +3453,7 @@ discussed in (cdr-code).
 @defun car x
 Returns the @i{car} of @i{x}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (car '(a b c)) => a
 @end lisp
 @end defun
@@ -3461,7 +3461,7 @@ Returns the @i{car} of @i{x}.
 @defun cdr x
 Returns the @i{cdr} of @i{x}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (cdr '(a b c)) => (b c)
 @end lisp
 @end defun
@@ -3503,7 +3503,7 @@ functions in their own right.  The names of these functions begin with "@code{c}
 with "@code{r}", and in between is a sequence of "@code{a}"'s and "@code{d}"'s corresponding to
 the composition performed by the function. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (cddadr x) @t{is the same as} (cdr (cdr (car (cdr x))))
 @end lisp
 The error checking for these functions is exactly the same as for @code{car} and @code{cdr}
@@ -3514,7 +3514,7 @@ above.
 @code{cons} is the primitive function to create a new @i{cons}, whose
 @i{car} is @i{x} and whose @i{cdr} is @i{y}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (cons 'a 'b) => (a . b)
 (cons 'a (cons 'b (cons 'c nil))) => (a b c)
 (cons 'a '(b c d)) => (a b c d)
@@ -3530,7 +3530,7 @@ The name of the function is from "nil-cons".
 @code{xcons} ("exchanged cons") is like @code{cons} except that the order of
 the arguments is reversed.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (xcons 'a 'b) => (b . a)
 @end lisp
 @end defun
@@ -3544,7 +3544,7 @@ all this stuff).  The first two arguments are the same as the two
 arguments to @code{cons},  and the third is the number of the area in which
 to create the @i{cons}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (cons-in-area 'a 'b my-area) => (a . b)
 @end lisp
 @end defun
@@ -3576,7 +3576,7 @@ because of the cdr-coding scheme (see (cdr-code)).
 @code{length} returns the length of @i{list}.  The length of a list
 is the number of elements in it.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (length nil) => 0
 (length '(a b c d)) => 4
 (length '(a (b c) d)) => 3
@@ -3627,7 +3627,7 @@ as a cons.
 @code{(nth @i{n} @i{list})} returns the @i{n}'th element of @i{list}, where
 the zeroth element is the car of the list.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (nth 1 '(foo bar gack)) => bar
 (nth 3 '(foo bar gack)) => nil
 @end lisp
@@ -3640,7 +3640,7 @@ Also, some people have used macros and functions called @code{nth} of their own 
 their Maclisp programs, which may not work the same way; be careful.
 
 @lisp
-.exdent 96 @code{nth} could have been defined by:
+@exdent @code{nth} could have been defined by:
 (defun nth (n list)
   (do ((i n (1- i))
        (l list (cdr l)))
@@ -3652,7 +3652,7 @@ their Maclisp programs, which may not work the same way; be careful.
 @code{(nthcdr @i{n} @i{list})} cdrs @i{list} @i{n} times,
 and returns the result.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (nthcdr 0 '(a b c)) => (a b c)
 (nthcdr 2 '(a b c)) => (c)
 @end lisp
@@ -3678,7 +3678,7 @@ to @code{first} (@code{first} returns the first element of a list, but
 @code{last} doesn't return the last element of a list); this is a
 historical artifact.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x '(a b c d))
 (last x) => (d)
 (rplacd (last x) '(e f))
@@ -3696,12 +3696,12 @@ x => '(a b c d e f)
 @defun list &rest args
 @code{list} constructs and returns a list of its arguments.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (list 3 4 'a (car '(b . c)) (+ 6 -2)) => (3 4 a b 4)
 @end lisp
 
 @lisp
-.exdent 96 @code{list} could have been defined by:
+@exdent @code{list} could have been defined by:
 (defun list (&rest args)
     (let ((list (make-list (length args))))
       (do ((l list (cdr l))
@@ -3716,7 +3716,7 @@ x => '(a b c d e f)
 of the constructed list is "dotted".  It must be given at least
 one argument.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (list* 'a 'b 'c 'd) => (a b c . d)
 @end lisp
 This is like
@@ -3725,7 +3725,7 @@ This is like
 @end lisp
 
 @lisp
-.exdent 96 More examples:
+@exdent More examples:
 (list* 'a 'b) => (a . b)
 (list* 'a) => a
 @end lisp
@@ -3756,7 +3756,7 @@ The elements of the list will all be this value.  It defaults to @code{nil}.
 
 @code{make-list} always creates a @i{cdr-coded} list (see (cdr-code)).
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (make-list 3) => (nil nil nil)
 (make-list 4 ':initial-value 7) => (7 7 7 7)
 @end lisp
@@ -3778,7 +3778,7 @@ is used as the last cdr, instead of @code{nil}.
 which adds each element of @code{foo} to 5.
 
 @lisp
-.exdent 96 @code{circular-list} could have been defined by:
+@exdent @code{circular-list} could have been defined by:
 (defun circular-list (&rest elements)
   (setq elements (copylist* elements))
   (rplacd (last elements) elements)
@@ -3820,7 +3820,7 @@ are the elements of @i{list} taken in reverse order.
 @code{reverse} does not modify its argument, unlike @code{nreverse} which is faster
 but does modify its argument.  The list created by @code{reverse} is not cdr-coded.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (reverse '(a b (c d) e)) => (e (c d) b a)
 @end lisp
 @code{reverse} could have been defined by:
@@ -3837,7 +3837,7 @@ but does modify its argument.  The list created by @code{reverse} is not cdr-cod
 @code{nreverse} reverses its argument, which should be a list.  The argument
 is destroyed by @code{rplacd}'s all through the list (cf. @code{reverse}).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (nreverse '(a b c)) => (c b a)
 @end lisp
 @code{nreverse} could have been defined by:
@@ -3863,7 +3863,7 @@ The arguments to @code{append} are lists.  The result is a list which is the
 concatenation of the arguments.
 The arguments are not changed (cf. @code{nconc}).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (append '(a b c) '(d e f) nil '(g)) => (a b c d e f g)
 @end lisp
 @code{append} makes copies of the conses of all the lists it is given,
@@ -3902,7 +3902,7 @@ of using @code{append} to copy lists is unclear and obsolete.
 concatenated together.  The arguments are changed, rather than copied.
 (cf. @code{append}, (append-fun))
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x '(a b c))
 (setq y '(d e f))
 (nconc x y) => (a b c d e f)
@@ -3941,7 +3941,7 @@ using the same @code{nreverse1} as above.
 This creates and returns a list with the same elements as @i{list},
 excepting the last element.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (butlast '(a b c d)) => (a b c)
 (butlast '((a b) (c d))) => ((a b))
 (butlast '(a)) => nil
@@ -3956,7 +3956,7 @@ the second-to-last cons of the list to nil.  If there is no
 second-to-last cons (that is, if the list has fewer than two elements)
 it returns @code{nil}. 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq foo '(a b c d))
 (nbutlast foo) => (a b c)
 foo => (a b c)
@@ -3970,7 +3970,7 @@ first @i{n} elements of @code{list}.  If @i{list} is fewer than
 @i{n} elements long, the remaining elements of the returned list
 will be @code{nil}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (firstn 2 '(a b c d)) => (a b)
 (firstn 0 '(a b c d)) => nil
 (firstn 6 '(a b c d)) => (a b c d nil nil)
@@ -3994,7 +3994,7 @@ that make up @i{list}.  @code{ldiff} (meaning "list difference") will return
 a new list, whose elements are those elements of @i{list} that appear
 before @i{sublist}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq x '(a b c d e))
 (setq y (cdddr x)) => (d e)
 (ldiff x y) => (a b c)
@@ -4021,7 +4021,7 @@ have the same property.
 @code{(rplaca @i{x y})} changes the car of @i{x} to @i{y} and returns
 (the modified) @i{x}.  @i{x} must be a cons or a locative.  @i{y} may be any Lisp object.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq g '(a b c))
 (rplaca (cdr g) 'd) => (d c)
 @t{Now} g => (a d c)
@@ -4032,7 +4032,7 @@ have the same property.
 @code{(rplacd @i{x y})} changes the cdr of @i{x} to @i{y} and returns
 (the modified) @i{x}.  @i{x} must be a cons or a locative.  @i{y} may be any Lisp object.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x '(a b c))
 (rplacd x 'd) => (a . d)
 @t{Now} x => (a . d)
@@ -4046,7 +4046,7 @@ in @i{tree}, and returns the modified copy of @i{tree}.  The original @i{tree}
 is unchanged, as @code{subst} recursively copies all of @i{tree} replacing
 elements @code{equal} to @i{old} as it goes.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (subst 'Tempest 'Hurricane
        '(Shakespeare wrote (The Hurricane)))
     => (Shakespeare wrote (The Tempest))
@@ -4102,14 +4102,14 @@ only where necessary, so the newly created tree shares as much of its
 substructure as possible with the old.  For example, if no substitutions
 are made, the result is just the old tree.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (sublis '((x . 100) (z . zprime))
         '(plus x (minus g z x p) 4))
    => (plus 100 (minus g zprime 100 p) 4)
 @end lisp
 
 @lisp
-.exdent 96 @code{sublis} could have been defined by:
+@exdent @code{sublis} could have been defined by:
 (defun sublis (alist sexp)
   (cond ((atom sexp)
 	 (let ((tem (assq sexp alist)))
@@ -4127,7 +4127,7 @@ are made, the result is just the old tree.
 instead of creating new.
 
 @lisp
-.exdent 96 @code{nsublis} could have been defined by:
+@exdent @code{nsublis} could have been defined by:
 (defun nsublis (alist tree)
   (cond ((atom tree)
 	 (let ((tem (assq tree alist)))
@@ -4312,7 +4312,7 @@ first cons of the list whose car is @i{item}.  The comparison is made by
 and something non-@code{nil} if it finds something, it is often used as a
 predicate.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (memq 'a '(1 2 3 4)) => nil
 (memq 'a '(g (x a y) c a d e a f)) => (a d e a f)
 @end lisp
@@ -4321,14 +4321,14 @@ beginning with @code{a}.
 Thus @code{rplaca} on the result of @code{memq} may be used,
 if you first check to make sure @code{memq} did not return @code{nil}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (let ((sublist (memq x z)))	;@t{Search for @code{x} in the list @code{z}.}
   (if (not (null sublist))      ;@t{If it is found,}
       (rplaca sublist y)))	;@t{Replace it with @code{y}.}
 @end lisp
 
 @lisp
-.exdent 96 @code{memq} could have been defined by:
+@exdent @code{memq} could have been defined by:
 (defun memq (item list)
     (cond ((null list) nil)
           ((eq item (car list)) list)
@@ -4375,7 +4375,7 @@ in the list at which it found the first occurence of @i{item}, or
 @code{nil} if it did not find it at all.  This function is sort of
 the complement of @code{nth} (see (nth-fun)); like @code{nth}, it is zero-based.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (find-position-in-list 'a '(a b c)) => 0
 (find-position-in-list 'c '(a b c)) => 2
 (find-position-in-list 'e '(a b c)) => nil
@@ -4423,7 +4423,7 @@ of the value of @code{a} is @code{b}.
 If @i{n} is greater than or equal to the number of occurrences of @i{item} in the
 list, all occurrences of @i{item} in the list will be deleted. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (delq 'a '(b a c (a b) d a e)) => (b c (a b) d e)
 @end lisp
 
@@ -4456,7 +4456,7 @@ comparison instead of @code{eq}.  @code{(del 'eq a b)} is the same as
 @code{remq} is similar to @code{delq}, except that the list is not altered;
 rather, a new list is returned.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq x '(a b c d e f))
 (remq 'b x) => (a c d e f)
 x => (a b c d e f)
@@ -4535,7 +4535,7 @@ as the function used to get to the next element of the list;
 (list of conses) @i{alist}.  The value is the first cons whose @code{car}
 is @code{eq} to @i{x}, or @code{nil} if there is none such. 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (assq 'r '((a . b) (c . d) (r . x) (s . y) (r . z)))
 	=>  (r . x)
 
@@ -4547,7 +4547,7 @@ is @code{eq} to @i{x}, or @code{nil} if there is none such.
 It is okay to @code{rplacd} the result of @code{assq} as long as it is not @code{nil},
 if your intention is to "update" the "table" that was @code{assq}'s second argument.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq values '((x . 100) (y . 200) (z . 50)))
 (assq 'y values) => (y . 200)
 (rplacd (assq 'y values) 201)
@@ -4572,7 +4572,7 @@ found whose cdr is @code{nil}.)
 @defun assoc item alist
 @code{assoc} is like @code{assq} except that the comparison uses @code{equal} instead of @code{eq}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (assoc '(a b) '((x . y) ((a b) . 7) ((c . d) .e)))
 	=> ((a b) . 7)
 @end lisp
@@ -4660,7 +4660,7 @@ defined by:
 elements of the first list with corresponding elements of the second
 list.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (pairlis '(beef clams kitty) '(roast fried yu-shiang))
    => ((beef . roast) (clams . fried) (kitty . yu-shiang))
 @end lisp
@@ -4783,24 +4783,24 @@ This gives @i{plist} an @i{indicator}-property of @i{x}.
 After this is done, @code{(get @i{plist indicator})} will return @i{x}.
 If @i{plist} is a symbol, the symbol's associated property list is used.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (putprop 'Nixon 'not 'crook)
 @end lisp
 @end defun
 
-.defspec defprop symbol x indicator
+@defspec defprop symbol x indicator
 @code{defprop} is a form of @code{putprop} with "unevaluated arguments",
 which is sometimes more convenient for typing.  Normally it doesn't
 make sense to use a property list rather than a symbol as the first (or @i{plist}) argument.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defprop foo bar next-to)
 @end lisp
 is the same as
 @lisp
 (putprop 'foo 'bar 'next-to)
 @end lisp
-.end_defspec
+@end defspec
 
 @defun remprop plist indicator
 This removes @i{plist}'s @i{indicator} property, by splicing it out of the property
@@ -5238,7 +5238,7 @@ list modified into sorted order.  Note that since sorting requires many
 comparisons, and thus many calls to the predicate, sorting will be much
 faster if the predicate is a compiled function rather than interpreted. 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defun mostcar (x)
     (cond ((symbolp x) x)
           ((mostcar (car x)))))
@@ -5381,7 +5381,7 @@ one of the objects; @code{deallocate-resource} frees one of the objects
 (putting it back on the list); and @code{using-resource} temporarily
 allocates an object and then frees it.
 
-.defspec defresource
+@defspec defresource
 The @code{defresource} special form is used to define a new resource.  The
 form looks like this:
 @lisp
@@ -5489,7 +5489,7 @@ and would not reuse a pre-existing array very often.  So you might:
     :matcher (and ( (array-dimension-n 1 object) rows)
 		  ( (array-dimension-n 2 object) columns)))
 @end lisp
-.end_defspec
+@end defspec
 
 @defun allocate-resource name &rest parameters
 Allocate an object from the resource specified by @i{name}.  The various forms
@@ -5515,7 +5515,7 @@ old objects are no longer usable.  If an object of the resource is in use when
 deallocated.
 @end defun
 
-.defspec using-resource (variable resource parameters...) body...
+@defspec using-resource (variable resource parameters...) body...
 The @i{body} forms are evaluated sequentially with @i{variable} bound to an
 object allocated from the resource named @i{resource}, using the given @i{parameters}.
 The @i{parameters} (if any) are evaluated, but @i{resource} is not.
@@ -5525,10 +5525,10 @@ The @i{parameters} (if any) are evaluated, but @i{resource} is not.
 Furthermore it is careful to free the object when the body is exited,
 whether it returns normally or via @code{*throw}.  This is done by using
 @code{unwind-protect}; see (unwind-protect-fun).
-.end_defspec
+@end defspec
 
 @lisp
-.exdent 96 Here is an example of the use of resources:
+@exdent Here is an example of the use of resources:
 (defresource huge-16b-array (&optional (size 1000))
   :constructor (make-array size ':type 'art-16b))
 
@@ -5569,7 +5569,7 @@ use them on local variables.
 is changed to @i{value}; @i{value} may be any Lisp object.  @code{set} returns
 @i{value}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (set (cond ((eq a b) 'c)
            (t 'd))
      'foo)
@@ -5592,7 +5592,7 @@ an error.
 @defun makunbound sym
 @code{makunbound} causes @i{sym} to become unbound.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a 1)
 a => 1
 (makunbound 'a)
@@ -5728,7 +5728,7 @@ For more information, see the sections on the @i{reader}
 @defun get-pname sym
 This returns the print-name of the symbol @i{sym}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (get-pname 'xyz) => "xyz"
 @end lisp
 @end defun
@@ -5742,7 +5742,7 @@ string is used in place of the print-name.
 @code{samepnamep} is useful for determining if two symbols would be the same
 except that they are in different packages (see (package)).
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (samepnamep 'xyz (maknam '(x y z)) => t
 
 (samepnamep 'xyz (maknam '(w x y)) => nil
@@ -5806,7 +5806,7 @@ If @i{permanent-p} is @code{nil} (the default), the symbol goes in the
 default area and the pname is not copied.  @i{permanent-p} is mostly
 for the use of @code{intern} itself.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq a (make-symbol "foo")) => foo
 (symeval a) => ERROR!
 @end lisp
@@ -5836,7 +5836,7 @@ set to @i{x}.  If @i{x} is a string or a symbol, then @code{si:*gensym-prefix} i
 the first character of the string or of the symbol's print-name.
 After handling the argument, @code{gensym} creates a symbol as it would with no argument.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 @t{if}	(gensym) => g0007
 @t{then}	(gensym 'foo) => f0008
 	(gensym 32.) => f0032
@@ -6039,7 +6039,7 @@ Returns @code{t} if @i{number} is even, otherwise @code{nil}.
 If @i{number} is not a fixnum or a bignum, @code{evenp} causes an error.
 @end defun
 
-.defspec signp test x
+@defspec signp test x
 @i{signp} is used to test the sign of a number.  It is present only for
 Maclisp compatibility, and is not recommended for use in new programs.
 @code{signp} returns @code{t} if @i{x} is a number which
@@ -6061,13 +6061,13 @@ x @code{} 0
 x > 0
 @end table
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (signp ge 12) => t
 (signp le 12) => nil
 (signp n 0) => nil
 (signp g 'foo) => nil
 @end lisp
-.end_defspec
+@end defspec
 
 .nopara
 See also the data-type predicates @code{fixp}, @code{floatp}, @code{bigp},
@@ -6092,7 +6092,7 @@ be @code{=} to a flonum.
 is not greater than the next, @code{greaterp} returns @code{nil}.  But if the
 arguments are monotonically strictly decreasing, the result is @code{t}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (greaterp 4 3) => t
 (greaterp 4 3 2 1 0) => t
 (greaterp 4 3 1 2 0) => nil
@@ -6112,7 +6112,7 @@ arguments are monotonically decreasing or equal, the result is @code{t}.
 is not less than the next, @code{lessp} returns @code{nil}.  But if the
 arguments are monotonically strictly increasing, the result is @code{t}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (lessp 3 4) => t
 (lessp 1 1) => nil
 (lessp 0 1 2 3 4) => t
@@ -6134,7 +6134,7 @@ Returns @code{t} if @i{x} is not numerically equal to @i{y}, and @code{nil} othe
 @defun max &rest args
 @code{max} returns the largest of its arguments.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (max 1 3 2) => 3
 @end lisp
 @code{max} requires at least one argument.
@@ -6143,7 +6143,7 @@ Returns @code{t} if @i{x} is not numerically equal to @i{y}, and @code{nil} othe
 @defun min &rest args
 @code{min} returns the smallest of its arguments.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (min 1 3 2) => 1
 @end lisp
 @code{min} requires at least one argument.
@@ -6171,7 +6171,7 @@ Returns its first argument minus all of the rest of its arguments.
 @defun minus x
 Returns the negative of @i{x}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (minus 1) => -1
 (minus -3.0) => 3.0
 @end lisp
@@ -6217,7 +6217,7 @@ The exact rules for the meaning of the quotient and remainder of two
 integers are given on (division-rule); this explains why the rules used for
 integer division are not correct for all applications.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (// 3 2) => 1       @t{;Fixnum division truncates.}
 (// 3 -2) => -1
 (// -3 2) => -1
@@ -6377,7 +6377,7 @@ are operated on in their 2's-complement representation.
 Returns the bit-wise logical @i{inclusive or} of its arguments.
 At least one argument is required.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (logior 4002 67) => 4067
 @end lisp
 @end defun
@@ -6386,7 +6386,7 @@ At least one argument is required.
 Returns the bit-wise logical @i{exclusive or} of its arguments.
 At least one argument is required.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (logxor 2531 7777) => 5246
 @end lisp
 @end defun
@@ -6395,7 +6395,7 @@ At least one argument is required.
 Returns the bit-wise logical @i{and} of its arguments.
 At least one argument is required.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (logand 3456 707) => 406
 (logand 3456 -100) => 3400
 @end lisp
@@ -6405,7 +6405,7 @@ At least one argument is required.
 Returns the logical complement of @i{number}.  This is the same as
 @code{logxor}'ing @i{number} with -1.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (lognot 3456) => -3457
 @end lisp
 @end defun
@@ -6435,7 +6435,7 @@ With two arguments, the result of @code{boole} is simply its second argument.
 At least two arguments are required.
 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (boole 1 x y) = (logand x y)
 (boole 6 x y) = (logxor x y)
 (boole 2 x y) = (logand (lognot x) y)
@@ -6461,7 +6461,7 @@ Zero bits are shifted in (at either end) to fill unused positions.
 @i{x} and @i{y} must be fixnums.  (In some applications you may
 find @code{ash} useful for shifting bignums; see below.)
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (lsh 4 1) => 10    @t{;(octal)}
 (lsh 14 -2) => 3
 (lsh -1 1) => -2
@@ -6488,7 +6488,7 @@ and Multics implementations).
 @i{x} and @i{y} must be fixnums.  (There is no function for
 rotating bignums.)
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (rot 1 2) => 4
 (rot 1 -2) => 20000000
 (rot -1 7) => -1
@@ -6502,7 +6502,7 @@ This returns the number of significant bits in @code{|@i{x}|}.
 The result is the least integer strictly greater than the base-2
 logarithm of @code{|@i{x}|}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (haulong 0) => 0
 (haulong 3) => 2
 (haulong -7) => 3
@@ -6556,7 +6556,7 @@ bits in the returned value are zero.  The name of the function,
 @code{ldb}, means "load byte".  @i{num} may be a fixnum or a bignum.
 The returned value is always a fixnum.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (ldb 0306 4567) => 56
 @end lisp
 @end defun
@@ -6584,7 +6584,7 @@ of @i{num} is returned as a number in position @i{pp} of
 the returned word, instead of position 0 as with @code{ldb}.
 @i{num} must be a fixnum.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (mask-field 0306 4567) => 560
 @end lisp
 @end defun
@@ -6596,7 +6596,7 @@ bits specified by @i{ppss}.  The low
 being right-justified, as if it were the result of @code{ldb}.
 @i{num} may be a fixnum or a bignum.  The name means "deposit byte".
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (dpb 23 0306 4567) => 4237
 @end lisp
 @end defun
@@ -6614,7 +6614,7 @@ be left-justified; the @i{ppss} bits of @i{byte} are used
 for the @i{ppss} bits of the result, with the rest of the
 bits taken from @i{num}.  @i{num} must be a fixnum.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (deposit-field 230 0306 4567) => 4237
 @end lisp
 @end defun
@@ -7154,7 +7154,7 @@ does not have a leader, then this symbol will be stored in array element zero.
 @end table
 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 @t{;; Create a one-dimensional array of five elements.}
 (make-array 5)
 @t{;; Create a two-dimensional array,}
@@ -7279,7 +7279,7 @@ This is analogous to @code{aloc}.
 @defun array-type array
 Returns the symbolic type of @i{array}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (make-array '(3 5)))
 (array-type a) => art-q
 @end lisp
@@ -7292,7 +7292,7 @@ this is one greater than the maximum allowable subscript.
 (But if fill pointers are being used, you may want to use
 @code{array-active-length}.)
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (array-length (make-array 3)) => 3
 (array-length (make-array '(3 5)))
 		=> 17  @t{;octal, which is 15. decimal}
@@ -7312,7 +7312,7 @@ function includes a "#", which must be slashified if you want to be
 able to read your program in Maclisp.  (It doesn't need to be slashified
 for the Zetalisp reader, which is smarter.)
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (array-#-dims (make-array '(3 5))) => 2
 @end lisp
 @end defun
@@ -7325,7 +7325,7 @@ this returns the length of the leader of @i{array}; if @i{array} has no
 leader it returns @code{nil}.  If @i{n} is any other value, this
 returns @code{nil}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setq a (make-array '(3 5) ':leader-length 7))
 (array-dimension-n 1 a) => 3
 (array-dimension-n 2 a) => 5
@@ -7338,7 +7338,7 @@ returns @code{nil}.
 @code{array-dimensions} returns a list whose elements are the dimensions
 of @i{array}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (make-array '(3 5)))
 (array-dimensions a) => (3 5)
 @end lisp
@@ -7352,7 +7352,7 @@ function cell contains an array, for Maclisp compatibility (see (maclisp-array)
 @code{arraydims} returns a list whose first element is the symbolic name of
 the type of @i{array}, and whose remaining elements are its dimensions.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (make-array '(3 5)))
 (arraydims a) => (art-q 3 5)
 @end lisp
@@ -7405,7 +7405,7 @@ is made bigger, the new elements are initialized in the same fashion as
 @code{make-array} (see (make-array-fun)) would initialize them: either to @code{nil} or @code{0},
 depending on the type of array.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (make-array 5))
 (aset 'foo a 4)
 (aref a 4) => foo
@@ -7474,7 +7474,7 @@ introduced on (art-q-list-var).
 @i{array} should be an @code{art-q-list} array.  This returns
 a list which shares the storage of @i{array}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq a (make-array 4 ':type 'art-q-list))
 (aref a 0) => nil
 (setq b (g-l-p a)) => (nil nil nil nil)
@@ -7922,14 +7922,14 @@ is returned.
 are evaluated.
 @end defun
 
-.defspec store array-ref x
+@defspec store array-ref x
 @code{store} stores @i{x} into the
 specified array element.  @i{array-ref} should be a form which
 references an array by calling it as a function (@code{aref} forms are not
 acceptable).  First @i{x} is evaluated, then @i{array-ref} is
 evaluated, and then the value of @i{x} is stored into the array cell
 last referenced by a function call, presumably the one in @i{array-ref}.
-.end_defspec
+@end defspec
 
 @defun xstore x array-ref
 	This is just like @code{store}, but it is not
@@ -8100,7 +8100,7 @@ are the final indices; the comparison stops just @i{before} the final index.
 @i{lim1} and @i{lim2} default to the lengths of the strings.  These arguments are provided
 so that you can efficiently compare substrings.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (string-equal "Foo" "foo") => t
 (string-equal "foo" "bar") => nil
 (string-equal "element" "select" 0 1 3 4) => t
@@ -8128,7 +8128,7 @@ high efficiency and are willing to pay the price of less generality
 may want to use @code{%string-equal} in place of @code{string-equal}.
 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 @t{To compare the two strings @i{foo} and @i{bar}:}
 (%string-equal @i{foo} 0 @i{bar} 0 nil)
 @t{To see if the string @i{foo} starts with the characters @code{"bar"}:}
@@ -8162,7 +8162,7 @@ the character specified by @i{end}.  @i{start} and @i{end} are
 of @i{string}.  The area in which the result is to be consed may be
 optionally specified.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (substring "Nebuchadnezzar" 4 8) => "chad"
 @end lisp
 @end defun
@@ -8187,7 +8187,7 @@ If the first argument is an array, the result will be an array of the same type.
 Thus @code{string-append} can be
 used to copy and concatenate any type of 1-dimensional array.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-append #/! "foo" #/!) => "!foo!"
 @end lisp
 @end defun
@@ -8212,7 +8212,7 @@ in @i{char-set} stripped off of the beginning and end.
 @i{char-set} is a set of characters, which can be represented as a list
 of characters or a string of characters.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-trim '(#\sp) "  Dr. No  ") => "Dr. No"
 (string-trim "ab" "abbafooabb") => "foo"
 @end lisp
@@ -8250,7 +8250,7 @@ This will reverse a 1-dimensional array of any type.
 word in the argument @i{string}.  Any added characters go in the same
 case as the last character of @i{string}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-pluralize "event") => "events"
 (string-pluralize "Man") => "Men"
 (string-pluralize "Can") => "Cans"
@@ -8270,7 +8270,7 @@ character which is @code{char-equal} to @i{char}, or @code{nil} if none is found
 If the @i{to} argument is supplied, it is used in place of @code{(string-length @i{string})}
 to limit the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-search-char #/a "banana") => 1
 @end lisp
 @end defun
@@ -8291,7 +8291,7 @@ character which is @i{not} @code{char-equal} to @i{char}, or @code{nil} if none 
 If the @i{to} argument is supplied, it is used in place of @code{(string-length @i{string})}
 to limit the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-search-not-char #/b "banana") => 1
 @end lisp
 @end defun
@@ -8305,7 +8305,7 @@ found.
 If the @i{to} argument is supplied, it is used in place of @code{(string-length @i{string})}
 to limit the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-search "an" "banana") => 1
 (string-search "an" "banana" 2) => 3
 @end lisp
@@ -8322,7 +8322,7 @@ to limit the extent of the search.
 @i{char-set} is a set of characters, which can be represented as a list
 of characters or a string of characters.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-search-set '(#/n #/o) "banana") => 2
 (string-search-set "no" "banana") => 2
 @end lisp
@@ -8339,7 +8339,7 @@ to limit the extent of the search.
 @i{char-set} is a set of characters, which can be represented as a list
 of characters or a string of characters.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-search-not-set '(#/a #/b) "banana") => 2
 @end lisp
 @end defun
@@ -8352,7 +8352,7 @@ to @i{char}, or @code{nil} if none is found.  Note that the index returned
 is from the beginning of the string, although the search starts from the end.
 If the @i{to} argument is supplied, it limits the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-reverse-search-char #/n "banana") => 4
 @end lisp
 @end defun
@@ -8365,7 +8365,7 @@ to @i{char}, or @code{nil} if none is found.  Note that the index returned
 is from the beginning of the string, although the search starts from the end.
 If the @i{to} argument is supplied, it limits the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-reverse-search-not-char #/a "banana") => 4
 @end lisp
 @end defun
@@ -8382,7 +8382,7 @@ is the rightmost one whose rightmost character is before the @i{from}'th charact
 of @i{string}.
 If the @i{to} argument is supplied, it limits the extent of the search.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (string-reverse-search "na" "banana") => 4
 @end lisp
 @end defun
@@ -8426,7 +8426,7 @@ The special forms in this section allow you to create I/O streams which
 input from or output to a string rather than a real I/O device.
 See (streams) for documentation of I/O streams.
 
-.defspec with-input-from-string (var string [index] [limit]) body...
+@defspec with-input-from-string (var string [index] [limit]) body...
 The form
 @lisp
 (with-input-from-string (@i{var} @i{string})
@@ -8471,9 +8471,9 @@ returned out of the body, currently.
 uses the value of the form @i{limit}, if the value is not @code{nil}, in
 place of the length of the string.  If you want to specify a @i{limit}
 but not an @i{index}, write @code{nil} for @i{index}.
-.end_defspec
+@end defspec
 
-.defspec with-output-to-string (var [string] [index]) body...
+@defspec with-output-to-string (var [string] [index]) body...
 This special form provides a variety of ways to send output to a string
 through an I/O stream.
 
@@ -8517,7 +8517,7 @@ You cannot use it after control leaves the body, and you cannot nest
 two @code{with-output-to-string} special forms and use both streams
 since the special-variable bindings associated with the streams will
 conflict.  It is done this way to avoid any allocation of memory.
-.end_defspec
+@end defspec
 
 It is OK to use a @code{with-input-from-string} and @code{with-output-to-string}
 nested within one another, so long as there is only one of each.
@@ -8554,7 +8554,7 @@ or numbers into strings).
 	@code{ascii} is like @code{character}, but returns a symbol
 whose printname is the character instead of returning a fixnum.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (ascii 101) => A
 (ascii 56) => /.
 @end lisp
@@ -8565,7 +8565,7 @@ The symbol returned is interned in the current package (see (package)).
 	@code{maknam} returns
 an uninterned symbol whose print-name is a string made up of the characters in @i{char-list}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (maknam '(a b #/0 d)) => ab0d
 @end lisp
 @end defun
@@ -8785,7 +8785,7 @@ identifies a function spec, since that would be ambiguous.
 
 @section Simple Function Definitions
 
-.defspec defun
+@defspec defun
 @code{defun} is the usual way of defining a function which is part of a
 program. A @code{defun} form looks like:
 
@@ -8809,7 +8809,7 @@ and puts it in the function cell of @i{name}.
 @i{name} is now defined as a function and can be called by other forms.
 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (defun addone (x)
   (1+ x))
 
@@ -8867,7 +8867,7 @@ this function copies all of its arguments
 including the last one."
    ...)
 @end lisp
-.end_defspec
+@end defspec
 
 @defmac defunp
 Usually when a function uses @code{prog}, the @code{prog} form is
@@ -9252,7 +9252,7 @@ that a function is being stored into a function spec here, and therefore
 if someone asks for the source code of the definition of that function spec,
 this is the place to look for it.
 
-.defspec def
+@defspec def
 If a function is created in some strange way, wrapping a @code{def} special
 form around the code that creates it informs the editor of the connection.
 The form
@@ -9267,9 +9267,9 @@ it the definition of @i{function-spec}.
 Alternatively, you could put @code{(def @i{function-spec})} in
 front of or anywhere near the forms which define the function.  The
 editor only uses it to tell which line to put the cursor on.
-.end_defspec
+@end defspec
 
-.defspec deff function-spec definition-creator
+@defspec deff function-spec definition-creator
 @code{deff} is a simplified version of @code{def}.  It
 evaluates the form @i{definition-creator}, which should produce a function,
 and makes that function the definition of @i{function-spec}, which is not
@@ -9287,7 +9287,7 @@ will make @code{foo} equivalent to @code{bar}, with an indirection so that if
 @end lisp
 copies the definition of @code{bar} into @code{foo} with no indirection, so that
 further changes to @code{bar} will have no effect on @code{foo}.
-.end_defspec
+@end defspec
 
 @defmac @@define
 This macro turns into @code{nil}, doing nothing.  It exists for the sake of the
@@ -9304,7 +9304,7 @@ definitions.  @i{x} should be the cdr of a @code{(defun ...)} form.
 ever need to call this yourself.
 @end defun
 
-.defspec defselect
+@defspec defselect
 @code{defselect} defines a function which is a select-method.  This
 function contains a table of subfunctions; when it is called, the first
 argument, a symbol on the keyword package called the @i{message name},
@@ -9352,7 +9352,7 @@ A method subform can instead look like:
 In this case, @i{symbol} is the name of a function which is to be called when the
 @i{message-name} message is received.  It will be called with the same arguments
 as the select-method, including the message symbol itself.
-.end_defspec
+@end defspec
 
 @section Lambda-List Keywords
 @cindex lambda-list keywords
@@ -10222,7 +10222,7 @@ which was the second argument to @code{closure} when the closure was
 created.
 @end defun
 
-.defspec let-closed ((variable value)...) function
+@defspec let-closed ((variable value)...) function
 When using closures, it is very common to bind a set of variables with
 initial values, and then make a closure over those variables.  Furthermore
 the variables must be declared as "special" for the compiler.  @code{let-closed}
@@ -10238,7 +10238,7 @@ is a special form which does all of this.  It is best described by example:
       (closure '(a b c)
          (function (lambda () ...)))))
 @end lisp
-.end_defspec
+@end defspec
 
 @section Entities
 @cindex entity
@@ -12127,7 +12127,7 @@ displayed by default by the @code{room} function (see (room-fun)).
 @end table
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (make-area ':name 'foo-area
 	   ':gc ':dynamic
 	   ':representation ':list)
@@ -12454,21 +12454,21 @@ will all be evaluated, and the @code{(quote compile)} will harmlessly
 evaluate to the symbol @code{compile} and be ignored.)
 See (progn-quote-compile-discussion) for additional discussion of this.
 
-.defspec eval-when (time...) body...
+@defspec eval-when (time...) body...
 When seen by the interpreter, if one of the @i{times} is the symbol @code{eval}
 then the @i{body} forms are evaluated; otherwise @code{eval-when} does nothing.
 
 But when seen by the compiler, this special form does the special things described above.
-.end_defspec
+@end defspec
 
-.defspec declare declaration...
+@defspec declare declaration...
 @code{declare} does nothing, and returns the symbol @code{declare}.
 
 But when seen by the compiler, this special form does the special things described above.
 
 There is also a different use of @code{declare}, used in conjuction with the @code{arglist}
 function (see (arglist-fun)).
-.def_spec
+@end defspec
 
 @section Compiler Declarations
 
@@ -12478,7 +12478,7 @@ function (see (arglist-fun)).
 compilation, and variables meant to be set or bound during compilation,
 by using @code{declare} or @code{local-declare}.
 
-.defspec local-declare (declaration...) body...
+@defspec local-declare (declaration...) body...
 A @code{local-declare} form looks like
 @lisp
 (local-declare (@i{decl1} @i{decl2} ...)
@@ -12518,36 +12518,36 @@ of the @i{forms}.  The compiler uses this to keep track of macros and
 open-codable functions (@code{defsubst}s) defined in the file being compiled.
 Note that the @code{cddr} of this item is a function.
 @end table
-.end_defspec
+@end defspec
 
-.defspec special variable...
+@defspec special variable...
 Declares each @i{variable} to be "special" for the compiler. 
-.end_defspec
+@end defspec
 
-.defspec unspecial variable...
+@defspec unspecial variable...
 Removes any "special" declarations of the @i{variables} for the compiler.
-.end_defspec
+@end defspec
 
 .nopara
 The next three declarations are primarily for Maclisp compatibility.
 
-.defspec *expr symbol...
+@defspec *expr symbol...
 Declares each @i{symbol}
 to be the name of a function.  In addition it prevents these functions from appearing
 in the list of functions referenced but not defined printed at the end of the compilation.
-.end_defspec
+@end defspec
 
-.defspec *lexpr symbol...
+@defspec *lexpr symbol...
 Declares each @i{symbol}
 to be the name of a function.  In addition it prevents these functions from appearing
 in the list of functions referenced but not defined printed at the end of the compilation.
-.end_defspec
+@end defspec
 
-.defspec *fexpr symbol...
+@defspec *fexpr symbol...
 Declares each @i{symbol}
 to be the name of a special form.  In addition it prevents these names from appearing
 in the list of functions referenced but not defined printed at the end of the compilation.
-.end_defspec
+@end defspec
 
 	There are some advertised variables whose compile-time values affect
 the operation of the compiler.  The user may set these variables by
@@ -12613,7 +12613,7 @@ Syntactically identical to @code{let}, @code{compiler-let} allows
 compiler switches to be bound locally at compile time, during the
 processing of the @i{body} forms.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (compiler-let ((open-code-map-switch nil))
           (map (function (lambda (x) ...)) foo))
 @end lisp
@@ -12696,7 +12696,7 @@ issue a warning to the effect that @i{by} referred to the function @i{what},
 which was never defined.
 @end defun
 
-.defspec compiler:make-obsolete function reason
+@defspec compiler:make-obsolete function reason
 This special form declares a function to be obsolete; code that calls it
 will get a compiler warning, under the control of @code{obsolete-function-warning-switch}.
 This is used by the compiler to mark as obsolete some Maclisp functions which exist in
@@ -12708,7 +12708,7 @@ obsolete-function declaration is:
 (compiler:make-obsolete create-mumblefrotz
 	"use MUMBLIFY with the :FROTZ option instead")
 @end lisp
-.end_defspec
+@end defspec
 
 @section Compiler Source-Level Optimizers
 @cindex optimizer, compiler
@@ -12747,7 +12747,7 @@ the same thing, possibly faster or with less memory or something.  That
 is why they are called optimizers.  If you want to actually change
 the form to do something else, you should be using macros.
 
-.defspec compiler:add-optimizer function optimizer optimized-into...
+@defspec compiler:add-optimizer function optimizer optimized-into...
 Puts @i{optimizer} on @i{function}'s optimizers list if it isn't there already.
 @i{optimizer} is the name of an optimization function, and @i{function}
 is the name of the function calls which are to be processed.  Neither
@@ -12757,7 +12757,7 @@ is evaluated.
 @i{optimize-into-2...})} also remembers @i{optimize-into-1}, etc., as
 names of functions which may be called in place of @i{function} as a result
 of the optimization.
-.end_defspec
+@end defspec
 
 @section Files that Maclisp Must Compile
 
@@ -12958,7 +12958,7 @@ We can do much more
 interesting things with macros, but first we will show how
 to define a macro.
 
-.defspec macro
+@defspec macro
 The primitive special form for defining macros is @code{macro}.
 A macro definition looks like this:
 @lisp
@@ -12968,7 +12968,7 @@ A macro definition looks like this:
 @i{name} can be any function spec.  @i{arg} must be a variable.  @i{body} is
 a sequence of Lisp forms that expand the macro; the last form should return
 the expansion.
-.end_defspec
+@end defspec
 
 To define our @code{first} macro, we would say
 @lisp
@@ -13367,7 +13367,7 @@ A substitutable function is a function which is open coded by the
 compiler.  It is like any other function when applied, but it can be
 expanded instead, and in that regard resembles a macro.
 
-.defspec defsubst
+@defspec defsubst
 @code{defsubst} is used for defining substitutable functions.  It is used just
 like @code{defun}.
 @lisp
@@ -13455,7 +13455,7 @@ should not be used in the body for anything else, such as a function
 name or a symbol in a constant.
 
 As with @code{defun}, @i{name} can be any function spec.
-.end_defspec
+@end defspec
 
 @section Hints to Macro Writers
 
@@ -14324,7 +14324,7 @@ it to produce a corresponding form to @i{update} the thing.
 A @code{setf} expands into an update form, which stores the result of evaluating
 the form @i{value} into the place referenced by the @i{access-form}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (setf (array-leader foo 3) 'bar)
 		==> (store-array-leader 'bar foo 3)
 (setf a 3) ==> (setq a 3)
@@ -14373,7 +14373,7 @@ actually stored anywhere.
 @code{locf} takes a form which @i{accesses} some cell, and produces
 a corresponding form to create a locative pointer to that cell.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (locf (array-leader foo 3)) ==> (ap-leader foo 3)
 (locf a) ==> (value-cell-location 'a)
 (locf (plist 'a)) ==> (property-cell-location 'a)
@@ -14466,7 +14466,7 @@ Removes an element from the front of a list which is stored in a generalized var
 @code{(pop @i{ref})} finds the cons in @i{ref}, stores the cdr of the cons back into @i{ref},
 and returns the car of the cons.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (setq x '(a b c))
 (pop x) => a
 x => (b c)
@@ -18509,7 +18509,7 @@ is equivalent to
 @end lisp
 @end defmac
 
-.defspec with-self-variables-bound body...
+@defspec with-self-variables-bound body...
 Within the body of this special form, all of @code{self}'s instance
 variables are bound as specials to the values inside @code{self}.
 (Normally this is true only of those instance variables which are
@@ -18522,7 +18522,7 @@ As a result, inside the body you can use @code{set}, @code{boundp} and
 This special form is used by the interpreter when a method that is not
 compiled is executed, so that the interpreted references to instance
 variables will work properly.
-.end_defspec
+@end defspec
 
 @defun recompile-flavor flavor-name &optional single-message (use-old-combined-methods @code{t}) (do-dependents @code{t})
 Updates the internal data of the flavor and any flavors that depend on it.
@@ -19589,13 +19589,13 @@ will be fixed.]
 This mixin flavor provides the basic operations on property lists.
 .end_defflavor
 
-.defmethod si:property-list-mixin :get indicator
+@defmethod si:property-list-mixin :get indicator
 The @code{:get} message looks up the object's @i{indicator} property.
 If it finds such a property, it returns the value; otherwise it
 returns @code{nil}.
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :getl indicator-list
+@defmethod si:property-list-mixin :getl indicator-list
 The @code{:getl} message is like the @code{:get} message, except that
 the argument is a list of indicators.  The @code{:getl} message
 searches down the property list for any of the indicators
@@ -19603,19 +19603,19 @@ in @i{indicator-list}, until it finds a property whose indicator
 is one of those elements.  It returns the portion of the property
 list begining with the first such property that it found.  If it
 doesn't find any, it returns @code{nil}.
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :putprop property indicator
+@defmethod si:property-list-mixin :putprop property indicator
 This gives the object an @i{indicator}-property of @i{property}.
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :remprop indicator
+@defmethod si:property-list-mixin :remprop indicator
 This removes the object's @i{indicator} property, by splicing it
 out of the property list.  It returns that portion of the list inside
 the object of which the former @i{indicator}-property was the @code{car}.
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :push-property value indicator
+@defmethod si:property-list-mixin :push-property value indicator
 The @i{indicator}-property of the object should be a list (note that
 @code{nil} is a list and an absent property is @code{nil}).  This message sets
 the @i{indicator}-property of the object to a list whose @code{car} is
@@ -19625,17 +19625,17 @@ list.  This is analogous to doing
 (push @i{value} (get @i{object} @i{indicator}))
 @end lisp
 See the @code{push} special form ((push-fun)).
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :property-list
+@defmethod si:property-list-mixin :property-list
 This returns the list of alternating indicators and values that implements
 the property list.
-.end_defmethod
+@end defmethod
 
-.defmethod si:property-list-mixin :set-property-list list
+@defmethod si:property-list-mixin :set-property-list list
 This sets the list of alternating indicators and values that implements
 the property list to @i{list}.
-.end_defmethod
+@end defmethod
 
 .definitoption si:property-list-mixin :property-list list
 This initializes the list of alternating indicators and values that implements
@@ -20242,7 +20242,7 @@ in the name.  You can also enclose the name of a symbol in vertical bars,
 which quotes all characters inside, except vertical bars and slashes, which
 must be quoted with slash.
 @lisp
-.exdent 96 Examples of symbols:
+@exdent Examples of symbols:
 foo
 bar/(baz/)
 34w23
@@ -20253,7 +20253,7 @@ bar/(baz/)
 surrounded by double-quotes.  If you want to put a double-quote or
 a slash inside a string, preceed it by a slash.
 @lisp
-.exdent 96 Examples of strings:
+@exdent Examples of strings:
 "This is a typical string."
 "That is known as a /"cons cell/" in Lisp."
 @end lisp
@@ -20894,7 +20894,7 @@ If the entire string was read, this will be either the length of the string
 or 1 more than the length of the string.
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (read-from-string "(a b c)") => (a b c) @t{and} 7
 @end lisp
 @end defun
@@ -21051,7 +21051,7 @@ B then K.
 are the characters that would be typed out by @code{(princ @i{x})}
 (i.e. the unslashified printed representation of @i{x}).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (exploden '(+ /12 3)) => (50 53 40 61 62 40 63 51)
 @end lisp
 @end defun
@@ -21061,7 +21061,7 @@ are the characters that would be typed out by @code{(princ @i{x})}
 which are the characters that would be typed out by 
 @code{(princ @i{x})} (i.e. the unslashified printed representation of @i{x}).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (explodec '(+ /12 3)) => ( /( + /  /1 /2 /  /3 /) )
 @end lisp
 (Note that there are slashified spaces in the above list.)
@@ -21072,7 +21072,7 @@ which are the characters that would be typed out by
 which are the characters that would be typed out by 
 @code{(prin1 @i{x})} (i.e. the slashified printed representation of @i{x}).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (explode '(+ /12 3)) => ( /( + /  // /1 /2 /  /3 /) )
 @end lisp
 (Note that there are slashified spaces in the above list.)
@@ -21972,7 +21972,7 @@ separated by commas, breaking lines between elements when necessary.
 .c If we ever get a new grinder, this section will document how to
 .c customize it and that sort of thing.
 
-.defspec grindef function-spec...
+@defspec grindef function-spec...
 'setq grind page
 Prints the definitions of one or more functions, with indentation to make the code
 readable.  Certain other "pretty-printing" transformations are performed:  The @code{quote}
@@ -21999,7 +21999,7 @@ useful.
 
 With no subforms, @code{grindef} assumes the same arguments as when it was
 last called.
-.end_defspec
+@end defspec
 
 @defun grind-top-level obj &optional width (stream @code{standard-output}) (untyo-p @code{nil}) (displaced @code{'si:displaced}) (terpri-p @code{t}) notify-fun loc
 Pretty-prints @i{obj} on @i{stream}, putting up to @i{width} characters
@@ -22294,7 +22294,7 @@ operations on that stream are.  Files are named with @i{pathnames}.
 Since pathnames are quite complex they have their own chapter; see
 (pathname).
 
-.defspec with-open-file (stream pathname options...) body...
+@defspec with-open-file (stream pathname options...) body...
 Evaluates the @i{body} forms with the variable @i{stream} bound to a stream which
 reads or writes the file named by the value of @i{pathname}.  The @i{options}
 forms evaluate to the file-opening options to be used; see (file-opening-options).
@@ -22315,7 +22315,7 @@ If an error, such as file not found, occurs the user is asked to supply an
 alternate pathname, unless this is overridden by @i{options}.
 At that point he can quit out or enter the error handler, if the error was not
 due to a misspelled pathname.
-.end_defspec
+@end defspec
 
 @defun open pathname &rest options
 Returns a stream which is connected to the specified file.  Unlike
@@ -23723,31 +23723,31 @@ host to the system would need to understand those internal messages.  This secti
 also does not document messages which are peculiar to pathnames of a particular
 host; those would be documented under that host.
 
-.defmethod pathname :host
-.defmethod1 pathname :device
-.defmethod1 pathname :directory
-.defmethod1 pathname :name
-.defmethod1 pathname :type
-.defmethod1 pathname :version
+@defmethod pathname :host
+@defmethodx pathname :device
+@defmethodx pathname :directory
+@defmethodx pathname :name
+@defmethodx pathname :type
+@defmethodx pathname :version
 These return the components of the pathname.  The returned values can be strings,
 special symbols, or lists of strings in the case of structured components.  The type
 will always be a string or a symbol.  The version will always be a number or a symbol.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :new-device dev
-.defmethod1 pathname :new-directory dir
-.defmethod1 pathname :new-name name
-.defmethod1 pathname :new-type type
-.defmethod1 pathname :new-version version
+@defmethod pathname :new-device dev
+@defmethodx pathname :new-directory dir
+@defmethodx pathname :new-name name
+@defmethodx pathname :new-type type
+@defmethodx pathname :new-version version
 These return a new pathname which is the same as the pathname they are
 sent to except that the value of one of the components has been changed.
 The @code{:new-device}, @code{:new-directory} and @code{:new-name} messages
 accept a string (or a special symbol) or a list which is a
 structured name.  If the host does not define structured components, and
 you specify a list, its first element is used.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :new-pathname &rest options
+@defmethod pathname :new-pathname &rest options
 This returns a new pathname which is the same as the pathname it is sent
 to except that the values of some of the components have been changed.
 @i{options} is a list of alternating keywords and values.  The keywords
@@ -23757,67 +23757,67 @@ and @code{:version}.
 
 The operations @code{:new-name}, etc., are equivalent to @code{:new-pathname}
 specifying only one component to be changed.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :generic-pathname
+@defmethod pathname :generic-pathname
 Returns the generic pathname for the family of files of which this pathname is a member.
 See (generic-pathname) for documentation on generic pathnames.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :primary-device
+@defmethod pathname :primary-device
 Returns the default device name for the pathname's host.  This is used
 in generating the initial default pathname for a host.
-.end_defmethod
+@end defmethod
 
 .need 1500
 .nopara
 Messages to get a path name string out of a pathname object:
 
-.defmethod pathname :string-for-printing
+@defmethod pathname :string-for-printing
 Returns a string which is the printed representation of the path name.  This is
 the same as what you get if you @code{princ} the pathname or take @code{string} of it.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :string-for-wholine
+@defmethod pathname :string-for-wholine
 Returns a string which may be compressed in order to fit in the wholine.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :string-for-editor
+@defmethod pathname :string-for-editor
 Returns a string which is the path name with its components rearranged so
 that the name is first.  The editor uses this form to name its buffers.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :string-for-dired
+@defmethod pathname :string-for-dired
 Returns a string to be used by the directory editor.  The string contains only
 the name, type, and version.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :string-for-directory
+@defmethod pathname :string-for-directory
 Returns a string which contains only the device and directory of
 the pathname.  It identifies one directory among all directories on the host.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :string-for-host
+@defmethod pathname :string-for-host
 Returns a string which is the path name the way the host file system likes to see it.
-.end_defmethod
+@end defmethod
 
 .need 1500
 .nopara
 Messages to move around through a hierarchy of directories:
 
-.defmethod pathname :pathname-as-directory
+@defmethod pathname :pathname-as-directory
 Assuming that the file described by the pathname is a directory,
 return another pathname specifying that @i{as} a directory.
 Thus, if sent to a pathname OZ:<RMS>FOO.DIRECTORY, it would return the
 pathname OZ:<RMS.FOO>.  The name, type and version of the returned
 pathname are @code{:unspecific}.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :directory-pathname-as-file
+@defmethod pathname :directory-pathname-as-file
 This is the inverse of the preceding operation.  It returns a pathname
 specifying as a file the directory of the original pathname.  The name,
 type and version of the original pathname are ignored.
-.end_defmethod
+@end defmethod
 
 The special symbol @code{:root} can be used as the directory component of a
 pathname on file systems which have a root directory.
@@ -23826,16 +23826,16 @@ pathname on file systems which have a root directory.
 .nopara
 Messages to manipulate the property list of a pathname:
 
-.defmethod pathname :get indicator
-.defmethod1 pathname :getl list-of-indicators
-.defmethod1 pathname :putprop value indicator
-.defmethod1 pathname :remprop indicator
-.defmethod1 pathname :plist
+@defmethod pathname :get indicator
+@defmethodx pathname :getl list-of-indicators
+@defmethodx pathname :putprop value indicator
+@defmethodx pathname :remprop indicator
+@defmethodx pathname :plist
 These manipulate the pathname's property list analogously to the functions of the
 same names (see (get-fun)), which don't (currently) work on instances.
 Please read the paragraph on (pathname-plist-warning) explaining some
 care you must take in using property lists of pathnames.
-.end_defmethod
+@end defmethod
 
 @c omitted:
 @c init-file because it's internal
@@ -23901,14 +23901,14 @@ number.  The initial list is
 Some users may need to add to this list.
 @end defvar
 
-.defmethod its-pathname :fn1
-.defmethod1 its-pathname :fn2
+@defmethod its-pathname :fn1
+@defmethodx its-pathname :fn2
 These two messages return a string which is the FN1 or FN2 host-dependent
 component of the pathname.
-.end_defmethod
+@end defmethod
 
-.defmethod pathname :type-and-version
-.defmethod1 pathname :new-type-and-version new-type new-version
+@defmethod pathname :type-and-version
+@defmethodx pathname :new-type-and-version new-type new-version
 These two operations provide a way of pretending that ITS pathnames can
 have both a type and a version.  It uses the first three characters of
 the FN2 to store a type and the last three to store a version number.
@@ -23921,7 +23921,7 @@ specified new type and new version.
 
 On any other type of pathname, these operations simply return or set
 both the type component and the version component.
-.end_defmethod
+@end defmethod
 
 @subsection TOPS-20 (Twenex), Tenex, and VMS.
 
@@ -24176,16 +24176,16 @@ file @code{music:doc;manual  text  2}, you will be re-directed to the file
 host @code{music-10-a} is a TOPS-20 system).
 @end defun
 
-.defmethod fs:logical-pathname :translated-pathname
+@defmethod fs:logical-pathname :translated-pathname
 This converts a logical pathname to a physical pathname.  It returns the
 translated pathname of this instance; a pathname whose @code{:host}
 component is the physical host that corresponds to this instance's
 logical host.
 
 If this message is sent to a physical pathname, it simply returns itself.
-.end_defmethod
+@end defmethod
 
-.defmethod fs:logical-pathname :back-translated-pathname pathname
+@defmethod fs:logical-pathname :back-translated-pathname pathname
 This converts a physical pathname to a logical pathname.
 @i{pathname} should be a pathname whose host is the physical host
 corresponding to this instance's logical host.  This returns
@@ -24213,7 +24213,7 @@ pathname, one would do
 If this message is sent to a physical pathname, it simply returns its
 argument.  Thus the above example will work no matter what kind of
 pathname was opened to create the stream.
-.end_defmethod
+@end defmethod
 
 A logical pathname looks like @code{"HOST: DIRECTORY; NAME TYPE VERSION"}.
 There is no way to specify a device; parsing a logical pathname
@@ -24895,7 +24895,7 @@ including @code{intern} and related functions.
 are evaluated sequentially with the variable @code{package} bound to the
 package named by @i{pkg}.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (pkg-bind "zwei"
 	  (read-from-string function-name))
 @end lisp
@@ -25025,7 +25025,7 @@ in @i{package} and all of @i{package}'s subpackages.  Since
 normally gets at all of the symbols in all packages.
 It is used by such functions as @code{apropos} and @code{who-calls} (see (apropos-fun))
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (mapatoms-all
   (function
     (lambda (x)
@@ -25449,7 +25449,7 @@ environments in disk partitions.
 
 @section Defining a System
 
-.defspec defsystem name (keyword args...)...
+@defspec defsystem name (keyword args...)...
 Defines a system named @i{name}.  The options
 selected by the keywords are explained in detail later.  In general,
 they fall into two categories: properties of the system and
@@ -25457,7 +25457,7 @@ they fall into two categories: properties of the system and
 or loading which takes one or more files and does something to them.
 The simplest system is a set of files and a transformation to be
 performed on them.
-.end_defspec
+@end defspec
 
 .nopara
 Here are a few examples.
@@ -25917,7 +25917,7 @@ The actual function that gets called with the list of transformations that need 
 performed.  The default is @code{si:do-file-transformations}.
 @end defvar
 
-.defspec si:define-make-system-special-variable variable value [defvar-p]
+@defspec si:define-make-system-special-variable variable value [defvar-p]
 Causes @i{variable} to be bound to @i{value}, which is evaluated at
 @code{make-system} time, during the body of the call to @code{make-system}.
 This allows you to define new variables similar to those listed above.
@@ -25925,7 +25925,7 @@ If @i{defvar-p} is specified as (or defaulted to) @code{t}, @i{variable}
 is defined with @code{defvar}.  It is not given an initial value.
 If @i{defvar-p} is specified as @i{nil},
 @i{variable} belongs to some other program and is not @code{defvar}'ed here.
-.end_defspec
+@end defspec
 
 The following simple example adds a new keyword to @code{make-system}
 called @code{:just-warn}, which means that @code{fdefine} warnings (see
@@ -25967,13 +25967,13 @@ of general interest is
 The internal data structure which represents the system which is currently being constructed.
 @end defvar
 
-.defspec si:define-defsystem-special-variable variable value
+@defspec si:define-defsystem-special-variable variable value
 Causes @i{value} to be evaluated and @i{variable} to be bound to the
 result during the expansion of the @code{defsystem} special form.  This
 allows you to define new variables similar to the one listed above.
-.end_defspec
+@end defspec
 
-.defspec si:define-simple-transformation
+@defspec si:define-simple-transformation
 This is the most convenient way to define a new simple transformation.
 The form is
 @lisp
@@ -26010,7 +26010,7 @@ keyword is given to @code{make-system}.
 Load-like transformations are performed unless the @code{:noload}
 keyword is given to @code{make-system}.
 By default @i{compile-like} is @code{t} but @i{load-like} is @code{nil}.
-.end_defspec
+@end defspec
 
 Complex transformations are just defined as normal macro expansions, for example,
 @lisp
@@ -26890,7 +26890,7 @@ scheduler calls a process's wait-function, it binds @code{current-process}
 to the process so that the wait-function can access its process.
 @end defvar
 
-.defspec without-interrupts body...
+@defspec without-interrupts body...
 The @i{body} forms are evaluated with
 @code{inhibit-scheduling-flag} bound to @code{t}.  This is the recommended
 way to lock out multi-processing over a small critical section of code
@@ -26898,7 +26898,7 @@ to prevent timing errors.  In other words the body is an
 @i{atomic operation}.  The value(s) of a @code{without-interrupts} is/are
 the value(s) of the last form in the body.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (without-interrupts
   (push item list))
 
@@ -26908,7 +26908,7 @@ the value(s) of the last form in the body.
 	 t)
 	(t nil)))
 @end lisp
-.end_defspec
+@end defspec
 
 @defvar inhibit-scheduling-flag
 The value of @code{inhibit-scheduling-flag} is normally @code{nil}.  If it is
@@ -26928,7 +26928,7 @@ references in @i{function}.  @i{whostate} is a string containing a brief
 description of the reason for waiting.  If the who-line at the bottom
 of the screen is looking at this process, it will show @i{whostate}.
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (process-wait "sleep"
 	#'(lambda (now)
              (> (time-difference (time) now) 100.))
@@ -27181,14 +27181,14 @@ messages are listed here, only those "of interest to the user".
 
 @subsection Process Attributes
 
-.defmethod process :name
+@defmethod process :name
 Returns the name of the process, which was the first argument to @code{make-process}
 or @code{process-run-function} when the process was created.  The name is
 a string which appears in the printed-representation of the process, stands for
 the process in the who-line and the @code{peek} display, etc.
-.end_defmethod
+@end defmethod
 
-.defmethod process :stack-group
+@defmethod process :stack-group
 Returns the stack group currently executing on behalf of this process.
 This can be different from the initial-stack-group if the process contains
 several stack groups which coroutine among themselves,
@@ -27196,14 +27196,14 @@ or if the process is in the error-handler, which runs in its own stack group.
 
 Note that the stack-group of a @i{simple} process (see (simple-process))
 is not a stack group at all, but a function.
-.end_defmethod
+@end defmethod
 
-.defmethod process :initial-stack-group
+@defmethod process :initial-stack-group
 Returns the stack group the initial-function is called in when the process starts up
 or is reset.
-.end_defmethod
+@end defmethod
 
-.defmethod process :initial-form
+@defmethod process :initial-form
 Returns the initial "form" of the process.
 This isn't really a Lisp form; it is a cons whose car is the initial-function
 and whose cdr is the list of arguments to which that function is applied
@@ -27213,55 +27213,55 @@ In a simple process (see (simple-process)), the initial form is a list of one
 element, the process's function.
 
 To change the initial form, send the @code{:preset} message (see (process-preset-method)).
-.end_defmethod
+@end defmethod
 
-.defmethod process :wait-function
+@defmethod process :wait-function
 Returns the process's current wait-function, which is
 the predicate used by the scheduler to determine if the process is runnable.
 This is @code{#'true} if the process is running, and @code{#'false} if the
 process has no current computation (just created, initial function has
 returned, or "flushed" (see (flushed-process)).
-.end_defmethod
+@end defmethod
 
-.defmethod process :wait-argument-list
+@defmethod process :wait-argument-list
 Returns the arguments to the process's current wait-function.  This will
 frequently be the @code{&rest} argument to @code{process-wait} in the
 process's stack, rather than a true list.  The system always uses it in
 a safe manner, i.e. it forgets about it before @code{process-wait} returns.
-.end_defmethod
+@end defmethod
 
-.defmethod process :whostate
+@defmethod process :whostate
 Returns a string which is the state of the process to go in the who-line at
 the bottom of the screen.  This is @code{"run"} if the process is running or
 trying to run, otherwise the reason why the process is waiting.  If the
 process is stopped, then this whostate string is ignored and the who-line
 displays @code{arrest} if the process is arrested or @code{stop} if the process has
 no run reasons.
-.end_defmethod
+@end defmethod
 
-.defmethod process :quantum
-.defmethod1 process :set-quantum 60ths
+@defmethod process :quantum
+@defmethodx process :set-quantum 60ths
 Return or change the number of 60ths of a second this process is allowed to
 run without waiting before the scheduler will run someone else.  The quantum
 defaults to 1 second.
 @c [This feature doesn't really work very well.]
-.end_defmethod
+@end defmethod
 
-.defmethod process :quantum-remaining
+@defmethod process :quantum-remaining
 Returns the amount of time remaining for this process to run, in 60ths of a second.
-.end_defmethod
+@end defmethod
 
-.defmethod process :priority
-.defmethod1 process :set-priority priority-number
+@defmethod process :priority
+@defmethodx process :set-priority priority-number
 Return or change the priority of this process.  The larger the number, the
 more this process gets to run.  Within a priority level the scheduler runs all
 runnable processes in a round-robin fashion.  Regardless of priority a process
 will not run for more than its quantum.  The default priority is 0, and no
 normal process uses other than 0.
-.end_defmethod
+@end defmethod
 
-.defmethod process :warm-boot-action
-.defmethod1 process :set-warm-boot-action action
+@defmethod process :warm-boot-action
+@defmethodx process :set-warm-boot-action action
 Return or change the process's warm-boot-action, which controls what
 happens if the machine is booted while this process is active.
 (Contrary to the name, this applies to both cold and warm booting.) This
@@ -27276,61 +27276,61 @@ of system reinitialization.  This is used for processes like the
 keyboard process and chaos background process which are needed for
 reinitialization itself.
 
-.end_defmethod
+@end defmethod
 
-.defmethod process :simple-p
+@defmethod process :simple-p
 Returns @code{nil} for a normal process, @code{t} for a simple process.
 See (simple-process).
-.end_defmethod
+@end defmethod
 
 @subsection Run and Arrest Reasons
 
-.defmethod process :run-reasons
+@defmethod process :run-reasons
 Returns the list of run reasons, which are the reasons why this process should
 be active (allowed to run).
-.end_defmethod
+@end defmethod
 
-.defmethod process :run-reason object
+@defmethod process :run-reason object
 Adds @i{object} to the process's run reasons.  This can activate the process.
-.end_defmethod
+@end defmethod
 
-.defmethod process :revoke-run-reason object
+@defmethod process :revoke-run-reason object
 Removes @i{object} from the process's run reasons.  This can stop the process.
-.end_defmethod
+@end defmethod
 
-.defmethod process :arrest-reasons
+@defmethod process :arrest-reasons
 Returns the list of arrest reasons, which are the reasons why this process
 should be inactive (forbidden to run).
-.end_defmethod
+@end defmethod
 
-.defmethod process :arrest-reason object
+@defmethod process :arrest-reason object
 Adds @i{object} to the process's arrest reasons.  This can stop the process.
-.end_defmethod
+@end defmethod
 
-.defmethod process :revoke-arrest-reason object
+@defmethod process :revoke-arrest-reason object
 Removes @i{object} from the process's arrest reasons.  This can activate
 the process.
-.end_defmethod
+@end defmethod
 
-.defmethod process :active-p
-.defmethod1 process :runnable-p
+@defmethod process :active-p
+@defmethodx process :runnable-p
 These two messages are the same.  @code{t} is returned if the process is
 active, i.e. it can run if its wait-function allows.  @code{nil} is returned
 if the process is stopped.
-.end_defmethod
+@end defmethod
 
 @subsection Bashing the Process
 
-.defmethod process :preset function &rest args
+@defmethod process :preset function &rest args
 Sets the process's initial function to @i{function} and initial arguments
 to @i{args}.  The process is then reset so that it will throw out of
 any current computation and start itself up by @code{apply}ing @i{function} to @i{args}.
 A @code{:preset} message to a stopped process
 will return immediately, but will not activate the process, hence the
 process will not really apply @i{function} to @i{args} until it is activated later.
-.end_defmethod
+@end defmethod
 
-.defmethod process :reset &optional no-unwind kill
+@defmethod process :reset &optional no-unwind kill
 Forces the process to throw out of its present computation and apply its
 initial function to its initial arguments, when it next runs.  The
 throwing out is skipped if the process has no present computation (e.g.
@@ -27356,9 +27356,9 @@ This is for internal use by the @code{:kill} message only.
 A @code{:reset} message to a stopped process
 will return immediately, but will not activate the process, hence the
 process will not really get reset until it is activated later.
-.end_defmethod
+@end defmethod
 
-.defmethod process :flush
+@defmethod process :flush
 Forces the process to wait forever.  A process may not @code{:flush} itself.
 Flushing a process is different from stopping it, in that it is still active
 and hence if it is reset or preset it will start running again.
@@ -27366,14 +27366,14 @@ and hence if it is reset or preset it will start running again.
 @c controlled by process-mixin and the window is selected or exposed.
 @c Also it will be given a run-reason if it doesn't have one.
 @c But this is not the place to document that.
-.end_defmethod
+@end defmethod
 
-.defmethod process :kill
+@defmethod process :kill
 Gets rid of the process.  It is reset, stopped,
 and removed from @code{sys:all-processes}.
-.end_defmethod
+@end defmethod
 
-.defmethod process :interrupt function &rest args
+@defmethod process :interrupt function &rest args
 Forces the process to @code{apply} @i{function} to @i{args}.  When @i{function} returns,
 the process will continue the interrupted computation.  If the process is waiting,
 it wakes up, calls @i{function}, then waits again when @i{function} returns.
@@ -27382,7 +27382,7 @@ If the process is stopped it will not @code{apply} @i{function} to @i{args}
 immediately, but later when it is activated.  Normally the @code{:interrupt} message
 returns immediately, but if the process's stack group is in an unusual internal
 state it may have to wait for it to get out of that state.
-.end_defmethod
+@end defmethod
 
 @section Process Flavors
 
@@ -27580,7 +27580,7 @@ value, it will return @code{nil}.
 
 Condition handlers are established through the @code{condition-bind} special form:
 
-.defspec condition-bind
+@defspec condition-bind
 The @code{condition-bind} special form is used for establishing handlers for conditions.
 It looks like:
 @lisp
@@ -27598,7 +27598,7 @@ Each @i{hand-n} is a form which is evaluated to produce a handler function.
 The handlers are established sequentially such that the @i{cond-1}
 handler would be looked at first.
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (condition-bind ((:wrong-type-argument 'my-wta-handler)
                  ((lossage-1 lossage-2) lossage-handler))
     (princ "Hello there.")
@@ -27616,7 +27616,7 @@ makes use of ordinary variable binding, so that if the
 @code{condition-bind} form is thrown through, the handlers will be
 disestablished.  This also means that condition handlers are established
 only within the current stack-group.
-.end_defspec
+@end defspec
 
 @subsection Error Conditions
 
@@ -27775,7 +27775,7 @@ In most cases @i{condition-name} is @code{nil}, which means that no condition-ha
 is likely to be found and the debugger will be entered.
 
 @lisp
-.exdent 96 Examples:
+@exdent Examples:
 (cond ((> sz 60)
        (ferror nil
 	       "The size, ~S, was greater than the maximum"
@@ -27825,7 +27825,7 @@ will return no particular value when the error is proceeded.
 Note:  Many programs that want to signal restartable errors will want to use
 the @code{error-restart} special form; see (error-restart-fun).
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (do ()
     ((symbolp a))
   @t{; Do this stuff until }a@t{ becomes a symbol.}
@@ -28098,16 +28098,16 @@ some unanticipated error crops up, you may not be told--this can cause
 very strange bugs.  Note that the variable @code{errset} allows all @code{errset}s
 to be disabled for debugging purposes.
 
-.defspec errset form [flag]
+@defspec errset form [flag]
 The @code{errset} special form catches errors during
 the evaluation of @i{form}.  If an error occurs, the usual error message
 is printed unless @i{flag} is @code{nil}.  Then control is thrown and the errset-form
 returns @code{nil}.  @i{flag} is evaluated first and is optional, defaulting to @code{t}.
 If no error occurs, the value of the errset-form is a list of one element,
 the value of @i{form}.
-.end_defspec
+@end defspec
 
-.defspec catch-error form [flag]
+@defspec catch-error form [flag]
 @code{catch-error} is a variant of @code{errset}.  This special form
 catches errors during the evaluation of
 @i{form}, and returns two values.  Normally the first value is the value of
@@ -28116,7 +28116,7 @@ error message is printed unless @i{flag} is @code{nil}, and then control is thro
 out of the @code{catch-error} form, which returns two values: first @code{nil} and second a
 non-@code{nil} value that indicates the occurrence of an error.  @i{flag} is
 evaluated first and is optional, defaulting to @code{t}.
-.end_defspec
+@end defspec
 
 @defvar errset
 If this variable is non-@code{nil}, @code{errset} forms are not allowed to trap errors.
@@ -28124,7 +28124,7 @@ The debugger is entered just as if there were no errset.  This is intended mainl
 for debugging.  The initial value of @code{errset} is @code{nil}.
 @end defvar
 
-.defspec err
+@defspec err
 This is for Maclisp compatibility only and should not be used.
 
 @code{(err)} is a dumb way to cause an error.  If executed inside an errset,
@@ -28136,7 +28136,7 @@ to return the result.  If executed when not inside an errset, an unseen
 throw-tag error occurs.
 
 @code{(err @i{form} @i{flag})}, which exists in Maclisp, is not supported.
-.end_defspec
+@end defspec
 
 @section The Debugger
 @cindex debugger
@@ -28573,7 +28573,7 @@ in the system menu, or by using the "meta-X Trace" command in the editor.
 This allows you to select the trace options from a menu instead of having
 to remember the following syntax.
 
-.defspec trace
+@defspec trace
 A @code{trace} form looks like:
 @lisp
 (trace @i{spec-1} @i{spec-2} ...)
@@ -28600,7 +28600,7 @@ would instead be interpreted as the following form:
 All of the functions are traced with the same options.  Each @i{function} can
 be either a symbol or a general function-spec.
 @end table
-.end_defspec
+@end defspec
 
 	The following @code{trace} options exist:
 @table @code
@@ -28781,12 +28781,12 @@ the tracing will be transferred from the old definition to the new definition.
 Tracing output is printed on the stream which is the value of @code{trace-output}.
 This is synonymous with @code{terminal-io} unless you change it.
 
-.defspec untrace
+@defspec untrace
 @code{untrace} is used to undo the effects of @code{trace} and restore functions to
 their normal, untraced state.  @code{untrace} will take multiple specifications,
 e.g. @code{(untrace foo quux fuphoo)}.  Calling @code{untrace} with no arguments
 will untrace all functions currently being traced.
-.end_defspec
+@end defspec
 
 Unlike Maclisp, if there is an error @code{trace} (or @code{untrace}) will
 invoke
@@ -28831,7 +28831,7 @@ Advising is implemented with encapsulation (see (encapsulate)), so if the
 function is redefined (e.g. with @code{defun} or by loading it from a QFASL file)
 the advice will be transferred from the old definition to the new definition.
 
-.defspec advise
+@defspec advise
 A function is advised by the special form
 @lisp
 (advise @i{function} @i{class} @i{name} @i{position}
@@ -28873,16 +28873,16 @@ class on the same function; the new advice is inserted before that
 one.
 
 @lisp
-.exdent 96 @t{For example,}
+@exdent @t{For example,}
 (advise factorial :before negative-arg-check nil
   (if (minusp (first arglist))
       (ferror nil "factorial of negative argument")))
 @end lisp
 This modifies the factorial function so that if it is called with a negative argument
 it signals an error instead of running forever.
-.end_defspec
+@end defspec
 
-.defspec unadvise
+@defspec unadvise
 @lisp
 (unadvise @i{function} @i{class} @i{position})
 @end lisp
@@ -28896,7 +28896,7 @@ are missing.  If @i{position} is missing or @code{nil}, then all advice of the s
 on the specified function is removed.  If @i{class} is missing or @code{nil} as well, then all
 advice on the specified function is removed.  @code{(unadvise)} removes all advice
 on all functions, since @i{function} is not specified.
-.end_defspec
+@end defspec
 
 The following are the primitive functions for adding and removing advice.
 Unlike the above special forms, these are functions and can be conveniently
@@ -29011,7 +29011,7 @@ has been put on @code{foo} or anything else within @code{bar}.
 An alternate way of putting on this sort of advice is to use
 @code{advise-within}.
 
-.defspec advise-within
+@defspec advise-within
 @lisp
 (advise-within @i{within-function} @i{function-to-advise}
 	       @i{class} @i{name} @i{position}
@@ -29020,12 +29020,12 @@ An alternate way of putting on this sort of advice is to use
 advises @i{function-to-advise} only when called directly from the function
 @i{within-function}.  The other arguments mean the same thing as with
 @code{advise}.  None of them are evaluated.
-.end_defspec
+@end defspec
 
 To remove advice from @code{(:within bar foo)}, you can use @code{unadvise} on that
 function specifier.  Alternatively, you can use @code{unadvise-within}.
 
-.defspec unadvise-within
+@defspec unadvise-within
 @lisp
 (unadvise-within @i{within-function} @i{function-to-advise} @i{class} @i{position})
 @end lisp
@@ -29043,7 +29043,7 @@ removed.
 
 @code{(unadvise)} removes absolutely all advice, including advice for one
 function within another.
-.end_defspec
+@end defspec
 
 The function versions of @code{advise-within} and @code{unadvise-within} are
 called @code{si:advise-within-1} and @code{si:unadvise-within-1}.  @code{advise-within} and
@@ -29203,7 +29203,7 @@ for instance of arguments in the @i{form}.
 This is like a "one-instruction proceed" in a machine-language
 debugger.  
 @lisp
-.exdent 96 Example:
+@exdent Example:
 @t{;; This function evaluates a form while printing debugging information.}
 (defun hook (x)
    (terpri)
@@ -31433,7 +31433,7 @@ are maintained (see below).
 @cindex break loop
 @cindex breakpoint
 
-.defspec break [tag] [conditional-form]
+@defspec break [tag] [conditional-form]
 @code{break} is used to enter a breakpoint loop, which is similar
 to a Lisp top level loop.  @code{(break @i{tag})} will always
 enter the loop; @code{(break @i{tag} @i{conditional-form})}
@@ -31461,7 +31461,7 @@ value of the variable @code{sys:*break-bindings*}
 (see (sys:*break-bindings*-var)).
 
 If @i{tag} is omitted, it defaults to @code{nil}.
-.end_defspec
+@end defspec
 
 @defvar prin1
 The value of this variable is normally @code{nil}.  If it is non-@code{nil},
@@ -31633,11 +31633,11 @@ to @code{nil}.  Then it runs the @code{:logout} initialization list
 (see (login-init-list)), and returns @code{t}.
 @end defun
 
-.defspec login-setq @{variable value@}...
+@defspec login-setq @{variable value@}...
 @code{login-setq} is like @code{setq} except that it puts
 a @code{setq} form on @code{logout-list} to set the variables
 to their previous values.
-.end_defspec
+@end defspec
 
 @defun login-eval x
 @code{login-eval} is used for functions which are "meant to be called"
@@ -31670,7 +31670,7 @@ with Maclisp.  Programs that wish to run in both Maclisp and Zetalisp
 can use @code{status} to determine which of these they are running in.  Also,
 @code{(sstatus feature ...)} can be used as it is in Maclisp.
 
-.defspec status
+@defspec status
 @code{(status features)} returns a list of symbols indicating features
 of the Lisp environment.  The complete list of all symbols which may
 appear on this list, and their meanings, is given in the Maclisp
@@ -31711,14 +31711,14 @@ Note that this is not the @i{site} as described above, under @code{(status featu
 @code{(status status)} returns a list of all @code{status} operations.
 
 @code{(status sstatus)} returns a list of all @code{sstatus} operations.
-.end_defspec
+@end defspec
 
-.defspec sstatus
+@defspec sstatus
 @code{(sstatus feature @i{symbol})} adds @i{symbol} to the list
 of features.
 
 @code{(sstatus nofeature @i{symbol})} removes @i{symbol} from
 the list of features.
-.end_defspec
+@end defspec
 
 @bye

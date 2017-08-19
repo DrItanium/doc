@@ -2270,12 +2270,12 @@ If @i{place} invokes a macro or a substitutable function, then
 use @code{setf} together with @code{defstruct} accessor macros.
 @end defmac
 
-.defcondition sys:unknown-setf-reference (@code{error})
-.defcondition1 sys:unknown-locf-reference (@code{error})
+@defvr {Condition} sys:unknown-setf-reference (@code{error})
+@defvrx {Condition} sys:unknown-locf-reference (@code{error})
 These are signaled when @code{setf} or @code{locf} does not know how to expand
 the @i{place}.  The @code{:form} operation on the condition instance
 returns the @i{access-form}.
-.end_defcondition
+@end defvr
 
 @defmac psetf @{place value@}...
 Stores each @i{value} into the corresponding @i{place}, with the changes taking
@@ -2705,13 +2705,13 @@ modify permanent data structure.  An attempt to @code{rplacd} a rest-args
 list is unsafe in this case, while in the first case it would cause
 an error, since lists in the stack are impossible to @code{rplacd}.
 
-.defconst lambda-parameters-limit
+@defvr {Constant} lambda-parameters-limit
 Has as its value the limit on the number of parameters that a lambda
 list may have.  The implementation limit on the number of parameters
 allowed is at least this many.  There is no promise that this many is
 forbidden, but it is a promise that any number less than this many is
 permitted.
-.end_defconst
+@end defvr
 
 @subsection Lambda-List Keywords
 @cindex lambda-list keywords
@@ -2725,10 +2725,10 @@ indicated.  You need only know about @code{&optional}, @code{&key}, and
 @code{&rest} in order to understand the documentation of system functions
 in this manual.
 
-.defconst lambda-list-keywords
+@defvr {Constant} lambda-list-keywords
 The value of this variable is a list of all of the allowed `@code{&}' keywords.
 A list of them follows.
-.end_defconst
+@end defvr
 
 @table @code
 @item &optional
@@ -2982,7 +2982,7 @@ There are no binding context pointers in Zetalisp; true lexical scoping
 exists and is interfaced in other ways.
 @end defun
 
-.defconst call-arguments-limit
+@defvr {Constant} call-arguments-limit
 Has as its value the limit on the number of arguments that can be dealt with in a
 function call.  There is no promise that this many is forbidden, but it is a promise
 that any smaller number is acceptable.
@@ -2991,7 +2991,7 @@ Note that if @code{apply} is used with exactly two arguments, the first
 one being a function that takes a rest argument, there is no limit
 except the size of memory on the number of elements in the second
 argument to @code{apply}.
-.end_defconst
+@end defvr
 
 @defun call function &rest argument-specifications
 Offers a very general way of controlling what arguments you
@@ -3695,11 +3695,11 @@ unwinding the stack and not as part of sequential execution.
 body, if it exits normally.  If a throw is done, multiple values are
 passed back from the value form in the @code{throw}.
 
-.defconst multiple-values-limit
+@defvr {Constant} multiple-values-limit
 The smallest number of values that might possibly fail to work.
 Returning a number of values less than this many cannot possibly
 run into trouble with an implementation limit on number of values returned.
-.end_defconst
+@end defvr
 
 @section Evaluation and Function Calling Errors
 
@@ -3708,7 +3708,7 @@ signal.  Some can be signaled by calls to compiled functions also.  This
 is for use by those who are writing condition handlers
 ((condition-handlers)).  The novice should skip this section.
 
-.defcondition sys:invalid-function (@code{error})
+@defvr {Condition} sys:invalid-function (@code{error})
 This is signaled when an object that is
 supposed to be applied to arguments is not a valid Lisp function.
 The condition instance supports the
@@ -3716,15 +3716,15 @@ operation @code{:function}, which returns the supposed function to be called.
 
 The @code{:new-function} proceed type is provided; it expects one argument,
 a function to call instead.
-.end_defcondition
+@end defvr
 
-.defcondition sys:invalid-lambda-list (@code{sys:invalid-function} @code{error})
+@defvr {Condition} sys:invalid-lambda-list (@code{sys:invalid-function} @code{error})
 This condition name is present in addition to @code{sys:invalid-function}
 when the function to be called looks like an interpreted function, and
 the only problem is the syntax of its lambda list.
-.end_defcondition
+@end defvr
 
-.defcondition sys:too-few-arguments (@code{error})
+@defvr {Condition} sys:too-few-arguments (@code{error})
 This condition is signaled when a function is applied to too few arguments.
 The condition instance supports the operations @code{:function} and
 @code{:arguments} which return the function and the list of the arguments
@@ -3734,16 +3734,16 @@ The proceed types @code{:additional-arguments} and @code{:new-argument-list}
 are provided.  Both take one argument.  In the first case, the argument
 is a list of arguments to pass in addition to the ones supplied.  In the
 second, it is a list of arguments to replace the ones actually supplied.
-.end_defcondition
+@end defvr
 
-.defcondition sys:too-many-arguments (@code{error})
+@defvr {Condition} sys:too-many-arguments (@code{error})
 This is similar to @code{sys:too-few-arguments}.  Instead of the
 @code{:additional-arguments} proceed type, @code{:fewer-arguments} is
 provided.  Its argument is a number, which is how many of the originally
 supplied arguments to use in calling the function again.
-.end_defcondition
+@end defvr
 
-.defcondition sys:undefined-keyword-argument (@code{error})
+@defvr {Condition} sys:undefined-keyword-argument (@code{error})
 This is signaled when a function that takes keyword arguments is given a
 keyword that it does not accept, if @code{&allow-other-keys} was not used
 in the function's definition and @code{:allow-other-keys} was not specified
@@ -3753,7 +3753,7 @@ on the condition instance returns the extraneous keyword, and the
 
 The proceed type @code{:new-keyword} is provided.  It expects one
 argument, which is a keyword to use instead of the one supplied.
-.end_defcondition
+@end defvr
 
 .defcondition-flavor sys:cell-contents-error (@code{error})
 This condition name categorizes all the errors signaled because of
@@ -3793,22 +3793,22 @@ The argument is used as the contents of the memory cell.
 @code{:store-new-value} also permanently stores the argument into the cell.
 .end_defcondition-flavor
 
-.defcondition sys:unbound-variable (@code{sys:cell-contents-error} @code{error})
+@defvr {Condition} sys:unbound-variable (@code{sys:cell-contents-error} @code{error})
 This condition name categorizes all errors of variables whose values are void.
-.end_defcondition
+@end defvr
 
-.defcondition sys:unbound-special-variable
-.defcondition1 sys:unbound-closure-variable
-.defcondition1 sys:unbound-instance-variable
+@defvr {Condition} sys:unbound-special-variable
+@defvrx {Condition} sys:unbound-closure-variable
+@defvrx {Condition} sys:unbound-instance-variable
 These condition names appear in addition to @code{sys:unbound-variable} to subcategorize
 the kind of variable reference that the error happened in.
-.end_defcondition
+@end defvr
 
-.defcondition sys:undefined-function (@code{sys:cell-contents-error} @code{error})
+@defvr {Condition} sys:undefined-function (@code{sys:cell-contents-error} @code{error})
 This condition name categorizes errors of function specs that are undefined.
-.end_defcondition
+@end defvr
 
-.defcondition sys:wrong-type-argument (@code{error})
+@defvr {Condition} sys:wrong-type-argument (@code{error})
 This is signaled when a function checks the type of its argument and
 rejects it; for example, if you do @code{(car 1)}.
 
@@ -3827,7 +3827,7 @@ A type specifier which says what sort of object was expected for this argument.
 
 The proceed type @code{:argument-value} is provided; it expects one argument,
 which is a value to use instead of the erroneous value.
-.end_defcondition
+@end defvr
 
 @chapter Flow of Control
 @cindex control structure
@@ -5085,7 +5085,7 @@ returning out of an @code{unwind-protect}.
 Old, obsolete names for @code{catch} and @code{throw}.
 @end defmac
 
-.defcondition sys:throw-tag-not-seen (@code{error})
+@defvr {Condition} sys:throw-tag-not-seen (@code{error})
 This is signaled when @code{throw} (or @code{*unwind-stack}) is used and
 there is no @code{catch} for the specified tag.  The condition instance
 supports these extra operations:
@@ -5102,7 +5102,7 @@ The additional two arguments given to @code{*unwind-stack}, if that was used.
 The error occurs in the environment of the @code{throw}; no unwinding has yet taken place.
 
 The proceed type @code{:new-tag} expects one argument, a tag to throw to instead.
-.end_defcondition
+@end defvr
 
 @cindex unwinding a stack
 @defun *unwind-stack tag value active-frame-count action
@@ -7121,10 +7121,10 @@ It is an error to do @code{rplacd} on a stack list (except for the
 tail of one made using @code{with-stack-list*}).  @code{rplaca} works
 normally.
 
-.defcondition sys:rplacd-wrong-representation-type (@code{error})
+@defvr {Condition} sys:rplacd-wrong-representation-type (@code{error})
 This is signaled if you @code{rplacd} a stack list (or a list overlayed
 with an array or other structure).
-.end_defcondition
+@end defvr
 
 @section Property Lists
 @cindex property list
@@ -8584,8 +8584,8 @@ The same thing could be accomplished with a condition handler.
 However, @code{zunderflow} is useful for Maclisp compatibility, and is also faster.
 @end defvar
 
-.defcondition sys:floating-exponent-overflow (@code{sys:arithmetic-error} @code{error})
-.defcondition1 sys:floating-exponent-underflow (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition} sys:floating-exponent-overflow (@code{sys:arithmetic-error} @code{error})
+@defvrx {Condition} sys:floating-exponent-underflow (@code{sys:arithmetic-error} @code{error})
 @code{sys:floating-exponent-overflow} is signaled when the result of an
 arithmetic operation should be a floating point number, but the exponent
 is too large to be represented in the format to be used for the value.
@@ -8605,7 +8605,7 @@ type, which expects no argument.
 
 Unfortunately, it is not possible to make the arguments to the operation
 available.  Perhaps someday they will be.
-.end_defcondition
+@end defvr
 
 @section Numeric Predicates
 @defun zerop x
@@ -9028,12 +9028,12 @@ that the first value is converted from an integer to a float.
 If @i{x} is a float, then the result is the same type of float as @i{x}.
 @end defun
 
-.defcondition sys:divide-by-zero (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition} sys:divide-by-zero (@code{sys:arithmetic-error} @code{error})
 Dividing by zero, using any of the above division functions, signals this
 condition.  The @code{:function} operation on the condition instance
 returns the name of the division function.  The @code{:dividend} operation
 may be available to return the number that was divided.
-.end_defcondition
+@end defvr
 
 @defun 1+ x
 @defunx add1 x
@@ -9078,10 +9078,10 @@ If @i{y} is zero, the result is @code{(+ 1 (* @i{x} @i{y}))};
 this is equal to one, but its type depends on those of @i{x} and @i{y}.
 @end defun
 
-.defcondition sys:zero-to-negative-power (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition} sys:zero-to-negative-power (@code{sys:arithmetic-error} @code{error})
 This condition is signaled when @code{expt}'s first argument is zero
 and the second argument is negative.
-.end_defcondition
+@end defvr
 
 @defun sqrt x
 Returns the square root of @i{x}.  A mathematically unavoidable
@@ -9177,9 +9177,9 @@ These functions are only for floating-point arguments; if given an integer
 they convert it to a float.  If given a short float, they return a
 short float.
 
-.defconst pi
+@defvr {Constant} pi
 The value of @code{}, as a full-size float.
-.end_defconst
+@end defvr
 
 @defun exp x
 Returns @i{e} raised to the @i{x}'th power, where @i{e} is the base of natural logarithms.
@@ -9197,9 +9197,9 @@ If @i{base} is specified, the result is
 @end lisp
 @end defun
 
-.defcondition sys:zero-log (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition} sys:zero-log (@code{sys:arithmetic-error} @code{error})
 This is signaled when the argument to @code{log} is zero.
-.end_defcondition
+@end defvr
 
 @defun sin x
 @defunx cos x
@@ -9530,27 +9530,27 @@ forms of @code{boole}.  @code{boole} is useful when the operation to be performe
 is not constant.
 @end defun
 
-.defconst boole-ior
-.defconst1 boole-and
-.defconst1 boole-xor
-.defconst1 boole-eqv
-.defconst1 boole-nand
-.defconst1 boole-nor
-.defconst1 boole-orc1
-.defconst1 boole-orc2
-.defconst1 boole-andc1
-.defconst1 boole-andc2
+@defvr {Constant} boole-ior
+@defvrx {Constant} boole-and
+@defvrx {Constant} boole-xor
+@defvrx {Constant} boole-eqv
+@defvrx {Constant} boole-nand
+@defvrx {Constant} boole-nor
+@defvrx {Constant} boole-orc1
+@defvrx {Constant} boole-orc2
+@defvrx {Constant} boole-andc1
+@defvrx {Constant} boole-andc2
 The @code{boole} opcodes that correspond to the functions @code{logior}, @code{logand}, etc.
-.end_defconst
+@end defvr
 
-.defconst boole-clr
-.defconst1 boole-set
-.defconst1 boole-1
-.defconst1 boole-2
+@defvr {Constant} boole-clr
+@defvrx {Constant} boole-set
+@defvrx {Constant} boole-1
+@defvrx {Constant} boole-2
 The @code{boole} opcodes for the four trivial operations.  Respectively, they
 are those which always return zero, always return one, always return the
 first argument, and always return the second argument.
-.end_defconst
+@end defvr
 
 @defun bit-test x y
 @defunx logtest x y
@@ -9897,77 +9897,77 @@ Common Lisp defines some constants whose values give information
 in a standard way about the ranges of numbers representable in the
 individual Lisp implementation.
 
-.defconst most-negative-fixnum
+@defvr {Constant} most-negative-fixnum
 Any integer smaller than this must be a bignum.
-.end_defconst
+@end defvr
 
-.defconst most-positive-fixnum
+@defvr {Constant} most-positive-fixnum
 Any integer larger than this must be a bignum.
-.end_defconst
+@end defvr
 
-.defconst most-positive-short-float
+@defvr {Constant} most-positive-short-float
 No short float can be greater than this number.
-.end_defconst
+@end defvr
 
-.defconst least-positive-short-float
+@defvr {Constant} least-positive-short-float
 No positive short float can be closer to zero than this number.
-.end_defconst
+@end defvr
 
-.defconst least-negative-short-float
+@defvr {Constant} least-negative-short-float
 No negative short float can be closer to zero than this number.
-.end_defconst
+@end defvr
 
-.defconst most-negative-short-float
+@defvr {Constant} most-negative-short-float
 No short float can be less than this (negative) number.
-.end_defconst
+@end defvr
 
-.defconst most-positive-single-float
-.defconst1 least-positive-single-float
-.defconst1 least-negative-single-float
-.defconst1 most-negative-single-float
+@defvr {Constant} most-positive-single-float
+@defvrx {Constant} least-positive-single-float
+@defvrx {Constant} least-negative-single-float
+@defvrx {Constant} most-negative-single-float
 Similar to the above, but for full-size floats rather than
 for short floats.
-.end_defconst
+@end defvr
 
-.defconst most-positive-double-float
-.defconst1 least-positive-double-float
-.defconst1 least-negative-double-float
-.defconst1 most-negative-double-float
-.defconst1 most-positive-long-float
-.defconst1 least-positive-long-float
-.defconst1 least-negative-long-float
-.defconst1 most-negative-long-float
+@defvr {Constant} most-positive-double-float
+@defvrx {Constant} least-positive-double-float
+@defvrx {Constant} least-negative-double-float
+@defvrx {Constant} most-negative-double-float
+@defvrx {Constant} most-positive-long-float
+@defvrx {Constant} least-positive-long-float
+@defvrx {Constant} least-negative-long-float
+@defvrx {Constant} most-negative-long-float
 These are defined by Common Lisp to be similar to the above,
 but for double-floats and long-floats.  On the Lisp Machine,
 there are no distinct double and long floating formats; they are
 synonyms for single-floats.  So these constants exist but their values
 are the same as those of @code{most-positive-single-float} and so on.
-.end_defconst
+@end defvr
 
-.defconst short-float-epsilon
+@defvr {Constant} short-float-epsilon
 Smallest positive short float which can be added to 1.0s0 and make a difference.
 That is, for any short float @i{x} less than this, @code{(+ 1.0s0 @i{x})}
 equals 1.0s0.
-.end_defconst
+@end defvr
 
-.defconst single-float-epsilon
-.defconst1 double-float-epsilon
-.defconst1 long-float-epsilon
+@defvr {Constant} single-float-epsilon
+@defvrx {Constant} double-float-epsilon
+@defvrx {Constant} long-float-epsilon
 Smallest positive float which can be added to 1.0 and make a difference.
 The three names are synonyms on the Lisp Machine,
 for reasons explained above.
-.end_defconst
+@end defvr
 
-.defconst short-float-negative-epsilon
+@defvr {Constant} short-float-negative-epsilon
 Smallest positive short float which can be subtracted from 1.0s0
 and make a difference.
-.end_defconst
+@end defvr
 
-.defconst single-float-negative-epsilon
-.defconst1 double-float-negative-epsilon
-.defconst1 long-float-negative-epsilon
+@defvr {Constant} single-float-negative-epsilon
+@defvrx {Constant} double-float-negative-epsilon
+@defvrx {Constant} long-float-negative-epsilon
 Smallest positive float which can be subtracted from 1.0 and make a difference.
-.end_defconst
+@end defvr
 
 @section Arithmetic Ignoring Overflow
 
@@ -10096,10 +10096,10 @@ object is a vector.  A series of functions called the generic sequence
 functions accept either a vector or a list as argument indiscriminantly
 (see (generic-sequence-functions)).
 
-.defconst array-rank-limit
+@defvr {Constant} array-rank-limit
 A constant giving the upper limit on the rank of an array.  It is 8,
 indicating that 7 is the highest possible rank.
-.end_defconst
+@end defvr
 
 	The lowest value for any subscript is zero; the highest value
 is a property of the array.  Each dimension has a size, which is
@@ -10108,18 +10108,18 @@ For example, in a one-dimensional array of five elements, the size
 of the one and only dimension is five, and the acceptable
 values of the subscript are zero, one, two, three, and four.
 
-.defconst array-dimension-limit
+@defvr {Constant} array-dimension-limit
 Any one dimension of an array must be smaller than this constant.
-.end_defconst
+@end defvr
 
 @cindex total size of an array
 
 The @i{total size} of an array is the number of elements in it.
 It is the product of the sizes of the dimensions of the array.
 
-.defconst array-total-size-limit
+@defvr {Constant} array-total-size-limit
 The total number of elements of any array must be smaller than this constant.
-.end_defconst
+@end defvr
 
 @cindex fill pointer
 @cindex simple array
@@ -10316,25 +10316,25 @@ may be any Lisp object; their use is explained in the section on
 stack groups (see (stack-group)).
 @cindex stack group
 
-.defconst array-types
+@defvr {Constant} array-types
 The value of @code{array-types} is a list of all of the array type symbols
 such as @code{art-q}, @code{art-4b}, @code{art-string} and so on.  The values
 of these symbols are internal array type code numbers for the corresponding
 type.
-.end_defconst
+@end defvr
 
 @defun array-types array-type-code
 Given an internal numeric array-type code, returns the symbolic name
 of that type.
 @end defun
 
-.defconst array-elements-per-q
+@defvr {Constant} array-elements-per-q
 @code{array-elements-per-q} is an association list (see (alist)) which
 associates each array type symbol with the number of array elements
 stored in one word, for an array of that type.  If the value is negative,
 it is instead the number of words per array element, for arrays whose
 elements are more than one word long.
-.end_defconst
+@end defvr
 
 @defun array-elements-per-q array-type-code
 Given the internal array-type code number, returns the number of array
@@ -10343,13 +10343,13 @@ is negative, it is instead the number of words per array element, for
 arrays whose elements are more than one word long.
 @end defun
 
-.defconst array-bits-per-element
+@defvr {Constant} array-bits-per-element
 The value of @code{array-bits-per-element} is an association list (see (alist))
 which associates each array type symbol with the number of
 bits of unsigned number it can hold, or @code{nil} if it can
 hold Lisp objects.  This can be used to tell whether an array
 can hold Lisp objects or not.
-.end_defconst
+@end defvr
 
 @defun array-bits-per-element array-type-code
 Given the internal array-type code numbers, returns the number of bits
@@ -10779,13 +10779,13 @@ On the Lisp Machine they are all synonyms for @code{cli:aref}.
 @noindent
 Here are the conditions signaled for various errors in accessing arrays.
 
-.defcondition sys:array-has-no-leader (@code{sys:bad-array-mixin} @code{error})
+@defvr {Condition} sys:array-has-no-leader (@code{sys:bad-array-mixin} @code{error})
 This is signaled on a reference to the leader of an array that doesn't
 have one.  The condition instance supports the @code{:array} operation,
 which returns the array that was used.
 
 The @code{:new-array} proceed-type is provided.
-.end_defcondition
+@end defvr
 
 .defflavor-condition sys:bad-array-mixin
 This mixin is used in the conditions signaled by several kinds of
@@ -10793,7 +10793,7 @@ problems pertaining to arrays.  It defines prompting for the
 @code{:new-array} proceed type.
 .end_defflavor-condition
 
-.defcondition sys:array-wrong-number-of-dimensions (@code{sys:bad-array-mixin} @code{error})
+@defvr {Condition} sys:array-wrong-number-of-dimensions (@code{sys:bad-array-mixin} @code{error})
 This is signaled when an array is referenced (either reading or writing)
 with the wrong number of subscripts; for example, @code{(aref "foo" 1 2)}.
 
@@ -10803,9 +10803,9 @@ list of subscripts used.
 
 The @code{:new-array} proceed type is provided.  It expects one argument,
 an array to use instead of the original one.
-.end_defcondition
+@end defvr
 
-.defcondition sys:subscript-out-of-bounds (@code{error})
+@defvr {Condition} sys:subscript-out-of-bounds (@code{error})
 This is signaled when there are the right number of subscripts but their
 values specify an element that falls outside the bounds of the array.
 The same condition is used by @code{sys:%instance-ref}, etc., when the
@@ -10818,13 +10818,13 @@ subscripts.
 The @code{:new-subscript} proceed type is provided.  It takes an
 appropriate number of subscripts as arguments.  You should provide as
 many subscripts as there originally were.
-.end_defcondition
+@end defvr
 
-.defcondition sys:number-array-not-allowed (@code{sys:bad-array-mixin} @code{error})
+@defvr {Condition} sys:number-array-not-allowed (@code{sys:bad-array-mixin} @code{error})
 This is signaled by an attempt to use @code{aloc} on a numeric array
 such as an @code{art-1b} array or a string.
 The @code{:array} operation and the @code{:new-array} proceed type are available.
-.end_defcondition
+@end defvr
 
 @section Getting Information About an Array
 
@@ -11155,7 +11155,7 @@ updated to ensure this.
 The two names are synonymous.
 @end defun
 
-.defcondition sys:fill-pointer-not-fixnum (@code{sys:bad-array-mixin} @code{error})
+@defvr {Condition} sys:fill-pointer-not-fixnum (@code{sys:bad-array-mixin} @code{error})
 This is signaled when one of the functions in this section is used with
 an array whose leader element zero is not a fixnum.  Most other array
 accessing operations simply assume that the array has no fill
@@ -11165,7 +11165,7 @@ pointer.
 The @code{:array} operation on the condition instance returns the array
 that was used.  The @code{:new-array} proceed type is supported, with one
 argument, an array.
-.end_defcondition
+@end defvr
 
 @section Copying an Array
 
@@ -11438,11 +11438,11 @@ converted by replacing calls to @code{make-array}, @code{array-dimension},
 old systems or in new ones.  In more complicated circumstances, you can
 facilitate conversion by writing code which tests this variable.
 
-.defconst sys:array-index-order
+@defvr {Constant} sys:array-index-order
 This is @code{t} in more recent system versions which store arrays in
 row-major order (last subscript varies fastest).  It is @code{nil} in older
 system versions which store arrays in column-major order.
-.end_defconst
+@end defvr
 
 @section Matrices and Systems of Linear Equations
 
@@ -11532,14 +11532,14 @@ list of lists, with each element being a list corresponding to a row.
 The lists which are elements of @i{list} also work this way.
 @end defun
 
-.defcondition math:singular-matrix (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition} math:singular-matrix (@code{sys:arithmetic-error} @code{error})
 This is signaled when any of the matrix manipulation functions in this
 section has trouble because of a singular matrix.  (In some functions,
 such as @code{math:determinant}, a singular matrix is not a problem.)
 
 The @code{:matrix} operation on the condition instance returns the matrix
 which is singular.
-.end_defcondition
+@end defvr
 
 @section Planes
 @cindex plane
@@ -12822,32 +12822,32 @@ These used to be written as
 Such use of @code{ldb} is frequent but obsolete.
 @end defun
 
-.defconst char-code-limit
+@defvr {Constant} char-code-limit
 A constant whose value is a bound on the maximum code of any character.
 In the Lisp Machine, currently, it is 400 (octal).
-.end_defconst
+@end defvr
 
-.defconst char-font-limit
+@defvr {Constant} char-font-limit
 A constant whose value is a bound on the maximum font number value of
 any character.  In the Lisp Machine, currently, it is 400 (octal).
-.end_defconst
+@end defvr
 
-.defconst char-bits-limit
+@defvr {Constant} char-bits-limit
 A constant whose value is a bound on the maximum modifier bits value of
 any character.  In the Lisp Machine, currently, it is 20 (octal).  Thus,
 there are four modifier bits.  These are just the familiar Control, Meta,
 Super and Hyper bits.
-.end_defconst
+@end defvr
 
-.defconst char-control-bit
-.defconst1 char-meta-bit
-.defconst1 char-super-bit
-.defconst1 char-hyper-bit
+@defvr {Constant} char-control-bit
+@defvrx {Constant} char-meta-bit
+@defvrx {Constant} char-super-bit
+@defvrx {Constant} char-hyper-bit
 Constants with values 1, 2, 4 and 8.
 These give the meanings of the bits within the bits-field of a character object.
 Thus, @code{(bit-test char-meta-bit (char-bits @i{char}))} would be non-@code{nil}
 if @i{char} is a meta-character.  (This can also be tested with @code{char-bit}.)
-.end_defconst
+@end defvr
 
 @defun char-bit char name
 @code{t} if @i{char} has the modifier bit named by @i{name}.  @i{name} is
@@ -12930,19 +12930,19 @@ Such characters are always distinguishable from characters that represent
 keyboard input.
 @end defun
 
-.defconst %%kbd-mouse-button
+@defvr {Constant} %%kbd-mouse-button
 The value of @code{%%kbd-mouse-button} is a byte specifier for the field in
 a mouse signal that says which button was clicked.  The byte contains
 @code{0}, @code{1}, or @code{2} for the left, middle, or right button,
 respectively.
-.end_defconst
+@end defvr
 
-.defconst %%kbd-mouse-n-clicks
+@defvr {Constant} %%kbd-mouse-n-clicks
 The value of @code{%%kbd-mouse-n-clicks} 
 is a byte specifier for the field in a mouse signal
 that says how many times the button was clicked.
 The byte contains one less than the number of times the button was clicked.
-.end_defconst
+@end defvr
 
 @subsection Constructing Character Objects
 
@@ -15036,7 +15036,7 @@ definition of the @i{function-parent} of @i{function-spec}.
 This is used by the editor's @code{Meta-.} command.
 @end defun
 
-.defcondition sys:invalid-function-spec (@code{error})
+@defvr {Condition} sys:invalid-function-spec (@code{error})
 This condition name belongs to the error signaled when you refer
 to a function spec that is syntactically invalid; such as,
 if it is a list whose car is not a recognized type of function spec.
@@ -15047,7 +15047,7 @@ which returns the function spec which was invalid.
 Note that in a few cases the condition @code{:wrong-type-argument} is
 signaled instead.  These are the cases in which the error is
 correctable.
-.end_defcondition
+@end defvr
 
 @section How Programs Examine Functions
 
@@ -16166,7 +16166,7 @@ switching is imposed.
 @end table
 @end defun
 
-.defcondition sys:pdl-overflow (@code{error})
+@defvr {Condition} sys:pdl-overflow (@code{error})
 This condition is signaled when there is overflow on either the regular
 pdl or the special pdl.  The @code{:pdl-name} operation on the condition
 instance returns either @code{:special} or @code{:regular}, to tell handlers
@@ -16174,7 +16174,7 @@ which one.
 
 The @code{:grow-pdl} proceed type is provided.  It takes no arguments.
 Proceeding from the error automatically makes the affected pdl bigger.
-.end_defcondition
+@end defvr
 
 @defvar eh:pdl-grow-ratio
 This is the factor by which to increase the size of a pdl after an overflow.
@@ -16207,10 +16207,10 @@ No stack group's resumer is affected.
 @code{t} if @i{s}'s state permits it to be resumed.
 @end defun
 
-.defcondition sys:wrong-stack-group-state (@code{error})
+@defvr {Condition} sys:wrong-stack-group-state (@code{error})
 This is signaled if, for example, you try to resume a stack group which
 is in the exhausted state.
-.end_defcondition
+@end defvr
 
 @defun stack-group-return x
 Resumes the current stack group's resumer, transmitting the value @i{x}.
@@ -16897,13 +16897,13 @@ of an object; it points to the new copy.
 @end table
 @end defun
 
-.defconst q-data-types
+@defvr {Constant} q-data-types
 The value of @code{q-data-types} is a list of all of the symbolic
 names for data types described above under @code{data-type}.
 These are the symbols whose print names begin
 with `@code{dtp-}'.  The values of these symbols are the internal numeric data-type codes
 for the various types.
-.end_defconst
+@end defvr
 
 @defun q-data-types type-code
 Given the internal numeric data-type code, returns the corresponding symbolic name.
@@ -17278,51 +17278,51 @@ byte specifiers, intended to be used with subprimitives such as @code{%p-ldb}.
 If you change the value of any of these variables, you will probably bring the
 machine to a crashing halt.
 
-.defconst %%q-cdr-code
+@defvr {Constant} %%q-cdr-code
 The field of a memory word that contains the cdr-code.  See (cdr-code).
-.end_defconst
+@end defvr
 
-.defconst %%q-data-type
+@defvr {Constant} %%q-data-type
 The field of a memory word that contains the data-type code.  See (data-type-fun).
-.end_defconst
+@end defvr
 
-.defconst %%q-pointer
+@defvr {Constant} %%q-pointer
 The field of a memory word that contains the pointer address, or immediate data.
-.end_defconst
+@end defvr
 
-.defconst %%q-pointer-within-page
+@defvr {Constant} %%q-pointer-within-page
 The field of a memory word that contains the part of the address that lies
 within a single page.
-.end_defconst
+@end defvr
 
-.defconst %%q-typed-pointer
+@defvr {Constant} %%q-typed-pointer
 The concatenation of the @code{%%q-data-type} and @code{%%q-pointer} fields.
-.end_defconst
+@end defvr
 
-.defconst %%q-all-but-typed-pointer
+@defvr {Constant} %%q-all-but-typed-pointer
 This is now synonymous with @code{%%q-cdr-code}, and therefore obsolete.
-.end_defconst
+@end defvr
 
-.defconst %%q-all-but-pointer
+@defvr {Constant} %%q-all-but-pointer
 The concatenation of all fields of a memory word except for @code{%%q-pointer}.
-.end_defconst
+@end defvr
 
-.defconst %%q-all-but-cdr-code
+@defvr {Constant} %%q-all-but-cdr-code
 The concatenation of all fields of a memory word except for @code{%%q-cdr-code}.
-.end_defconst
+@end defvr
 
-.defconst %%q-high-half
-.defconst1 %%q-low-half
+@defvr {Constant} %%q-high-half
+@defvrx {Constant} %%q-low-half
 The two halves of a memory word.  These fields are only used in storing compiled code.
-.end_defconst
+@end defvr
 
-.defconst cdr-normal
-.defconst1 cdr-next
-.defconst1 cdr-nil
-.defconst1 cdr-error
+@defvr {Constant} cdr-normal
+@defvrx {Constant} cdr-next
+@defvrx {Constant} cdr-nil
+@defvrx {Constant} cdr-error
 The values of these four variables are the numeric values that go in the cdr-code
 field of a memory word.  See (cdr-code) for the details of cdr-coding.
-.end_defconst
+@end defvr
 
 @section Analyzing Structures
 
@@ -17969,20 +17969,20 @@ The stack group in which the machine starts up.
 Normally this is the initial Lisp Listener window's process's stack group.
 @end defvar
 
-.defconst sys:%error-handler-stack-group
+@defvr {Constant} sys:%error-handler-stack-group
 The stack group that receives control when a microcode-detected error
 occurs.  This stack group cleans up, signals the appropriate condition,
 or assigns a stack group to run the debugger on the erring stack group.
-.end_defconst
+@end defvr
 
-.defconst sys:%scheduler-stack-group
+@defvr {Constant} sys:%scheduler-stack-group
 The stack group that receives control when a sequence break occurs.
-.end_defconst
+@end defvr
 
-.defconst sys:%chaos-csr-address
+@defvr {Constant} sys:%chaos-csr-address
 A fixnum, the virtual address that maps to the Unibus location of the
 Chaosnet interface.
-.end_defconst
+@end defvr
 
 @defvar %mar-low
 A fixnum, the inclusive lower bound of the region of virtual
@@ -18036,11 +18036,11 @@ one or more regions from newspace to oldspace.
 If this number has changed, the @code{%pointer} of an object may have changed.
 @end defvar
 
-.defconst sys:%disk-run-light
+@defvr {Constant} sys:%disk-run-light
 A fixnum, the virtual address of the TV buffer location of the run-light
 which lights up when the disk is active.  This plus 2 is the address of the run-light
 for the processor.  This minus 2 is the address of the run-light for the garbage collector.
-.end_defconst
+@end defvr
 
 @defvar sys:%loaded-band
 A fixnum, the high 24 bits of the name of the disk partition
@@ -18126,10 +18126,10 @@ No longer used.
 @code{sys:processor-type-code} is documented on
 (sys:processor-type-code-var).
 
-.defconst sys:a-memory-location-names
+@defvr {Constant} sys:a-memory-location-names
 A list of all of the above symbols (and any others added after this documentation
 was written).
-.end_defconst
+@end defvr
 
 @section Microcode Meters
 
@@ -18305,10 +18305,10 @@ The number of pages inspected by the page replacement algorithm.
 The number of times no evictable page was found and extra aging had to be done.
 .end_defmeter
 
-.defconst sys:a-memory-counter-block-names
+@defvr {Constant} sys:a-memory-counter-block-names
 A list of all of the above symbols (and any others added after this documentation
 was written).
-.end_defconst
+@end defvr
 
 @section Miscellaneous Subprimitives
 
@@ -18544,18 +18544,18 @@ and @code{room} ((room-fun)).
 This section lists the names of some of the areas and tells what they are for.
 Only the ones of the most interest to a user are listed; there are many others.
 
-.defconst working-storage-area
+@defvr {Constant} working-storage-area
 This is the normal value of @code{default-cons-area}.
 Most working data are consed in this area.
-.end_defconst
+@end defvr
 
-.defconst permanent-storage-area
+@defvr {Constant} permanent-storage-area
 This area is to be used for permanent data, which will (almost) never become
 garbage.  Unlike @code{working-storage-area}, the contents of this area
 are not continually copied by the garbage collector; it is a static area.
-.end_defconst
+@end defvr
 
-.defconst sys:extra-pdl-area
+@defvr {Constant} sys:extra-pdl-area
 The `number consing area' in which floating point numbers, ratios and bignums
 are normally created.  If a pointer to a number in this area is stored anywhere
 outside the machine registers and current stack, a copy of the number is
@@ -18563,60 +18563,60 @@ made in @code{working-storage-area} and a pointer to the copy is stored instead.
 When @code{sys:extra-pdl-area} gets full, the all numbers pointed to by the
 registers and current stack are copied, and then nothing in the area can be
 in use any more, so it is marked as empty.
-.end_defconst
+@end defvr
 
-.defconst sys:p-n-string
+@defvr {Constant} sys:p-n-string
 Print-names of symbols are stored in this area.
-.end_defconst
+@end defvr
 
-.defconst sys:nr-sym
+@defvr {Constant} sys:nr-sym
 Contains most of the symbols in the Lisp world, except @code{t} and @code{nil}.
-.end_defconst
+@end defvr
 
-.defconst sys:resident-symbol-area
+@defvr {Constant} sys:resident-symbol-area
 Contains the symbols @code{t} and @code{nil}.  @code{nil} is known to be at address zero.
-.end_defconst
+@end defvr
 
-.defconst sys:pkg-area
+@defvr {Constant} sys:pkg-area
 This area contains packages, principally the hash tables with which @code{intern}
 keeps track of symbols.
-.end_defconst
+@end defvr
 
-.defconst macro-compiled-program
+@defvr {Constant} macro-compiled-program
 Compiled functions (FEFs) are put here by the compiler and by @code{fasload}.
 So are the constants that they refer to.
-.end_defconst
+@end defvr
 
-.defconst sys:property-list-area
+@defvr {Constant} sys:property-list-area
 This area holds the property lists of symbols.
-.end_defconst
+@end defvr
 
 @section Errors Pertaining to Areas
 
-.defcondition sys:area-overflow (@code{error})
+@defvr {Condition} sys:area-overflow (@code{error})
 This is signaled on an attempt to make an area bigger than its declared maximum size.
 
 The condition instance supports the operations @code{:area-name} and
 @code{:area-maximum-size}.
-.end_defcondition
+@end defvr
 
-.defcondition sys:region-table-overflow (@code{error})
+@defvr {Condition} sys:region-table-overflow (@code{error})
 This is signaled if you run out of regions.
-.end_defcondition
+@end defvr
 
-.defcondition sys:virtual-memory-overflow (@code{error})
+@defvr {Condition} sys:virtual-memory-overflow (@code{error})
 This is signaled if all of virtual memory is part of some region and an
 attempt is made to allocate a new region.  There may be free space left
 in some regions in other areas, but there is no way to apply it to the
 area in which storage is to be allocated. 
-.end_defcondition
+@end defvr
 
-.defcondition sys:cons-in-fixed-area (@code{error})
+@defvr {Condition} sys:cons-in-fixed-area (@code{error})
 This is signaled if an attempt is made add a second region to a fixed
 area.  The fixed areas are certain areas, created at system
 initialization, that are only allowed a single region, because their
 contents must be contiguous in virtual memory.
-.end_defcondition
+@end defvr
 
 @chapter The Compiler
 @cindex compiler
@@ -26464,7 +26464,7 @@ loading some files that you suspect may have missing or obsolete
 @code{compile-flavor-methods} in them.
 @end defvar
 
-.defcondition sys:unclaimed-message (@code{error})
+@defvr {Condition} sys:unclaimed-message (@code{error})
 This condition is signaled whenever a flavor instance is sent a message whose
 operation it does not handle.  The condition instance supports these operations:
 @table @code
@@ -26475,7 +26475,7 @@ The operation that was not handled.
 @item :arguments
 The list of arguments to that operation
 @end table
-.end_defcondition
+@end defvr
 
 @section Defflavor Options
 
@@ -28054,12 +28054,12 @@ value.  Note that an @i{eof-option} of @code{nil} means to return @code{nil}
 if the end of the file is reached; it is @i{not} equivalent to supplying
 no @i{eof-option}.
 
-.defcondition sys:end-of-file (@code{error})
+@defvr {Condition} sys:end-of-file (@code{error})
 All errors signaled to report end of file possess this condition name.
 
 The @code{:stream} operation on the condition instance returns the stream
 on which end of file was reached.
-.end_defcondition
+@end defvr
 
 @subsection String Input Functions
 
@@ -29350,13 +29350,13 @@ end of file immediately, with no data.  Usage example:
 @end lisp
 @end defun
 
-.defconst si:cold-load-stream
+@defvr {Constant} si:cold-load-stream
 The one and only cold-load stream.  Usage example:
 @lisp
 (let ((*query-io* si:cold-load-stream))
   (yes-or-no-p "Clear all window system locks? "))
 @end lisp
-.end_defconst
+@end defvr
 
 @defmac with-open-stream (variable expression) body...
 @i{body} is executed with @i{variable} bound to the value of
@@ -29698,7 +29698,7 @@ but you must define the two operations @code{:next-input-buffer} and
 @code{:discard-input-buffer}, which the buffer management routines use.
 .end_defflavor
 
-.defmethod si:buffered-input-stream :next-input-buffer
+@defmethod si:buffered-input-stream :next-input-buffer
 In a buffered input stream, this operation is used as a subroutine of
 the standard input operations, such as @code{:tyi}, to get the next
 bufferful of input data.  It should return three values: an array
@@ -29706,9 +29706,9 @@ containing the data, a starting index in the array, and an ending index.
 For example, in a Chaosnet stream, this operation would get the next
 packet of input data and return pointers delimiting the actual data in
 the packet.
-.end_defmethod
+@end defmethod
 
-.defmethod si:buffered-input-stream :discard-input-buffer buffer-array
+@defmethod si:buffered-input-stream :discard-input-buffer buffer-array
 In a buffered input stream, this operation is used as a subroutine of
 the standard input operations such as @code{:tyi}.  It says that the buffer
 management routines have used or thrown away all the input in a buffer,
@@ -29716,7 +29716,7 @@ and the buffer is no longer needed.
 
 In a Chaosnet stream, this operation would return the packet buffer
 to the pool of free packets.
-.end_defmethod
+@end defmethod
 
 .defflavor si:buffered-output-stream
 This flavor is the basis for a non-character buffered output stream.  It
@@ -29726,7 +29726,7 @@ you must define the operations @code{:new-output-buffer},
 management routines use.
 .end_defflavor
 
-.defmethod si:buffered-output-stream :new-output-buffer
+@defmethod si:buffered-output-stream :new-output-buffer
 In a buffered output stream, this operation is used as a subroutine of
 the
 standard output operations, such as @code{:tyo}, to get an empty buffer for
@@ -29738,9 +29738,9 @@ delimit the part of the array that is to be used as a buffer.
 For example, a Chaosnet stream would get a packet from the free pool
 and return indices delimiting the part of the packet array which can
 hold data bytes.
-.end_defmethod
+@end defmethod
 
-.defmethod si:buffered-output-stream :send-output-buffer buffer-array ending-index
+@defmethod si:buffered-output-stream :send-output-buffer buffer-array ending-index
 In a buffered output stream, this operation is used as a subroutine of
 the standard output operations, such as @code{:tyo}, to send the data in a
 buffer that has been completely or partially filled.
@@ -29753,15 +29753,15 @@ indicates how much of the buffer is currently full.
 
 The method for this operation should process the buffer's data and, if
 necessary, return the buffer to a free pool.
-.end_defmethod
+@end defmethod
 
-.defmethod si:buffered-output-stream :discard-output-buffer buffer-array
+@defmethod si:buffered-output-stream :discard-output-buffer buffer-array
 In a buffered output stream, this operation is used as a subroutine
 of the standard output operations, such as @code{:clear-output}, to free an
 output buffer and say that the data in it should be ignored.
 
 It should simply return @i{buffer-array} to a free pool, if appropriate.
-.end_defmethod
+@end defmethod
 
 Some buffered output streams simply have one buffer array which they use
 over and over.  For such streams, @code{:new-output-buffer} can simply
@@ -29829,7 +29829,7 @@ must provide a definition for the @code{:set-buffer-pointer} operation.
 You need not do so if you wish to support only @code{:read-pointer}.
 .end_defflavor
 
-.defmethod si:input-pointer-remembering-mixin :set-buffer-pointer new-pointer
+@defmethod si:input-pointer-remembering-mixin :set-buffer-pointer new-pointer
 You must define this operation if you use
 @code{si:input-pointer-remembering-mixin} and want the @code{:set-pointer}
 operation to work.
@@ -29840,7 +29840,7 @@ character or byte position somewhere inside it.
 
 The value returned should be the file pointer corresponding to the first
 character or byte of that next bufferful.
-.end_defmethod
+@end defmethod
 
 .defflavor si:output-pointer-remembering-mixin
 Incorporate this into a buffered output stream to
@@ -29851,11 +29851,11 @@ must provide definitions for the @code{:set-buffer-pointer} and
 only @code{:read-pointer}.
 .end_defflavor
 
-.defmethod si:output-pointer-remembering-mixin :set-buffer-pointer new-pointer
+@defmethod si:output-pointer-remembering-mixin :set-buffer-pointer new-pointer
 This is the same as in @code{si:input-pointer-remembering-mixin}.
-.end_defmethod
+@end defmethod
 
-.defmethod si:output-pointer-remembering-mixin :get-old-data buffer-array lower-output-limit
+@defmethod si:output-pointer-remembering-mixin :get-old-data buffer-array lower-output-limit
 The buffer management routines perform this operation when you do a
 @code{:set-pointer} that is outside the range of pointers that fit in the
 current output buffer.  They first send the old buffer, then do
@@ -29873,7 +29873,7 @@ index in the buffer of the part that is supposed to be used for output.
 @code{si:stream-output-limit} is the ending index.
 The instance variable @code{si:output-pointer-base} is the file pointer
 corresponding to the starting index in the buffer. 
-.end_defmethod
+@end defmethod
 
 .defflavor si:file-stream-mixin
 Incorporate this mixin together with @code{si:stream} to make a @i{file probe stream},
@@ -31500,9 +31500,9 @@ that signify that the user's input was syntactically invalid should have
 this condition name.  For example, the errors @code{read} signals have
 condition name @code{sys:parse-error} since it is is a consequence of @code{sys:read-error}.
 
-.defcondition sys:parse-error (@code{error})
+@defvr {Condition} sys:parse-error (@code{error})
 The condition name for syntax errors in input being parsed.
-.end_defcondition
+@end defvr
 
 The compiler handles @code{sys:parse-error} by proceeding with proceed-type
 @code{:no-action}.  All signalers of @code{sys:parse-error} should offer
@@ -32003,13 +32003,13 @@ In the example above, this option could have been used instead of
 the first two forms in the body.
 @end table
 
-.defcondition sys:print-not-readable (@code{error})
+@defvr {Condition} sys:print-not-readable (@code{error})
 This condition is signaled by @code{si:print-readably} when the object
 cannot be printed readably.
 
 The condition instance supports the operation @code{:object}, which
 returns the object that was being printed.
-.end_defcondition
+@end defvr
 
 If you want to control the printed representation of some object,
 usually the right way to do it is to make the object an array that is a
@@ -33361,7 +33361,7 @@ enough characters, some kind of @code{sys:read-end-of-file} error is signaled.
 
 @subsection Input Error Conditions
 
-.defcondition sys:read-error (@code{sys:parse-error} @code{error})
+@defvr {Condition} sys:read-error (@code{sys:parse-error} @code{error})
 This condition name classifies all errors detected by the reader per se.
 Since @code{sys:parse-error} is implied, all @code{sys:read-error} errors
 must provide the proceed type @code{:no-action} so that automatic proceed
@@ -33369,17 +33369,17 @@ is possible if the error happens during compilation.  See (sys:parse-error-cond
 
 Since this condition name implies @code{sys:parse-error} and @code{error}, those
 two are not mentioned as implications below when @code{sys:read-error} is.
-.end_defcondition
+@end defvr
 
-.defcondition sys:read-end-of-file (@code{sys:read-error} @code{sys:end-of-file})
+@defvr {Condition} sys:read-end-of-file (@code{sys:read-error} @code{sys:end-of-file})
 Whenever the reader signals an error for end of file, the condition object
 possesses this condition name.
 
 Since @code{sys:end-of-file} is implied, the @code{:stream} operation on the
 condition instance returns the stream on which end of file was reached.
-.end_defcondition
+@end defvr
 
-.defcondition sys:read-list-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
+@defvr {Condition} sys:read-list-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
 This condition is signaled when @code{read} detects end of file in the middle of a list.
 
 In addition to the @code{:stream} operation provided because
@@ -33390,9 +33390,9 @@ Proceed type @code{:no-action} is provided.  If it is used, the reader
 invents a close-parenthesis to close off the list.
 Within @code{read-check-indentation}, the reader signals the error only once,
 no matter how many levels of list are unterminated.
-.end_defcondition
+@end defvr
 
-.defcondition sys:read-string-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
+@defvr {Condition} sys:read-string-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
 This is signaled when @code{read} detects end of file in the middle of a
 string delimited by double-quotes.
 
@@ -33402,9 +33402,9 @@ read so far.
 Proceed type @code{:no-action} terminates the string and returns.
 If the string is within other constructs that are unterminated,
 another end of file error is will be signaled later.
-.end_defcondition
+@end defvr
 
-.defcondition sys:read-symbol-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
+@defvr {Condition} sys:read-symbol-end-of-file (@code{sys:read-end-of-file} @code{sys:read-error} @code{sys:end-of-file})
 This is signaled when @code{read} detects end of file within
 a multiple escape construct.
 
@@ -33414,9 +33414,9 @@ name read so far.
 Proceed type @code{:no-action} terminates the symbol and returns.
 If the symbol is within other constructs that are unterminated,
 another end of file error is will be signaled later.
-.end_defcondition
+@end defvr
 
-.defcondition sys:missing-closeparen (@code{condition})
+@defvr {Condition} sys:missing-closeparen (@code{condition})
 This condition, which is not an error, is signaled when
 @code{read-check-indentation} finds an open-parenthesis in column zero
 within a list.
@@ -33424,7 +33424,7 @@ within a list.
 Proceed type @code{:no-action} is provided.  On proceeding, the reader
 invents enough close-parentheses to close off all the lists that are
 pending.
-.end_defcondition
+@end defvr
 
 @section The Readtable
 @cindex readtable
@@ -33459,34 +33459,34 @@ variable to change temporarily the readtable being used.
 The two names are synonymous.
 @end defvar
 
-.defconst si:standard-readtable
+@defvr {Constant} si:standard-readtable
 This is copied into @code{*readtable*} every time the machine is booted.
 Therefore, it is normally the same as @code{*readtable*} unless you make
 @code{*readtable*} be some other readtable.  If you alter the contents of
 @code{*readtable*} without setting or binding it to some other readtable,
 this readtable is changed.
-.end_defconst
+@end defvr
 
-.defconst si:initial-readtable
+@defvr {Constant} si:initial-readtable
 The value of @code{si:initial-readtable} is a read-only copy of the default
 current readtable.  Its purpose is to preserve a copy of the standard
 read syntax in case you modify the contents of @code{*readtable*} and regret
 it later.  You could use @code{si:initial-readtable} as the
 @i{from-readtable} argument to @code{copy-readtable} or
 @code{set-syntax-from-char} to restore all or part of the standard syntax.
-.end_defconst
+@end defvr
 
-.defconst si:common-lisp-readtable
+@defvr {Constant} si:common-lisp-readtable
 A readtable which initially is set up to define Common Lisp read syntax.
 Reading of Common Lisp programs is done using this readtable.
-.end_defconst
+@end defvr
 
-.defconst si:initial-common-lisp-readtable
+@defvr {Constant} si:initial-common-lisp-readtable
 A read-only copy of @code{si:common-lisp-readtable}, whose purpose is to
 preserve a copy of the standard Common Lisp syntax in case you modify
 @code{si:common-lisp-readtable} (such as, by reading a Common Lisp program
 which modifies the current readtable).
-.end_defconst
+@end defvr
 
 @defun si:rdtbl-names readtable
 Returns the list of names of @code{readtable}.
@@ -34780,14 +34780,14 @@ Note that if @i{host} is specified, and @i{thing} contains a host name, an
 error is signaled if they are not the same host.
 @end defun
 
-.defcondition fs:pathname-parse-error (@code{fs:pathname-error} @code{error})
+@defvr {Condition} fs:pathname-parse-error (@code{fs:pathname-error} @code{error})
 This condition is signaled when @code{fs:parse-pathname} finds a syntax
 error in the string it is given.
 
 @code{fs:parse-pathname} sets up a nonlocal proceed type @code{:new-pathname}
 for this condition.  The proceed type expects one argument, a pathname,
 which is returned from @code{fs:parse-pathname}.
-.end_defcondition
+@end defvr
 
 @defun fs:merge-pathname-defaults pathname &optional defaults default-type default-version
 Fills in unspecified components of @i{pathname} from the defaults and returns
@@ -35795,7 +35795,7 @@ argument.  Thus the above example works no matter what kind of
 pathname was opened to create the stream.
 @end defmethod
 
-.defcondition fs:unknown-logical-pathname-translation (@code{fs:pathname-error} @code{error})
+@defvr {Condition} fs:unknown-logical-pathname-translation (@code{fs:pathname-error} @code{error})
 This is signaled when a logical pathname has no translation.
 The condition instance supports the @code{:logical-pathname} operation,
 which returns the pathname that was untranslatable.
@@ -35806,7 +35806,7 @@ This defines the target pattern for a translation whose source pattern
 is the directory from the untranslatable pathname (and all else wild).
 Such a translation is added to the logical host, making it possible
 to translate the pathname.
-.end_defcondition
+@end defvr
 
 A logical pathname looks like @code{"@i{host}: @i{directory}; @i{name} @i{type} @i{version}"}.
 There is no way to specify a device; parsing a logical pathname
@@ -35891,13 +35891,13 @@ The first argument is allowed to be a host object instead of a string.
 In this case, that argument is simply returned.
 @end defun
 
-.defcondition sys:unknown-host-name (@code{sys:local-network-error} @code{sys:network-error} @code{error})
+@defvr {Condition} sys:unknown-host-name (@code{sys:local-network-error} @code{sys:network-error} @code{error})
 This condition is signaled by @code{si:parse-host} when the
 host is not recognized, if that is an error.
 
 The @code{:name} operation on the condition instance returns the string
 given to @code{si:parse-host}.
-.end_defcondition
+@end defvr
 
 @defun si:get-host-from-address address network
 Returns a host object given an address and the name of the network which
@@ -35919,13 +35919,13 @@ In this case, that argument is simply returned.
 hosts searched.
 @end defun
 
-.defcondition fs:unknown-pathname-host (@code{fs:pathname-error} @code{error})
+@defvr {Condition} fs:unknown-pathname-host (@code{fs:pathname-error} @code{error})
 This condition is signaled by @code{fs:get-pathname-host} when the
 host is not recognized, if that is an error.
 
 The @code{:name} operation on the condition instance returns the string
 given to @code{fs:get-pathname-host}.
-.end_defcondition
+@end defvr
 
 @defvar fs:*pathname-host-list*
 This is a list of all the host objects that support file access.
@@ -37211,10 +37211,10 @@ Returns two values: a list of variables, and a corresponding list of values to b
 giving the attribute bindings of the attribute list found on @i{stream}
 @end defun
 
-.defcondition fs:invalid-file-attribute (@code{error})
+@defvr {Condition} fs:invalid-file-attribute (@code{error})
 An attribute in the file attribute list had a bad value.  This is detected within
 @code{fs:file-attribute-bindings}.
-.end_defcondition
+@end defvr
 
 @section Accessing Directories
 
@@ -37618,71 +37618,71 @@ pathname, and tries the same operation on this pathname instead of the
 original one.
 .end_defcondition-flavor
 
-.defcondition fs:file-operation-failure (@code{fs:file-error})
+@defvr {Condition} fs:file-operation-failure (@code{fs:file-error})
 This condition name signifies a problem with the file operation
 requested.  It is an alternative to @code{fs:file-request-failure}
 ((file-request-failure-page)), which means that the file system
 was unable to consider the operation properly.
-.end_defcondition
+@end defvr
 
 All the following conditions in this section are always accompanied by
 @code{fs:file-operation-failure}, @code{fs:file-error}, and @code{error}, so they
 will not be mentioned.
 
-.defcondition fs:file-open-for-output
+@defvr {Condition} fs:file-open-for-output
 The request cannot be performed because the file is open for output.
-.end_defcondition
+@end defvr
 
-.defcondition fs:file-locked
+@defvr {Condition} fs:file-locked
 The file cannot be accessed because it is already being accessed.  Just
 which kinds of simultaneous access are allowed depends on the file
 system.
-.end_defcondition
+@end defvr
 
-.defcondition fs:circular-link
+@defvr {Condition} fs:circular-link
 A link could not be opened because it pointed, directly or indirectly
 through other links, to itself.  In fact, some systems report this condition
 whenever a chain of links exceeds a fixed length.
-.end_defcondition
+@end defvr
 
-.defcondition fs:invalid-byte-size
+@defvr {Condition} fs:invalid-byte-size
 In @code{open}, the specified byte size was not valid for the particular
 file server or file.
-.end_defcondition
+@end defvr
 
-.defcondition fs:no-more-room
+@defvr {Condition} fs:no-more-room
 Processing a request requires resources not available, such as
 space in a directory, or free disk blocks.
-.end_defcondition
+@end defvr
 
-.defcondition fs:filepos-out-of-range
+@defvr {Condition} fs:filepos-out-of-range
 The @code{:set-pointer} operation was used with a pointer value outside the bounds of the file.
-.end_defcondition
+@end defvr
 
-.defcondition fs:not-available
+@defvr {Condition} fs:not-available
 A requested pack, file, etc. exists but is currently off line or not available to users.
-.end_defcondition
+@end defvr
 
-.defcondition fs:file-lookup-error
+@defvr {Condition} fs:file-lookup-error
 This condition name categorizes all sorts of failure to find a specified file,
 for any operation.
-.end_defcondition
+@end defvr
 
-.defcondition fs:device-not-found (@code{fs:file-lookup-error})
+@defvr {Condition} fs:device-not-found (@code{fs:file-lookup-error})
 The specified device does not exist.
-.end_defcondition
+@end defvr
 
-.defcondition fs:directory-not-found (@code{fs:file-lookup-error})
+@defvr {Condition} fs:directory-not-found (@code{fs:file-lookup-error})
 The specified directory does not exist.
-.end_defcondition
+@end defvr
 
-.defcondition fs:file-not-found (@code{fs:file-lookup-error})
+@defvr {Condition} fs:file-not-found (@code{fs:file-lookup-error})
 There is no file with the specified name, type and version.
 This implies that the device and directory do exist,
 or one of the errors described above would have been signaled.
-.end_defcondition
+@end defvr
 
-.defcondition fs:multiple-file-not-found (@code{fs:file-lookup-error})
+@defvr {Condition} fs:multiple-file-not-found (@code{fs:file-lookup-error})
 There is no file with the specified name and any of the
 specified types, in @code{with-open-file-search}.
 Three special operations are defined:
@@ -37694,107 +37694,107 @@ The base pathname used.
 @item :pathnames
 A list of all the pathnames that were looked for.
 @end table
-.end_defcondition
+@end defvr
 
-.defcondition fs:link-target-not-found (@code{fs:file-lookup-error})
+@defvr {Condition} fs:link-target-not-found (@code{fs:file-lookup-error})
 The file specified was a link, but the link's target filename
 fails to be found.
-.end_defcondition
+@end defvr
 
-.defcondition fs:access-error
+@defvr {Condition} fs:access-error
 The operation is possible, but the file server is insubordinate and refuses to
 obey you.
-.end_defcondition
+@end defvr
 
-.defcondition fs:incorrect-access-to-file (@code{access-error}).
-.defcondition1 fs:incorrect-access-to-directory (@code{access-error}).
+@defvr {Condition} fs:incorrect-access-to-file (@code{access-error}).
+@defvrx {Condition} fs:incorrect-access-to-directory (@code{access-error}).
 The file server refuses to obey you because of protection attached to
 the file (or, the directory).
-.end_defcondition
+@end defvr
 
-.defcondition fs:invalid-wildcard
+@defvr {Condition} fs:invalid-wildcard
 A pathname had a wildcard in a place where the particular file server
 does not support them.  Such pathnames are not created by pathname
 parsing, but they can be created with the @code{:new-pathname} operation.
-.end_defcondition
+@end defvr
 
-.defcondition fs:wildcard-not-allowed
+@defvr {Condition} fs:wildcard-not-allowed
 A pathname with a wildcard was used in an operation that does not support it.
 For example, opening a file with a wildcard in its name.
-.end_defcondition
+@end defvr
 
-.defcondition fs:wrong-kind-of-file
+@defvr {Condition} fs:wrong-kind-of-file
 An operation was done on the wrong kind of file.
 If files and directories share one name space and it is an error to open
 a directory, the error possesses this condition name.
-.end_defcondition
+@end defvr
 
-.defcondition fs:creation-failure
+@defvr {Condition} fs:creation-failure
 An attempt to create a file or directory failed for a reason
 specifically connected with creation.
-.end_defcondition
+@end defvr
 
-.defcondition fs:file-already-exists (@code{fs:creation-failure})
+@defvr {Condition} fs:file-already-exists (@code{fs:creation-failure})
 The file or directory to be created already exists.
-.end_defcondition
+@end defvr
 
-.defcondition fs:superior-not-directory (@code{fs:creation-failure} @code{fs:wrong-kind-of-file})
+@defvr {Condition} fs:superior-not-directory (@code{fs:creation-failure} @code{fs:wrong-kind-of-file})
 In file systems where directories and files share one name space, this
 error results from an attempt to create a file using a filename
 specifying a directory whose name exists in the file system but is not
 a directory.
-.end_defcondition
+@end defvr
 
-.defcondition fs:delete-failure
+@defvr {Condition} fs:delete-failure
 A file to be deleted exists, but for some reason cannot be deleted.
-.end_defcondition
+@end defvr
 
-.defcondition fs:directory-not-empty (@code{fs:delete-failure})
+@defvr {Condition} fs:directory-not-empty (@code{fs:delete-failure})
 A file could not be deleted because it is a directory and has files in it.
-.end_defcondition
+@end defvr
 
-.defcondition fs:dont-delete-flag-set (@code{fs:delete-failure})
+@defvr {Condition} fs:dont-delete-flag-set (@code{fs:delete-failure})
 A file could not be deleted because its ``don't delete'' flag is set.
-.end_defcondition
+@end defvr
 
-.defcondition fs:rename-failure
+@defvr {Condition} fs:rename-failure
 A file to be renamed exists, but the renaming could not be done.  The
 @code{:new-pathname} operation on the condition instance returns the
 specified new pathname, which may be a pathname or a string.
-.end_defcondition
+@end defvr
 
-.defcondition fs:rename-to-existing-file (@code{fs:rename-failure})
+@defvr {Condition} fs:rename-to-existing-file (@code{fs:rename-failure})
 Renaming cannot be done because there is already a file with the
 specified new name.
-.end_defcondition
+@end defvr
 
-.defcondition fs:rename-across-directories (@code{fs:rename-failure})
+@defvr {Condition} fs:rename-across-directories (@code{fs:rename-failure})
 Renaming cannot be done because the new pathname contains a different
 device or directory from the one the file is on.  This may not always be
 an error--some file systems support it in certain cases--but when
 it is an error, it has this condition name.
-.end_defcondition
+@end defvr
 
-.defcondition fs:unknown-property (@code{fs:change-property-failure})
+@defvr {Condition} fs:unknown-property (@code{fs:change-property-failure})
 A property name specified in a @code{:change-properties} operation is not
 supported by the file server.  (Some file servers support only a fixed
 set of property names.)  The @code{:property} operation on the condition
 instance returns the problematical property name.
-.end_defcondition
+@end defvr
 
-.defcondition fs:invalid-property-value (@code{fs:change-property-failure})
+@defvr {Condition} fs:invalid-property-value (@code{fs:change-property-failure})
 In a @code{:change-properties} operation, some property was given a value
 that is not valid for it.  The @code{:property} operation on the
 condition instance returns the property name, and the @code{:value}
 operation returns the specified value.
-.end_defcondition
+@end defvr
 
-.defcondition fs:invalid-property-name (@code{fs:change-property-failure})
+@defvr {Condition} fs:invalid-property-name (@code{fs:change-property-failure})
 In a @code{:change-properties} operation, a syntactically invalid property
 name was specified.  This may be because it is too long to be stored.
 The @code{:property} operation on the condition instance returns the
 property name.
-.end_defcondition
+@end defvr
 
 @section File Servers
 @cindex file servers
@@ -37927,43 +37927,43 @@ be useful if the connection becomes hung.
 
 @subsection Errors in Communication with File Servers
 
-.defcondition fs:file-request-failure (@code{fs:file-error} @code{error})
+@defvr {Condition} fs:file-request-failure (@code{fs:file-error} @code{error})
 This condition name categorizes errors that prevent the file system from
 processing the request made by the program.
-.end_defcondition
+@end defvr
 
 The following condition names are always accompanied by the more general
 classifications @code{fs:file-request-failure}, @code{fs:file-error}, and @code{error}.
 
-.defcondition fs:data-error
+@defvr {Condition} fs:data-error
 This condition signifies inconsistent data found in the file system,
 indicating a failure in the file system software or hardware.
-.end_defcondition
+@end defvr
 
-.defcondition fs:host-not-available
+@defvr {Condition} fs:host-not-available
 This condition signifies that the file server host is up, but refusing
 connections for file servers.
-.end_defcondition
+@end defvr
 
-.defcondition fs:network-lossage
+@defvr {Condition} fs:network-lossage
 This condition signifies certain problems in the use of the Chaosnet by a file server,
 such as failure to open a data connection when it is expected.
-.end_defcondition
+@end defvr
 
-.defcondition fs:not-enough-resources
+@defvr {Condition} fs:not-enough-resources
 This condition signifies a shortage of resources needed to consider
 processing a request, as opposed to resources used up by the request
 itself.  This may include running out of network connections or job
 slots on the server host.  It does not include running out of space in a
 directory or running out of disk space, because these are resources
 whose requirements come from processing the request.
-.end_defcondition
+@end defvr
 
-.defcondition fs:unknown-operation
+@defvr {Condition} fs:unknown-operation
 This condition signifies that the particular file system fails to
 implement a standardly defined operation; such as, expunging or
 undeletion on ITS.
-.end_defcondition
+@end defvr
 
 @chapter The Chaosnet
 
@@ -38481,15 +38481,15 @@ convert between @code{pkts} and strings.  A @code{pkt} is an @code{art-16b} arra
 containing the packet header and data; the leader of a @code{pkt}
 contains a number of fields used by the system.
 
-.defconst chaos:first-data-word-in-pkt
+@defvr {Constant} chaos:first-data-word-in-pkt
 This is the index in any @code{pkt} of the element that is the first
 16-bit word of user data.  (Preceding elements are used to store a
 header used by the hardware.)
-.end_defconst
+@end defvr
 
-.defconst chaos:max-data-words-per-pkt
+@defvr {Constant} chaos:max-data-words-per-pkt
 The maximum number of 16-bit data words allowed in a packet.
-.end_defconst
+@end defvr
 
 @defun chaos:pkt-opcode pkt
 Accessor for the opcode of the packet @i{pkt}.  To set the opcode, do
@@ -38594,45 +38594,45 @@ A predicate that returns @code{t} if there any input packets available from @i{c
 Here are symbolic names for the opcodes that an applications programmer
 needs to know about:
 
-.defconst chaos:rfc-op
+@defvr {Constant} chaos:rfc-op
 This special-purpose opcode is used for requesting a connection.  The
 data consists of the contact name terminated by a space character,
 followed optionally by additional data whose meaning is up to the server
 for that contact name.
-.end_defconst
+@end defvr
 
-.defconst chaos:brd-op
+@defvr {Constant} chaos:brd-op
 This special purpose opcode is for requesting responses from many hosts.
 Currently, there is no user end for initiating these requests in the
 Lisp Machine system, but the Lisp Machine can respond to such requests.
 An incoming packet of this type is treated like an RFC packet.
-.end_defconst
+@end defvr
 
-.defconst chaos:lsn-op
+@defvr {Constant} chaos:lsn-op
 This special-purpose opcode is used when you ask to listen on a contact
 name.  The data is just the contact name.  This packet is never actually
 sent over the network, just kept in the Chaosnet software and compared
 with the contact names in RFC packets that arrive.
-.end_defconst
+@end defvr
 
-.defconst chaos:opn-op
+@defvr {Constant} chaos:opn-op
 This special-purpose opcode is used by the server process to accept the
 request for a connection conveyed by an RFC packet.
 Its data serves only internal functions.
-.end_defconst
+@end defvr
 
-.defconst chaos:ans-op
+@defvr {Constant} chaos:ans-op
 This special-purpose opcode is used to send a simple reply.  The simple
 reply is sent back in place of opening a connection.
-.end_defconst
+@end defvr
 
-.defconst chaos:los-op
+@defvr {Constant} chaos:los-op
 This special-purpose packet is what you receive if you try to use a
 connection that has been broken.  Its data is a message explaining the
 situation, which you can print for the user.
-.end_defconst
+@end defvr
 
-.defconst chaos:cls-op
+@defvr {Constant} chaos:cls-op
 This special-purpose packet is used to close a connection.  Its data is
 a message explaining the reason, and it can be printed for the user.
 Note that you cannot count on receiving a CLS packet because it is
@@ -38641,22 +38641,22 @@ LOS when you try to use the connection (thinking it is still open).
 
 CLS packets are also used for refusing to open a connection in the
 first place.
-.end_defconst
+@end defvr
 
-.defconst chaos:eof-op
+@defvr {Constant} chaos:eof-op
 This special-purpose opcode is used to indicate the end of the data that
 you really want to transmit.  When this packet is acknowledged by the
 other process, you know that all the real data was received properly.
 You can wait for this with @code{chaos:finish}.
 The EOF packet carries no data itself.
-.end_defconst
+@end defvr
 
-.defconst chaos:dat-op
+@defvr {Constant} chaos:dat-op
 This is opcode 200 (octal), which is the normal opcode used for 8-bit
 user data.  Some protocols use multiple data opcodes in the range 200
 through 277, but simple protocols that do not need to distinguish
 types of packets just use opcode 200.
-.end_defconst
+@end defvr
 
 @section Connection Interrupts
 
@@ -38714,16 +38714,16 @@ This flavor is used for problems in connection with the Chaosnet
 that have entirely to do with what is going on in this Lisp Machine.
 .end_defflavor-condition
 
-.defcondition sys:network-resources-exhausted (@code{sys:local-network-error} @code{sys:network-error} @code{error})
+@defvr {Condition} sys:network-resources-exhausted (@code{sys:local-network-error} @code{sys:network-error} @code{error})
 Signaled when some local resource in the NCP was exhausted.  Most
 likely, there are too many Chaosnet connections and the connection table
 is full.
-.end_defcondition
+@end defvr
 
-.defcondition sys:unknown-address (@code{sys:local-network-error} @code{sys:network-error} @code{error})
+@defvr {Condition} sys:unknown-address (@code{sys:local-network-error} @code{sys:network-error} @code{error})
 The @i{address} argument to @code{chaos:connect} or some similar function was not recognizable.
 The @code{:address} operation on the condition instance returns the address that was supplied.
-.end_defcondition
+@end defvr
 
 @subsection Problems Involving Other Machines' Actions
 
@@ -38744,38 +38744,38 @@ individual descriptions.
 Every instance of @code{sys:remote-network-error} is either a
 @code{sys:connection-error} or a @code{sys:bad-connection-state}.
 
-.defcondition sys:connection-error
+@defvr {Condition} sys:connection-error
 This condition name categorizes failure to complete a connection.
-.end_defcondition
+@end defvr
 
-.defcondition sys:bad-connection-state
+@defvr {Condition} sys:bad-connection-state
 This condition name categorizes errors where an existing, valid connection
 becomes invalid.  The error is not signaled until you try to use the connection.
-.end_defcondition
+@end defvr
 
-.defcondition sys:host-not-responding
+@defvr {Condition} sys:host-not-responding
 This condition name categorizes errors where no packets whatever are
 received from the foreign host, making it seem likely that that host or
 the network is down.
-.end_defcondition
+@end defvr
 
-.defcondition sys:host-not-responding-during-connection (@code{sys:connection-error} @code{sys:host-not-responding})
+@defvr {Condition} sys:host-not-responding-during-connection (@code{sys:connection-error} @code{sys:host-not-responding})
 This condition is signaled when a host does not respond while it is
 being asked to make a connection.
-.end_defcondition
+@end defvr
 
-.defcondition sys:no-server-up (@code{sys:connection-error})
+@defvr {Condition} sys:no-server-up (@code{sys:connection-error})
 This condition is signaled by certain functions which request service from
 any available machine which can provide it, if no such machine is
 responding or no host is listed as a server for a particular service.
-.end_defcondition
+@end defvr
 
-.defcondition sys:host-stopped-responding (@code{sys:bad-connection-state} @code{sys:host-not-responding})
+@defvr {Condition} sys:host-stopped-responding (@code{sys:bad-connection-state} @code{sys:host-not-responding})
 This condition is signaled when a host does not respond even though a
 connection to it already exists.
-.end_defcondition
+@end defvr
 
-.defcondition sys:connection-refused (@code{sys:connection-error})
+@defvr {Condition} sys:connection-refused (@code{sys:connection-error})
 This is signaled when a connection is refused.
 
 The @code{:reason} operation on the condition instance returns the reason
@@ -38787,26 +38787,26 @@ there is no process or server listening for a contact name.  Also, it is
 possible for the CLS packet to get lost in the network, so that the
 error actually signalled is not unlikely to be 
 @code{sys:host-not-responding-during-connection}.
-.end_defcondition
+@end defvr
 
-.defcondition sys:connection-closed (@code{sys:bad-connection-state})
+@defvr {Condition} sys:connection-closed (@code{sys:bad-connection-state})
 This is signaled when you try to send on a connection which has been closed
 by the other host.
 
 The @code{:reason} operation on the condition instance returns the reason
 specified in the CLS packet (a string) or @code{nil} if no reason was
 given.
-.end_defcondition
+@end defvr
 
-.defcondition sys:connection-lost (@code{sys:bad-connection-state})
+@defvr {Condition} sys:connection-lost (@code{sys:bad-connection-state})
 This is signaled when you try to use a connection on which a LOS packet was received.
 
 The @code{:reason} operation on the condition instance returns the reason
 specified in the CLS packet (a string) or @code{nil} if no reason was
 given.
-.end_defcondition
+@end defvr
 
-.defcondition sys:connection-no-more-data (@code{sys:bad-connection-state})
+@defvr {Condition} sys:connection-no-more-data (@code{sys:bad-connection-state})
 This is signaled when you try to read from a connection which has been
 closed by the other host, when there are no packets left to be read.
 (It is no error to read from a connection which has been closed, if you
@@ -38816,7 +38816,7 @@ packet).
 The @code{:reason} operation on the condition instance returns the reason
 specified in the CLS packet (a string) or @code{nil} if no reason was
 given.
-.end_defcondition
+@end defvr
 
 @section Information and Control
 
@@ -38894,7 +38894,7 @@ work when the hosts are on different subnets, the bridge must respond to
 the @code{DUMP-ROUTING-TABLE} request.
 @end defun
 
-.defconst chaos:my-address
+@defvr {Constant} chaos:my-address
 The sixteen bit Chaosnet address of this Lisp Machine.  On the CADR, this
 is set by reading
 a location off the Chaosnet (I/O) board.  On a Lambda, this is set by
@@ -38902,29 +38902,29 @@ looking at the name of the disk pack, and using that as a host name to
 get the Chaosnet address.  (This is because a Lambda talks Chaosnet
 through an Ethernet interface, which has a pre-assigned address of its
 own.)
-.end_defconst
+@end defvr
 
-.defconst chaos:my-subnet
+@defvr {Constant} chaos:my-subnet
 The high eight bits of @code{chaos:my-address}.
-.end_defconst
+@end defvr
 
-.defconst chaos:routing-table
+@defvr {Constant} chaos:routing-table
 This is an @code{art-16b} array which contains for each subnet the address
 of a bridge which is the best way of getting to that subnet.  Since
 (currently) Lisp Machines can only have one interface to the network,
 the addresses in the table all contain the same subnet, namely, the name
 of @code{chaos:my-address}.
-.end_defconst
+@end defvr
 
-.defconst chaos:maximum-routing-cost
+@defvr {Constant} chaos:maximum-routing-cost
 The maximum cost that a route can be in the routing table.  Subnets with
 a cost greater than this do not appear in the Peek Chaosnet display
-.end_deconst
+@end defvr
 
-.defconst chaos:routing-table-cost
+@defvr {Constant} chaos:routing-table-cost
 This is an @code{art-16b} array which contains for each subnet the cost for
 getting to that subnet.
-.end_defconst
+@end defvr
 
 @defvar chaos:*receive-broadcast-packets-p*
 If not @code{nil} (the default), broadcast packets are responded to.
@@ -40450,7 +40450,7 @@ This function is not quite for historical compatibility only, since
 certain values of @i{create-p} provide useful features.
 @end defun
 
-.defcondition sys:package-not-found (@code{error})
+@defvr {Condition} sys:package-not-found (@code{error})
 is signaled by @code{pkg-find-package} with second argument
 @code{:error}, @code{nil} or omitted, when the package does not exist.
 
@@ -40475,7 +40475,7 @@ another error occurs.
 (available on errors from within @code{read}) says to continue with the
 entire @code{read} as well as is possible without having a valid package.
 @end table
-.end_defcondition
+@end defvr
 
 @subsection Local Nicknames for Packages
 @cindex local nicknames of packages
@@ -40814,11 +40814,11 @@ The value is a list of all packages, except for invisible ones
 A Common Lisp function which returns @code{*all-packages*}.
 @end defun
 
-.defconst pkg-global-package
-.defconst1 pkg-system-package
-.defconst1 pkg-keyword-package
+@defvr {Constant} pkg-global-package
+@defvrx {Constant} pkg-system-package
+@defvrx {Constant} pkg-keyword-package
 Respectively, the packages named @code{global}, @code{system} and @code{keyword}.
-.end_defconst
+@end defvr
 
 @defun describe-package package
 Prints everything there is to know about @i{package},
@@ -42600,9 +42600,9 @@ Resumes the scheduler momentarily; all other processes will get a
 chance to run before the current process runs again.
 @end defun
 
-.defconst sys:scheduler-stack-group
+@defvr {Constant} sys:scheduler-stack-group
 This is the stack group in which the scheduler executes.
-.end_defconst
+@end defvr
 
 @defvar sys:clock-function-list
 This is a list of functions to be called by the scheduler 60 times a second.
@@ -42632,9 +42632,9 @@ This is a list of all the processes in existence.  It is mainly for
 debugging.
 @end defvar
 
-.defconst si:initial-process
+@defvr {Constant} si:initial-process
 This is the process in which the system starts up when it is booted.
-.end_defconst
+@end defvr
 
 @defun si:sb-on &optional when
 Controls what events cause a sequence break, i.e. when
@@ -42704,10 +42704,10 @@ must have the same value as the @i{lock-value} parameter to the matching
 call to @code{process-lock}, or else an error is signaled.
 @end defun
 
-.defcondition sys:lock-timeout (@code{error})
+@defvr {Condition} sys:lock-timeout (@code{error})
 This condition is signaled when @code{process-lock} waits longer than the
 specified timeout.
-.end_defcondition
+@end defvr
 
 	It is a good idea to use @code{unwind-protect} to make sure that
 you unlock any lock that you seize.  For example, if you write
@@ -43382,11 +43382,11 @@ the case.
 
 Condition names are documented throughout the manual, with definitions like this:
 
-.defcondition_no_index sys:divide-by-zero (@code{sys:arithmetic-error} @code{error})
+@defvr {Condition}_no_index sys:divide-by-zero (@code{sys:arithmetic-error} @code{error})
 The condition name @code{sys:divide-by-zero} is always accompanied by
 @code{sys:arithmetic-error} and @code{error} (that is, it categorizes a subset of those categories).
 The presence of @code{error} implies that all @code{sys:divide-by-zero} conditions are errors.
-.end_defcondition
+@end defvr
 
 The condition instance also records additional information about the
 event.  For example, the condition instance signaled by dividing by
@@ -44918,14 +44918,14 @@ so be careful if you try to save the value outside the context in which you
 examine it.
 @end defvar
 
-.defcondition sys:abort (@code{condition})
+@defvr {Condition} sys:abort (@code{condition})
 This condition is signaled by the @code{Abort} key; it is how that key is implemented.
 Most command loops use some version of @code{error-restart} to set up a resume
 handler for @code{sys:abort} so that it will return to the innermost command loop if (as
 is usually the case) no handler handles it.  These resume handlers usually apply
 to @code{error} as well as @code{sys:abort}, so that the debugger will offer a specific command
 to return to the command loop even if it is not the innermost one.
-.end_defcondition
+@end defvr
 
 @section The Debugger
 @cindex debugger
@@ -45113,12 +45113,12 @@ erring computation.
 @code{*terminal-io*} is rebound to the stream the debugger is using.
 
 @item *standard-input*
-.item1 *standard-output*
+@itemx *standard-output*
 @code{*standard-input*} and @code{*standard-output*} are rebound to be synonymous with
 @code{*terminal-io*}.
 
 @item @t{@code{+}, @code{++}, @code{+++}}
-.item1 @t{@code{*}, @code{**}, @code{***}}, @code{*values*}
+@itemx @t{@code{*}, @code{**}, @code{***}}, @code{*values*}
 @code{+} and @code{*} are rebound to the debugger's previous form and previous
 value.  Commands for examining arguments and such, including @code{C-M-A},
 @code{C-M-L} and @code{C-M-V}, leave @code{*} set to the value examined and @code{+}
@@ -45127,12 +45127,12 @@ first entered, @code{+} is the last form typed, which is typically the one
 that caused the error, and @code{*} is the value of the @i{previous} form.
 
 @item evalhook
-.item1 applyhook
+@itemx applyhook
 These variables (see (evalhook-var)) are rebound to @code{nil}, turning off
 the @code{step} facility if it was in use when the error occurred.
 
 @item eh:condition-handlers
-.item1 eh:condition-default-handlers
+@itemx eh:condition-default-handlers
 These are rebound to @code{nil},
 so that errors occurring within forms you type while in the debugger do not
 magically resume execution of the erring program.
@@ -45631,7 +45631,7 @@ in the system menu, or by using the @code{Meta-X Trace} command in the editor.
 This allows you to select the trace options from a menu instead of having
 to remember the following syntax.
 
-.defspec trace
+@defspec trace
 A @code{trace} form looks like:
 @lisp
 (trace @i{spec-1} @i{spec-2} ...)
@@ -45658,7 +45658,7 @@ would instead be interpreted as the following form:
 All of the functions are traced with the same options.  Each @i{function} can
 be either a symbol or a general function-spec.
 @end table
-.end_defspec
+@end defspec
 
 	The following @code{trace} options exist:
 @table @code
@@ -45844,12 +45844,12 @@ the tracing will be transferred from the old definition to the new definition.
 Tracing output is printed on the stream that is the value of @code{*trace-output*}.
 This is synonymous with @code{*terminal-io*} unless you change it.
 
-.defspec untrace
+@defspec untrace
 Undoes the effects of @code{trace} and restores functions to
 their normal, untraced state.  @code{untrace} accepts multiple specifications,
 e.g. @code{(untrace foo quux fuphoo)}.  Calling @code{untrace} with no arguments
 will untrace all functions currently being traced.
-.end_defspec
+@end defspec
 
 @defvar trace-compile-flag
 If the value of @code{trace-compile-flag} is non-@code{nil}, the functions
@@ -46470,7 +46470,7 @@ proceeding from a write, you have the choice of whether to allow the
 write to take place or to inhibit it, leaving the location with its old
 contents.
 
-.defcondition sys:mar-break (@code{condition})
+@defvr {Condition} sys:mar-break (@code{condition})
 This is the condition, not an error, signaled by a MAR break.
 
 The condition instance supports these operations:
@@ -46493,7 +46493,7 @@ interrupted program as if the MAR had not been set.  If the trap was due
 to writing, the proceed type @code{:proceed-no-write} is also provided, and
 causes the program to proceed but does not store the value in the memory
 location.
-.end_defcondition
+@end defvr
 
 Most--but not all--write operations first do a read.  @code{setq} and
 @code{rplaca} both do.  This means that if the MAR is in @code{:read}
@@ -47657,7 +47657,7 @@ containing one string, the message, as its third argument instead of just a stri
 this argument is passed along to @code{format}, all the right things happen.
 @end defun
 
-.defcondition fquery (@code{condition})
+@defvr {Condition} fquery (@code{condition})
 This condition is signaled, by default, by @code{fquery}.
 The condition instance supports these operations:
 @table @code
@@ -47672,21 +47672,21 @@ Returns the list of additional args for format, given to @code{fquery}.
 One proceed type is provided, @code{:new-value}.  It should be used with a
 single argument, which will be returned by @code{fquery} in lieue of asking
 the user.
-.end_defcondition
+@end defvr
 
-.defconst format:y-or-n-p-options
+@defvr {Constant} format:y-or-n-p-options
 A suitable list to pass as the first argument to @code{fquery} to make
 it behave like @code{y-or-n-p}.
-.end_defconst
+@end defvr
 
-.defconst format:yes-or-no-p-options
+@defvr {Constant} format:yes-or-no-p-options
 A suitable list to pass as the first argument to @code{fquery} to make
 it behave like @code{yes-or-no-p}.
-.end_defconst
+@end defvr
 
-.defconst format:y-or-n-p-choices
+@defvr {Constant} format:y-or-n-p-choices
 A list which @code{y-or-n-p} uses as the value of the @code{:choices} option.
-.end_defconst
+@end defvr
 
 @chapter Initializations
 @cindex initialization
@@ -48020,12 +48020,12 @@ This value does not wrap around.  Eventually it becomes a bignum.
 The Lisp Machine does not distinguish between run time and real time.
 @end defun
 
-.defconst internal-time-units-per-second
+@defvr {Constant} internal-time-units-per-second
 According to Common Lisp, this is the ratio between a second and the
 time unit used by values of @code{get-internal-real-time}.  On the Lisp
 Machine, the value is 60.  The value may be different in other Common
 Lisp implementations.
-.end_defconst
+@end defvr
 
 @defun time-lessp time1 time2
 @code{t} if @i{time1} is earlier than @i{time2}, compensating for
