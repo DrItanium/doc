@@ -9,8 +9,6 @@
 @top Lisp Machine Manual
 @end ifnottex
 
-@c DSK:LMMAN;TITLE 20
-
 @titlepage
 @center @titlefont{Lisp Machine Manual}
 
@@ -85,10 +83,6 @@ This document was edited with the Emacs editor, and formatted
 by the Bolio text justifier.  It was printed on the MIT A.I.
 Lab's Xerox Graphic Printer.
 @end titlepage
-
-@c DSK:LMMAN;I.NTRO 28
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Introduction: The Manual, etc.   I.NTRO
 
 @chapter Introduction
 
@@ -292,10 +286,6 @@ that can be typed on the keyboard.
 Many of the functions refer to "areas".  The @i{area} feature
 is only of interest to writers of large systems, and can be safely
 disregarded by the casual user.  It is described elsewhere.
-
-@c DSK:LMMAN;I.LISP 31
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Introduction: The Lisp Machine dialect, etc.   I.LISP
 
 @page
 
@@ -558,10 +548,6 @@ therefore it is not safe to @code{rplaca} this list as you may modify permanent
 data structure.  An attempt to @code{rplacd} a rest-args list will be unsafe
 in this case, while in the first case it would cause an error.
 
-@c DSK:LMMAN;FD.DTP 28
-@c  This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c  Function Description: Data Type Predicates. >
-
 @chapter Predicates
 @cindex predicate
 
@@ -689,10 +675,6 @@ See Named Structures, (named-structure).
 See also @code{data-type}, (data-type-fun).
 @end defun
 
-@c DSK:LMMAN;FD.OP 23
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Other Predicates.
-
 The following functions are some other general purpose predicates.
 
 @defun eq x y
@@ -780,10 +762,6 @@ depend on this fortuitously.  For example, one often writes:
 There is no loss of efficiency, since these will compile into exactly
 the same instructions.
 @end defun
-
-@c DSK:LMMAN;FD.EVA 42
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c  Function Description: Evaluator >
 
 @chapter Evaluation
 @cindex evaluation
@@ -1389,10 +1367,6 @@ value: (a . c)
 (a . c)
 @end lisp
 @end defun
-
-@c DSK:LMMAN;FD.FLO 65
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Flow of Control
 
 @c All of the error stuff has been omitted for the time being, since it
 @c is pretty variable.  Fix it up later.
@@ -2422,10 +2396,6 @@ There are also functions (@code{mapatoms} and @code{mapatoms-all})
 for mapping over all symbols in certain
 packages.  See the explanation of packages ((package)).
 @end defun
-
-@c DSK:LMMAN;FD.CON 93
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Conses and List Manipulation
 
 @c NLEFT omitted.
 @c Should this discuss the use of locatives yet, or should that be confined to a section?
@@ -3927,10 +3897,6 @@ than @code{sort-grouped-array} since the function can get at
 all of the elements of the relevant records, instead of only the first element.
 @end defun
 
-@c DSK:LMMAN;FD.SYM 47
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Symbols
-
 @c Remember to go back and try to figure out INTERN and REMOB.
 
 @chapter Symbols
@@ -4660,10 +4626,6 @@ are often called "gensyms".
 Returns a locative pointer to @i{symbol}'s package cell, which contains
 the package (see (package)) which owns @i{symbol}.
 @end defun
-
-@c DSK:LMMAN;FD.NUM 54
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Numbers
 
 @c TRUE and FALSE omitted; unclear why LMNUC thinks they belong here.
 @c FALSE at least does not seem to be on SYSTEM package.
@@ -5430,9 +5392,6 @@ same value is constructed and returned.  Note that only the 31 most-significant
 bits are retained (after removal of leading zeroes.)  This function is
 mainly for the benefit of @code{read}.
 @end defun
-
-@c DSK:LMMAN;FD.STR 65
-@c This file is part of the Lisp Machine Manual.		-*-Text-*-
 
 @chapter Strings
 @cindex string
@@ -6447,10 +6406,6 @@ it defaults to the null string, but allows you to insert colon and/or atsign.
 For formatting Lisp code (as opposed to text and tables), there is
 the Grind package.  See (grind).
 
-@c DSK:LMMAN;FD.ARR 80
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Function Description: Array Functions
-
 @chapter Arrays
 @cindex array
 
@@ -7260,9 +7215,6 @@ order.  This function only exists for the compiler to compile the
 @code{store} special form, and should never be used by programs.
 @end defun
 
-@c DSK:LMMAN;FD.CLO 12
-@c This file is part of the Lisp Machine manual.		-*-Text-*-
-
 @chapter Closures
 @cindex closure
 
@@ -7444,9 +7396,6 @@ expands into a form which does all of this.  It is best described by example:
          (function (lambda () ...)))))
 @end lisp
 @end defmac
-
-@c DSK:LMMAN;FD.SG 38
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
 
 @c Still need explanation of states in general, and of RG-style error checking.
 @c Need examples!
@@ -7648,9 +7597,6 @@ resumer is not affected.  This function is not currently implemented.
 @c Add some discussion of the screws Gosper encountered.  Discuss how
 @c stack-groups relate to variables, environments, conditions, throws, etc.
 
-@c DSK:LMMAN;FD.LOC 13
-@c This file is part of the Lisp Machine Manual.	-*-Text-*-
-
 @chapter Locatives
 @cindex locative
 
@@ -7730,9 +7676,6 @@ You might expect this not to work if it was compiled and @code{res}
 was not declared special, since non-special compiled variables are
 not represented as symbols.  However, the compiler arranges for
 it to work anyway.
-
-@c DSK:LMMAN;FD.SUB 30
-@c This file is part of the Lisp Machine Manual 		-*-Text-*-
 
 @chapter Subprimitives
 @cindex subprimitives
@@ -8401,9 +8344,6 @@ the quasi-asynchronous portion of the garbage collector,
 which normally runs during consing operations.
 @end defvar
 
-@c DSK:LMMAN;AREAS 19
-@c This file is part of the Lisp Machine manual.-*-Text-*-
-
 @chapter Areas
 @cindex area
 
@@ -8579,9 +8519,6 @@ This contains most of the symbols in the Lisp world, except @code{t} and @code{n
 @defvar macro-compiled-program
 FEFs are put here by the compiler and by @code{fasload}.
 @end defvar
-
-@c DSK:LMMAN;COMPIL 44
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
 
 @chapter The Compiler
 @cindex compiler
@@ -9110,10 +9047,6 @@ most of the standard Lisp Machine macros and reader macros in Maclisp, including
 Another useful facility is the form @code{(status feature lispm)},
 which evaluates to @code{t} when evaluated on the Lisp machine and to @code{nil}
 when evaluated in Maclisp.
-
-@c DSK:LMMAN;MACROS 39
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
-@c Macros: introduction, examples, DEFMACRO, backquote.
 
 @c Note: there are still some sections to be written; see end of the file.
 
@@ -9648,10 +9581,6 @@ Otherwise, it just returns @i{form}.  @i{compilerp} has the
 same meaning as in @code{macroexpand-1}.
 @end defun
 
-@c DSK:LMMAN;DEFSTR 28
-@c This file is part of the Lisp Machine manual.	-*-Fundamental-*-
-@c Defstruct.
-
 @c This needs more work.  More examples are needed.
 
 @chapter Defstruct
@@ -10121,10 +10050,6 @@ otherwise element 0 of the array is returned.
 symbol.  The function definition of the named structure symbol is called
 with appropriate arguments.
 @end defun
-
-@c DSK:LMMAN;IOS 116
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
-@c The I/O System Chapter.
 
 @c Need to add examples in the section on read, maybe print too.
 @c Need to explain the readtable?  Which reader?
@@ -11679,10 +11604,6 @@ not call the prompt function when the rubout handler is first entered.
 
 -> how to use whatever else ought to go in here
 
-@c DSK:LMMAN;PACKD 66
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
-@c Documentation on PACK4.
-
 @chapter Packages
 @cindex package
 
@@ -12620,9 +12541,6 @@ experimental @code{macsyma} into the machine: he would name the new obarray
 must contain @code{test-macsyma} under the name @code{macsyma}.  This, finally,
 is the reason why each package has a reference to itself on its refname-alist.
 
-@c DSK:LMMAN;FILES 16
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
-
 @c New section on FILES for the manual to explain:
 @c Mention packages and how they relate to files.
 @c BEGF/ENDF sectioning.
@@ -12736,9 +12654,6 @@ Process only DEFS files.
 
 See also @code{recompile-world} ((recompile-world-fun)).
 @end defun
-
-@c DSK:LMMAN;PROCES 3
-@c This file is part of the Lisp Machine manual.  -*-Text-*-
 
 @chapter Processes
 @cindex process
@@ -12981,9 +12896,6 @@ then even if @code{function-1} or @code{function-2} does a @code{*throw},
 use of a sub-primitive function called @code{%store-conditional}
 (see (%store-conditional-fun)), which
 is sometimes useful in its own right.
-
-@c DSK:LMMAN;JOBSYS 85
-@c This file is part of the Lisp Machine manual.  -*-Text-*-
 
 @c Mention the term job system early on in this chapter.
 @c Description of stuff in JOBSYS.
@@ -13583,10 +13495,6 @@ enables those of the top-level job, and gives the top-level job
 the keyboard.
 [The job calling it had better have the keyboard.]
 @end defun
-
-@c DSK:LMMAN;TV 76
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
-@c This file documents the TV routines (LMIO;TV >)
 
 @c It's unclear if these comments mean anything.
 @c It is being modified from LMDOC; TVDOC into LMMAN format.
@@ -15120,10 +15028,6 @@ TV controller, or @code{nil} if the font is to be used with the 16-bit controlle
 
 [Here insert a catalog of fonts when things settle down a little more.]
 
-@c DSK:LMMAN;ERRORS 45
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c Error system.
-
 @chapter Errors and Debugging
 @cindex error system
 @cindex handling errors
@@ -15985,10 +15889,6 @@ If @i{arg} is @code{1}, trapping is enabled.  If it is @code{0},
 trapping is disabled.
 @end defun
 
-@c DSK:LMMAN;DB.AID 35
-@c This file is part of the Lisp Machine Manual.  -*-Text-*-
-@c  Debugging: Various Debuggingc Aids
-
 @section Trace
 
 The @i{trace} facility allows the user to trace some functions.
@@ -16353,10 +16253,7 @@ if those pages were read-only.  Currently it is not possible
 to proceed from a MAR trrap, because some machine state is lost.
 Eventually, most MAR traps will be continuable.
 
-@c DSK:LMMAN;PROGS -- missing
-
-@c DSK:LMMAN;FD.HAC 50
-@c This file is part of the Lisp Machine Manual.		-*-Text-*-
+@c ---!!! DSK:LMMAN;PROGS -- missing
 
 @c This file documents those functions in lmio; hacks
 @c and various other useful functions from places like qmisc
@@ -16707,9 +16604,6 @@ of features.
 @code{(sstatus nofeature @i{symbol})} removes @i{symbol} from
 the list of features.
 @end defspec
-
-@c DSK:LMMAN;TOPLEV 15
-@c This file is part of the Lisp Machine manual.	-*-Text-*-
 
 @section The Lisp Top Level
 

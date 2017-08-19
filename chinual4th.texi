@@ -71,9 +71,9 @@ Alan Bawden.  The chapter on the LOOP iteration macro is a reprint of Laboratory
 Computer Science memo TM-169, by Glenn Burke.
 @end titlepage
 
-@chapter "Introduction"
+@chapter Introduction
 
-@section "General Information"
+@section General Information
 
 	The Lisp Machine is a new computer system designed to provide a
 high performance and economical implementation of the Lisp language.  It
@@ -106,7 +106,7 @@ of general use, and others are tools used in writing programs.  However,
 the Lisp Machine window system, and the major utility programs, are not
 documented here.
 
-@section "Structure of the Manual"
+@section Structure of the Manual
 
 The manual starts out with an explanation of the language.  Chapter
 (object-chapter) explains the different primitive types of Lisp object,
@@ -178,8 +178,7 @@ user, chapter (time-chapter) explains some functions for manipulating
 dates and times, and chapter (misc-chapter) contains other
 miscellaneous functions and facilities.
 
-
-@section "Notational Conventions and Helpful Notes"
+@section Notational Conventions and Helpful Notes
 
 	There are several conventions of notation, and various points
 that should be understood before reading the manual to avoid confusion.
@@ -325,9 +324,9 @@ have seen them before, they are: "S-expression", which means a Lisp
 object;  "Dotted pair", which means a cons; and "Atom", which means,
 roughly, symbols and numbers and sometimes other things, but not
 conses.   The terms "list" and "tree" are defined in (list-and-tree).
-@cindex "S-expression"
-@cindex "dotted pair"
-@cindex "atom"
+@cindex S-expression
+@cindex dotted pair
+@cindex atom
 
 	The characters acute accent (@code{'}) (also called "single quote") and
 semicolon (@code{;}) have special meanings when typed to Lisp; they are
@@ -426,7 +425,7 @@ disregarded by the casual user.  It is described in chapter (area-chapter).
 
 @chapter Primitive Object Types
 
-@section "Data Types"
+@section Data Types
 
 This section enumerates some of the various different primitive types of
 objects in Zetalisp.  The types explained below include
@@ -434,11 +433,11 @@ symbols, conses, various types of numbers, two kinds of compiled code
 objects, locatives, arrays, stack groups, and closures.  With each is
 given the associated symbolic name, which is returned by the function
 @code{data-type} ((data-type-fun)).
-@cindex "symbol"
-@cindex "print name"
-@cindex "binding"
-@cindex "definition"
-@cindex "property list"
+@cindex symbol
+@cindex print name
+@cindex binding
+@cindex definition
+@cindex property list
 
 	A @i{symbol} (these are sometimes called "atoms" or "atomic
 symbols" by other texts) has a @i{print name}, a @i{binding}, a
@@ -495,7 +494,7 @@ Other types of numbers are likely to be added in the future.
 See (number) for full details of these types and the conversions
 between them.
 
-@cindex "FEF"
+@cindex FEF
 	The usual form of compiled, executable code is a Lisp object
 called a "Function Entry Frame" or "FEF".  A FEF contains the code
 for one function.  This is analogous to what Maclisp calls a "subr pointer".
@@ -530,7 +529,7 @@ the elements are 8-bit unsigned numbers which encode characters.
 made up out of conses and the symbol @code{nil}.  See (list-and-tree).
 
 @section Predicates
-@cindex "predicate"
+@cindex predicate
 	A @i{predicate} is a function which tests for some condition involving
 its arguments and returns the symbol @code{t} if the condition is true, or
 the symbol @code{nil} if it is not true.  Most of the following predicates are for
@@ -540,15 +539,15 @@ are also explained.
 	By convention, the names of predicates usually end in the letter "p" (which
 stands for "predicate").
 @c (See [section on naming conventions]).
-@cindex "naming convention"
+@cindex naming convention
 
 	The following predicates are for testing data types.  These predicates
 return @code{t} if the argument is of the type indicated by the name of the function,
 @code{nil} if it is of some other type.
-@cindex "data type"
+@cindex data type
 
 @defun symbolp arg
-@cindex "symbol"
+@cindex symbol
 @code{symbolp} returns @code{t} if its argument is a symbol, otherwise @code{nil}.
 @end defun
 
@@ -557,7 +556,7 @@ return @code{t} if the argument is of the type indicated by the name of the func
 @end defun
 
 @defun listp arg
-@cindex "cons"
+@cindex cons
 @code{listp} returns @code{t} if its argument is a cons, otherwise @code{nil}.
 Note that this means @code{(listp nil)} is @code{nil} even though @code{nil} is the empty list.
 [This may be changed in the future.]
@@ -572,13 +571,13 @@ returns @code{t}.
 @end defun
 
 @defun atom arg
-@cindex "atom"
+@cindex atom
 The predicate @code{atom} returns @code{t} if its argument is not a cons,
 otherwise @code{nil}.
 @end defun
 
 @defun numberp arg
-@cindex "number"
+@cindex number
 @code{numberp} returns @code{t} if its argument is any kind of number,
 otherwise @code{nil}.
 @end defun
@@ -610,19 +609,19 @@ i.e. a flonum or a small flonum, otherwise @code{nil}.
 @end defun
 
 @defun stringp arg
-@cindex "string"
+@cindex string
 @code{stringp} returns @code{t} if its argument is a string, otherwise @code{nil}.
 @end defun
 
 @defun arrayp arg
-@cindex "array"
+@cindex array
 @code{arrayp} returns @code{t} if its argument is an array, otherwise @code{nil}.
 Note that strings are arrays.
 @end defun
 
 @defun functionp arg &optional allow-special-forms
-@cindex "function"
-@cindex "applicable function"
+@cindex function
+@cindex applicable function
 @code{functionp} returns @code{t} if its argument is a function (essentially, something
 that is acceptable as the first argument to @code{apply}), otherwise it returns @code{nil}.
 In addition to interpreted, compiled, and microcoded functions, @code{functionp}
@@ -644,18 +643,18 @@ but the name of this function comes from Maclisp.
 @end defun
 
 @defun closurep arg
-@cindex "closure"
+@cindex closure
 @code{closurep} returns @code{t} if its argument is a closure, otherwise @code{nil}.
 @end defun
 
 @defun entityp arg
-@cindex "entity"
+@cindex entity
 @code{entityp} returns @code{t} if its argument is an entity, otherwise @code{nil}.
 See (entity) for information about "entities".
 @end defun
 
 @defun locativep arg
-@cindex "locative"
+@cindex locative
 @code{locativep} returns @code{t} if its argument is a locative, otherwise @code{nil}.
 @end defun
 
@@ -739,7 +738,7 @@ The following functions are some other general purpose predicates.
 It should be noted that things that print the same are not necessarily @code{eq} to each other.
 In particular, numbers with the same value
 need not be @code{eq}, and two similar lists are usually not @code{eq}.
-@cindex "eq versus equal"
+@cindex eq versus equal
 @lisp
 .exdent 96 Examples:
 (eq 'a 'b) => nil
@@ -760,8 +759,8 @@ simply as an abbreviation for typing convenience.
 @defun equal x y
 The @code{equal} predicate returns @code{t} if its arguments are similar
 (isomorphic) objects. (cf. @code{eq})
-@cindex "eq versus equal"
-@cindex "equal versus ="
+@cindex eq versus equal
+@cindex equal versus =
 Two numbers are @code{equal} if they have the same value and type (for
 example, a flonum is never @code{equal} to a fixnum, even if @code{=} is true of them).
 For conses, @code{equal} is defined
@@ -817,8 +816,8 @@ depend on this fortuitously.  For example, one often writes:
 the same instructions.
 @end defun
 
-@chapter "Evaluation"
-@cindex "evaluation"
+@chapter Evaluation
+@cindex evaluation
 
 @c Somewhere we should explain why sstatus uuolinks isn't needed.
 
@@ -877,7 +876,6 @@ in chapter (function-chapter).  Macros are explained in chapter
 arbitrary whenever the evaluator is invoked, is explained in
 (evalhook-section).  Special forms are described all over the manual; each
 special form is in the section on the facility it is part of.
-
 
 @section Variables
 
@@ -1311,11 +1309,11 @@ sequence.  This makes calls hard to read when there are a great many
 arguments.  Keyword parameters enable the use of other styles of call
 which are more readable.
 
-@cindex "keyword parameters"
-@cindex "positional parameters"
-@cindex "optional parameters"
-@cindex "required parameters"
-@cindex "rest parameters"
+@cindex keyword parameters
+@cindex positional parameters
+@cindex optional parameters
+@cindex required parameters
+@cindex rest parameters
 
 	In general, a function in Zetalisp has zero or more
 @i{positional} parameters, followed if desired by a single @i{rest}
@@ -1602,7 +1600,7 @@ contain Lisp programming to take apart the rest parameter and make sense
 of the keywords and values.  The special form @code{keyword-extract} (see
 (keyword-extract-fun)) may be useful for this.
 
-@section "Some Functions and Special Forms"
+@section Some Functions and Special Forms
 
 This section describes some functions and special forms.  Some are parts
 of the evaluator, or closely related to it.  Some have to do
@@ -1628,7 +1626,7 @@ should use the primitive function @code{symeval} (see (symeval-fun)).
 	Note: the actual name of the compiled code for @code{eval} is "@code{si:*eval}";
 this is because use of the @i{evalhook} feature binds the function cell of @code{eval}.
 If you don't understand this, you can safely ignore it.
-@cindex "evalhook"
+@cindex evalhook
 	Note: unlike Maclisp, @code{eval} never takes a second argument; there
 are no "binding context pointers" in Zetalisp.
 They are replaced by Closures (see (closure)).
@@ -1692,9 +1690,9 @@ are not needed on the Lisp Machine; @code{funcall} is just as efficient.
 @code{arraycall} is provided for compatibility; it ignores its first
 subform (the Maclisp array type) and is otherwise identical to @code{aref}.
 @code{subrcall} and @code{lsubrcall} are not provided.
-@findex "subrcall"
-@findex "lsubrcall"
-@c @findex "arraycall"  -- commented out since it does exist after all
+@findex subrcall
+@findex lsubrcall
+@c @findex arraycall  -- commented out since it does exist after all
 
 @defun call function &rest argument-specifications
 @code{call} offers a very general way of controlling what arguments you
@@ -1729,7 +1727,7 @@ prepared to accept all the arguments which come from @code{x} and
 @end defun
 
 .defspec quote object
-@cindex "quote"
+@cindex quote
 @code{(quote @i{x})} simply returns @i{x}.  It is useful specifically
 because @i{x} is not evaluated; the @code{quote} is how you make a form
 that returns an arbitrary Lisp object.  @code{quote} is used to include
@@ -1939,7 +1937,7 @@ The following three functions (@code{arg}, @code{setarg}, and @code{listify})
 exist only for compatibility with Maclisp @i{lexprs}.  To write functions
 that can accept variable numbers of arguments, use the @code{&optional} and
 @code{&rest} keywords (see (function-section)).
-@cindex "lexpr"
+@cindex lexpr
 
 @defun arg x
 @code{(arg nil)}, when evaluated during the application of
@@ -2198,12 +2196,12 @@ of small functions, each of which implements a simple operation.
 These functions operate by calling one another, and so larger
 operations are defined in terms of smaller ones.
 
-@cindex "recursion"
+@cindex recursion
 	A function may always call itself in Lisp.  The calling of
 a function by itself is known as @i{recursion}; it is analogous
 to mathematical induction.
 
-@cindex "iteration"
+@cindex iteration
 	The performing of an action repeatedly (usually with some
 changes between repetitions) is called @i{iteration}, and is provided as
 a basic control structure in most languages.  The @i{do} statement of
@@ -2215,7 +2213,7 @@ in its own chapter later in the manual; see (loop-fun).)  There is also
 a very general construct to allow the traditional "goto" control structure,
 called @code{prog}.
 
-@cindex "conditional"
+@cindex conditional
 	A @i{conditional} construct is one which allows a program
 to make a decision, and do one thing or another based on some logical
 condition.  Lisp provides the simple one-way conditionals @code{and} and @code{or},
@@ -2224,8 +2222,8 @@ conditionals such as @code{cond} and @code{selectq}.
 The choice of which form to use in any particular situation is a matter
 of personal taste and style.
 
-@cindex "non-local exit"
-@cindex "exit"
+@cindex non-local exit
+@cindex exit
 	There are some @i{non-local exit} control structures, analogous
 to the @i{leave}, @i{exit}, and @i{escape} constructs in many modern
 languages.
@@ -2239,7 +2237,7 @@ explained in the section on @i{stack-groups} ((stack-group)), and
 a multiple-process facility (see (process)).  There is also a facility
 for generic function calling using message passing; see (flavor).
 
-@section "Conditionals"
+@section Conditionals
 
 .defspec if
 @code{if} is the simplest conditional form.  The "if-then" form looks like:
@@ -2317,7 +2315,6 @@ satisfied.  The value returned
 is the value of the last consequent form in the last clause whose predicate
 is satisfied.  Multiple values are not returned.
 .end_defspec
-
 
 .defspec and form...
 @code{and} evaluates the @i{form}s one at a time,
@@ -2530,8 +2527,8 @@ that use @code{caseq} will work correctly so long as they don't use the
 symbol @code{otherwise} as the key.
 .end_defspec
 
-@section "Iteration"
-@cindex "iteration"
+@section Iteration
+@cindex iteration
 
 .defspec do
 The @code{do} special form provides a simple generalized iteration facility,
@@ -3063,8 +3060,8 @@ name, use
 Also see @code{defunp} ((defunp-fun)), a variant of @code{defun} that incorporates a @code{prog}
 into the function body.
 
-@section "Non-Local Exits"
-@cindex "non-local exit"
+@section Non-Local Exits
+@cindex non-local exit
 @cindex catch
 @cindex throw
 
@@ -3167,7 +3164,7 @@ If this counts down to zero before a suitable @code{*catch}
 is found, the @code{*unwind-stack} terminates and
 @i{that frame} returns @i{value} to whoever called it.
 This is similar to Maclisp's @code{freturn} function.
-@findex "freturn"
+@findex freturn
 
 If @i{action} is non-@code{nil}, whenever the @code{*unwind-stack} would be
 ready to terminate (either due to @i{active-frame-count} or due to
@@ -3220,7 +3217,6 @@ the time of the @code{*throw} and the time at which the @code{*catch} returns.
 If the @code{progn} returns normally, then the @code{(turn-off-water-faucet)}
 is evaluated, and the @code{unwind-protect} returns the result of the @code{progn}.
 
-
 The general form of @code{unwind-protect} looks like
 @lisp
 (unwind-protect @i{protected-form}
@@ -3256,8 +3252,8 @@ If you think you want this, most likely you are mistaken and you really
 want @code{unwind-protect}.
 @end defmac
 
-@section "Mapping"
-@cindex "mapping"
+@section Mapping
+@cindex mapping
 
 @defun map fcn &rest lists
 @defunx mapc fcn &rest lists
@@ -3366,13 +3362,13 @@ You can also do what the mapping functions do in a different way by using
 .apart
 @end defun
 
-@chapter "Manipulating List Structure"
-@cindex "cons"
-@cindex "list"
-@cindex "tree"
-@cindex "circular list"
-@cindex "elements (of a list)"
-@cindex "dotted list"
+@chapter Manipulating List Structure
+@cindex cons
+@cindex list
+@cindex tree
+@cindex circular list
+@cindex elements (of a list)
+@cindex dotted list
 
 This chapter discusses functions that manipulate conses, and
 higher-level structures made up of conses such as lists and trees.
@@ -3452,7 +3448,7 @@ you are concerned with storage efficiency, you may want to learn about the
 cdr-coded representation and how to control it.  The cdr-coding scheme is
 discussed in (cdr-code).
 
-@section "Conses"
+@section Conses
 
 @defun car x
 Returns the @i{car} of @i{x}.
@@ -3540,7 +3536,7 @@ the arguments is reversed.
 @end defun
 
 @defun cons-in-area x y area-number
-@cindex "area"
+@cindex area
 This function creates a @i{cons} in a specific @i{area}.  (Areas are
 an advanced feature of storage management, explained in chapter
 (area-chapter); if you aren't interested in them, you can safely skip
@@ -3574,7 +3570,7 @@ the car of @i{cons}.
 Note: there is no @code{cdr-location} function; it is difficult
 because of the cdr-coding scheme (see (cdr-code)).
 
-@section "Lists"
+@section Lists
 
 @defun length list
 @code{length} returns the length of @i{list}.  The length of a list
@@ -4008,7 +4004,7 @@ before @i{sublist}.
 @end lisp
 @end defun
 
-@section "Alteration of List Structure"
+@section Alteration of List Structure
 
 The functions @code{rplaca} and @code{rplacd}
 are used to make alterations in already-existing
@@ -4043,7 +4039,7 @@ have the same property.
 @end lisp
 @end defun
 
-@cindex "substitution"
+@cindex substitution
 @defun subst new old tree
 @code{(subst @i{new old tree})} substitutes @i{new} for all occurrences of @i{old}
 in @i{tree}, and returns the modified copy of @i{tree}.  The original @i{tree}
@@ -4142,7 +4138,7 @@ instead of creating new.
 @end lisp
 @end defun
 
-@section "Cdr-Coding"
+@section Cdr-Coding
 
 This section explains the internal data format used to store conses
 inside the Lisp Machine.  Casual users don't have to worry about this;
@@ -4269,19 +4265,19 @@ it simple-mindedly uses @code{rplacd}, but this will be changed.
 @code{(copylist @i{x})} is a suitable way to copy a
 list, converting it into compact form (see (copylist-fun)).
 
-@section "Tables"
+@section Tables
 
 Zetalisp includes functions which simplify the maintenance
 of tabular data structures of several varieties.  The simplest is
 a plain list of items, which models (approximately) the concept of a @i{set}.
-@cindex "set"
+@cindex set
 There are functions to add (@code{cons}), remove (@code{delete}, @code{delq},
 @code{del}, @code{del-if}, @code{del-if-not}, @code{remove}, @code{remq}, @code{rem},
 @code{rem-if}, @code{rem-if-not}),
 and search for (@code{member}, @code{memq}, @code{mem}) items in a list.
 Set union, intersection, and difference functions can be easily written using these.
 
-@cindex "association list"
+@cindex association list
 @cindex alist
 @i{Association lists} are very commonly used.  An association list
 is a list of conses.  The car of each cons is a "key" and the cdr
@@ -4354,7 +4350,6 @@ instead of @code{eq}.
           (t (member item (cdr list))) ))
 @end lisp
 @end defun
-
 
 @defun mem predicate item list
 @code{mem} is the same as @code{memq} except that it takes an extra argument
@@ -4535,7 +4530,7 @@ as the function used to get to the next element of the list;
 @section Association Lists
 
 @defun assq item alist
-@cindex "association list"
+@cindex association list
 @code{(assq @i{item alist})} looks up @i{item} in the association list
 (list of conses) @i{alist}.  The value is the first cons whose @code{car}
 is @code{eq} to @i{x}, or @code{nil} if there is none such. 
@@ -4672,12 +4667,11 @@ list.
 @cindex kitty, yu-shiang
 @end defun
 
-
 @section Property Lists
-@cindex "property list"
-@cindex "plist"
-@cindex "indicator"
-@cindex "attribute"
+@cindex property list
+@cindex plist
+@cindex indicator
+@cindex attribute
 
 From time immemorial, Lisp has had a kind of tabular data structure
 called a @i{property list} (plist for short).  A property list contains
@@ -4722,7 +4716,7 @@ such as a list, an array, an instance, or a defstruct.  An arbitrary memory
 cell of this kind is named by a locative (see (locative)).  Such locatives
 are typically created with the @code{locf} special form (see (locf-fun)).
 
-@cindex "disembodied property list"
+@cindex disembodied property list
 Property lists of the first kind
 are called "disembodied" property lists because they are not associated with
 a symbol or other data structure.
@@ -4732,7 +4726,7 @@ or @code{(ncons @i{data})} to store @i{data} in the car of the property list.
 Here is an example of the list of entries inside the property list of a
 symbol named @code{b1} which is being used by a program which deals with
 blocks:
-@cindex "blocks"
+@cindex blocks
 @lisp
 	(color blue on b6 associated-with (b2 b3 b4))
 @end lisp
@@ -5138,7 +5132,7 @@ this problem by providing a secondary search, sometimes known as a
 textbook on computer algorithms.
 
 @defun sxhash tree
-@cindex "hash table"
+@cindex hash table
 @code{sxhash} computes a hash code of a tree, and returns it as a fixnum.
 A property of @code{sxhash} is that @code{(equal @i{x y})} always implies
 @code{(= (sxhash @i{x}) (sxhash @i{y}))}.  The number returned by @code{sxhash} is
@@ -5199,8 +5193,8 @@ that hashes on @code{eq}, it is already provided; if you need an
 either using the provided @code{eq} hash table facility or carefully using
 subprimitives.
 
-@section "Sorting"
-@cindex "sorting"
+@section Sorting
+@cindex sorting
 
 Several functions are provided for sorting arrays and lists.  These
 functions use algorithms which always terminate no matter what sorting
@@ -5546,10 +5540,10 @@ whether it returns normally or via @code{*throw}.  This is done by using
 @end lisp
 
 @c Remember to go back and try to figure out INTERN and REMOB.
-@chapter "Symbols"
-@cindex "symbol"
-@section "The Value Cell"
-@cindex "value cell"
+@chapter Symbols
+@cindex symbol
+@section The Value Cell
+@cindex value cell
 	Each symbol has associated with it a @i{value cell}, which refers
 to one Lisp object.  This object is called the symbol's @i{binding} or @i{value},
 since it is what you get when you evaluate the symbol.  The binding of symbols to values
@@ -5625,8 +5619,8 @@ the name of a local variable.  It returns a pointer to the cell that holds
 the value of the local variable.
 @end defun
 
-@section "The Function Cell"
-@cindex "function cell"
+@section The Function Cell
+@cindex function cell
 	Every symbol also has associated with it a @i{function cell}.  The @i{function}
 cell is similar to the @i{value} cell; it refers to a Lisp object.
 When a function is referred to by name, that is, when a symbol is @i{applied}
@@ -5680,7 +5674,7 @@ Since functions are the basic building block of Lisp programs,
 the system provides a variety of facilities for dealing with functions.
 Refer to chapter (function-chapter) for details.
 
-@section "The Property List"
+@section The Property List
 
 Every symbol has an associated property list.  See (plist) for
 documentation of property lists.  When a symbol is created, its property
@@ -5721,8 +5715,8 @@ cell.  This locative pointer is equally valid as @i{sym} itself, as a handle
 on @i{sym}'s property list.
 @end defun
 
-@section "The Print Name"
-@cindex "print name"
+@section The Print Name
+@cindex print name
 Every symbol has an associated string called the @i{print-name}, or @i{pname}
 for short.  This string is used as the external representation of the symbol:
 if the string is typed in to @code{read}, it is read as a reference to that symbol
@@ -5862,7 +5856,7 @@ are often called "gensyms".
 @c Missing explanation of the random number algorithm. 
 @c Not documented because they are crocks: list-product, list-sum
 .c
-@chapter "Numbers"
+@chapter Numbers
 @cindex number
 Zetalisp includes several types of numbers, with different
 characteristics.  Most numeric functions will accept any type of numbers as
@@ -6015,7 +6009,7 @@ an integer is a bignum if and only if its magnitude too big for a
 fixnum.  See the examples on (flonum-examples), in the description
 of what the reader understands.
 
-@section "Numeric Predicates"
+@section Numeric Predicates
 @defun zerop x
 Returns @code{t} if @i{x} is zero.  Otherwise it returns @code{nil}.
 If @i{x} is not a number, @code{zerop} causes an error.  For flonums,
@@ -6155,7 +6149,7 @@ Returns @code{t} if @i{x} is not numerically equal to @i{y}, and @code{nil} othe
 @code{min} requires at least one argument.
 @end defun
 
-@section "Arithmetic"
+@section Arithmetic
 
 All of these functions require that their arguments be numbers, and signal
 an error if given a non-number.  They work on all types of numbers,
@@ -6372,7 +6366,7 @@ Converts any kind of number to a flonum.
 Converts any kind of number to a small flonum.
 @end defun
 
-@section "Logical Operations on Numbers"
+@section Logical Operations on Numbers
 
 Except for @code{lsh} and @code{rot}, these functions operate on both
 fixnums and bignums.  @code{lsh} and @code{rot} have an inherent word-length
@@ -6530,16 +6524,15 @@ or the low @code{-@i{n}} bits if @i{n} is negative.
 @end lisp
 @end defun
 
-
-@section "Byte Manipulation Functions"
-@cindex "byte"
+@section Byte Manipulation Functions
+@cindex byte
 Several functions are provided for dealing with an arbitrary-width field of
 contiguous bits appearing anywhere in an integer (a fixnum or a bignum).
 Such a contiguous set of bits is called a @i{byte}.  Note that
 we are not using the term @i{byte} to mean eight bits, but rather
 any number of bits within a number.
 These functions use numbers called @i{byte specifiers} to
-@cindex "byte specifiers"
+@cindex byte specifiers
 designate a specific byte position within any word.  Byte specifiers are fixnums
 whose two lowest octal digits represent the @i{size} of the
 byte, and whose higher (usually two, but sometimes more)
@@ -6549,7 +6542,7 @@ of zero means that the byte is at the right end of the number.
 For example, the byte-specifier 0010 (i.e. 10 octal) refers to the lowest 
 eight bits of a word, and the byte-specifier 1010 refers to the next eight
 bits.  These byte-specifiers will be stylized below as @i{ppss}.
-@cindex "ppss"
+@cindex ppss
 The maximum value of the @i{ss} digits is 27 (octal), since a byte must
 fit in a fixnum although bytes can be loaded from and deposited into bignums.
 (Bytes are always positive numbers.)
@@ -6646,7 +6639,7 @@ while @code{dpb} would produce a bignum result for arithmetic correctness.
 in some internal system tables and data-structures.
 @end defun
 
-@section "Random Numbers"
+@section Random Numbers
 
 The functions in this section provide a pseudo-random number generator
 facility.  The basic function you use is @code{random}, which returns a new
@@ -6710,7 +6703,7 @@ contents of the array from the seed (calling @code{random} changes the
 contents of the array and the pointers, but not the seed).
 @end defun
 
-@section "24-Bit Numbers"
+@section 24-Bit Numbers
 Sometimes it is desirable to have a form of arithmetic which has no
 overflow checking (which would produce bignums),
 and truncates results to the word size of the machine.
@@ -6736,7 +6729,7 @@ Returns the product of @i{x} and @i{y} modulo 2^24.  Both arguments must
 be fixnums.
 @end defun
 
-@section "Double-Precision Arithmetic"
+@section Double-Precision Arithmetic
 
 These peculiar functions are useful in programs that don't want to use
 bignums for one reason or another.  They should usually be avoided,
@@ -6774,13 +6767,13 @@ bits are retained (after removal of leading zeroes.)  This function is
 mainly for the benefit of @code{read}.
 @end defun
 
-@chapter "Arrays"
+@chapter Arrays
 @cindex array
 
 	An @i{array} is a Lisp object that consists of a group of cells,
 each of which may contain an object.  The individual cells are
 selected by numerical @i{subscripts}.
-@cindex "subscript"
+@cindex subscript
 
 	The @i{dimensionality} of an array (or, the number of dimensions
 which the array has) is the number of subscripts used to
@@ -6927,7 +6920,7 @@ implementation of @i{stack groups}; these types are called
 @code{art-stack-group-head, art-special-pdl}, and @code{art-reg-pdl}.  Their elements
 may be any Lisp object; their use is explained in the section on
 stack groups (see (stack-group)).
-@cindex "stack group"
+@cindex stack group
 
 Currently, multi-dimensional arrays are stored in column-major order
 rather than row-major order as in Maclisp.   Row-major order means that
@@ -6986,8 +6979,8 @@ that array.  For arrays that can hold general Lisp objects, the result is
 24., assuming you will be storing unsigned fixnums in the array.
 @end defun
 
-@section "Extra Features of Arrays"
-@cindex "array leader"
+@section Extra Features of Arrays
+@cindex array leader
 	Any array may have an @i{array leader}.  An array leader is
 like a one-dimensional @code{art-q} array which is attached to the main
 array.  So an array which has a leader acts like two arrays joined
@@ -7008,7 +7001,7 @@ by a @code{defstruct} (see (defstruct-fun)).
 an array is used to hold the number of elements in the array
 that are "active" in some sense.  When the zeroth element is used
 this way, it is called a @i{fill pointer}.
-@cindex "fill pointer"
+@cindex fill pointer
 Many array-processing functions recognize the fill pointer.
 For instance, if a string (an array of type @code{art-string}) has
 seven elements, but its fill pointer contains the value five, then only elements
@@ -7025,7 +7018,7 @@ structure" feature to associate a "data type" with the array; see
 (named-structure).  Element 1 is only treated specially if the array
 is flagged as a named structure.
 
-@cindex "displaced array"
+@cindex displaced array
 	The following explanation of @i{displaced arrays}
 is probably not of interest to a beginner; the section may
 be passed over without losing the continuity of the manual.
@@ -7055,7 +7048,7 @@ is no problem.  It is important to know, in this case, that the elements
 of such arrays are allocated from the right to the left within the 32-bit
 words.
 
-@cindex "indirect array"
+@cindex indirect array
 	It is also possible to have an array whose contents, instead
 of being located at a fixed place in virtual memory, are defined
 to be those of another array.  Such an array is called an @i{indirect array},
@@ -7076,7 +7069,7 @@ an @code{art-@i{n}b} array will do the "obvious" thing.  For instance,
 if @i{m} is 4 and @i{n} is 1, each element of the first array
 will contain four bits from the second array, in right-to-left order.
 
-@cindex "index offset"
+@cindex index offset
 	It is also possible to create an indirect array in such a way
 that when an attempt is made to reference it or store into it, a
 constant number is added to the subscript given.  This number is called
@@ -7091,7 +7084,7 @@ is only one index offset; it is added in to the "linearized" subscript
 which is the result of multiplying each subscript by an appropriate
 coefficient and adding them together.
 
-@section "Basic Array Functions"
+@section Basic Array Functions
 
 @defun make-array dimensions &rest options.
 This is the primitive function for making arrays.  @i{dimensions}
@@ -7117,7 +7110,7 @@ initially be @code{0} or @code{0.0}; otherwise, every element will initially be
 @code{nil}.  See the description of array types on (array-type).
 The value of the option may also be the value of a symbol which is an array type name
 (that is, an internal numeric array type code).
-@cindex "array initialization"
+@cindex array initialization
 
 @item :displaced-to
 If this is not @code{nil}, then the array will be a @i{displaced} array.
@@ -7126,8 +7119,8 @@ regular displaced array which refers to the specified section of virtual
 address space.
 If the value is an array, @code{make-array} will create
 an indirect array (see (indirect-array)).
-@cindex "displaced array"
-@cindex "indirect array"
+@cindex displaced array
+@cindex indirect array
 
 @item :leader-length
 The value should be a fixnum.  The array will have a leader with that
@@ -7149,7 +7142,7 @@ in leader element @code{0}, the @code{cadr} in element @code{1}, and so on.
 If this is present, the value of the @code{:displaced-to} option should be an
 array, and the value should be a non-negative fixnum; it is made to be the
 index-offset of the created indirect array. (See (index-offset).)
-@cindex "index offset"
+@cindex index offset
 
 @item :named-structure-symbol
 If this is not @code{nil}, it is a symbol to
@@ -7187,7 +7180,7 @@ does not have a leader, then this symbol will be stored in array element zero.
 (array-leader b 2) => foo
 (array-leader b 3) => nil
 (array-leader b 4) => nil
-@cindex "array leader"
+@cindex array leader
 @end lisp
 
 	@code{make-array} returns the newly-created array, and also
@@ -7261,7 +7254,6 @@ many old programs use these functions.  New programs should use @code{aref},
 A related function, provided only for Maclisp compatibility, is
 @code{arraycall} ((arraycall-fun)).
 
-
 @defun array-leader array i
 @i{array} should be an array with a leader, and @i{i} should be a
 fixnum.  This returns the @i{i}'th element of @i{array}'s leader.
@@ -7281,7 +7273,6 @@ fixnum.  This returns a locative pointer to the @i{i}'th element of
 @i{array}'s leader.  See the explanation of locatives, (locative).
 This is analogous to @code{aloc}.
 @end defun
-
 
 @section Getting Information About an Array
 
@@ -7400,7 +7391,6 @@ has a leader; otherwise it returns @code{nil}.
 @i{array} may be any array.  This returns the length of @i{array}'s leader
 if it has one, or @code{nil} if it does not.
 @end defun
-
 
 @section Changing the Size of an Array
 
@@ -7554,7 +7544,6 @@ similar to @code{nbutlast} has taken place.  The cdr coding is
 updated to ensure this.
 @end defun
 
-
 @section Copying an Array
 
 @defun fillarray array x
@@ -7696,7 +7685,6 @@ and @i{to-array} are not both integral multiples of the machine word
 length.  For @code{art-1b} arrays, the first dimension must be a multiple
 of 32., for @code{art-2b} arrays it must be a multiple of 16., etc.
 @end defun
-
 
 @section Matrices and Systems of Linear Equations
 
@@ -7869,8 +7857,7 @@ They differ only in the way they take their arguments; @code{plane-aset} wants
 the subscripts as arguments, while @code{plane-store} wants a list of subscripts.
 @end defun
 
-
-@section "Maclisp Array Compatibility"
+@section Maclisp Array Compatibility
 
 The functions in this section are provided only for Maclisp compatibility,
 and should not be used in new programs.
@@ -7957,7 +7944,7 @@ as @code{(aref @i{array} @i{sub1} @i{sub2}...)}.  It exists for
 Maclisp compatibility.
 @end defun
 
-@chapter "Strings"
+@chapter Strings
 @cindex string
 	Strings are a type of array which represent a sequence of
 characters.  The printed representation of a string is its characters
@@ -8009,7 +7996,7 @@ The length of a string is always computed using @code{array-active-length},
 so that if a string has a fill-pointer, its value will be used
 as the length.
 
-@section "Characters"
+@section Characters
 
 @defun character x
 	@code{character} coerces @i{x} to a single character,
@@ -8274,7 +8261,7 @@ For words with multiple plural forms depending on the
 meaning, @code{string-pluralize} cannot always do the right thing.
 @end defun
 
-@section "String Searching"
+@section String Searching
 
 @defun string-search-char char string &optional (from 0) to
 @code{string-search-char} searches through @i{string} starting at the index @i{from},
@@ -8538,7 +8525,7 @@ nested within one another, so long as there is only one of each.
 Another way of doing output to a string is to use the @code{format} facility
 (see (format-fun)).
 
-@section "Maclisp-Compatible Functions"
+@section Maclisp-Compatible Functions
 
 The following functions are provided primarily for Maclisp compatibility.
 
@@ -9000,7 +8987,6 @@ to call @code{eval} on parts of them.  This is different from applying
 a regular function, which is passed argument values rather than Lisp
 expressions.
 
-
 Defining your own special form, by using @code{&quote} yourself, can be
 done; it is a way to extend the Lisp language.  Macros are another way
 of extending the Lisp language.  It is preferable to implement language
@@ -9368,10 +9354,9 @@ In this case, @i{symbol} is the name of a function which is to be called when th
 as the select-method, including the message symbol itself.
 .end_defspec
 
-
 @section Lambda-List Keywords
 @cindex lambda-list keywords
-@cindex "&" keywords
+@cindex &" keyword
 
 This section documents all the keywords that may appear in the
 "lambda-list" (argument list) (see (lambda-list)) of a function, a
@@ -9445,9 +9430,7 @@ the body forms of a special form follow and should be indented accordingly.
 Refer to (&body).
 @end table
 
-
 @section How Programs Manipulate Definitions
-
 
 @defun fdefine function-spec definition &optional (carefully @code{nil}) (no-query @code{nil})
 This is the primitive which @code{defun} and everything else in the system
@@ -9558,7 +9541,6 @@ leaving the encapsulations alone.
 This undoes the effect of a @code{defun}, @code{compile}, etc.
 See also @code{uncompile} ((uncompile-fun)).
 @end defun
-
 
 @section How Programs Examine Functions
 
@@ -9701,8 +9683,7 @@ function-calling mechanism.
 @c functions which are not on the global package, including the ones in eh
 @c for getting arg names and so forth.]
 
-
-@section "Encapsulations"
+@section Encapsulations
 @cindex encapsulation
 @cindex basic definition
 
@@ -9990,8 +9971,8 @@ encapsulations stripped off, including the @code{si:rename-within}
 encapsulation if any, and so no renamings will be done.
 @end defun
 
-@chapter "Closures"
-@cindex "closure"
+@chapter Closures
+@cindex closure
 @cindex coroutine
 
 	A @i{closure} is a type of Lisp functional object useful
@@ -10003,7 +9984,7 @@ by the entering of a dynamic contour (i.e. a @code{lambda}, @code{do},
 forms), and then use that environment
 elsewhere, even after the contour has been exited.
 
-@section "What a Closure Is"
+@section What a Closure Is
 
 	There is a view of lambda-binding which we will use in this
 section because it makes it easier to explain what closures do.  In
@@ -10136,7 +10117,7 @@ cell is a value cell that some closure is remembering; at other times,
 there won't be an invisible pointer, and the value will just reside in the
 internal value cell.
 
-@section "Examples of the Use of Closures"
+@section Examples of the Use of Closures
 
 One thing we can do with closures is to implement a @i{generator}, which
 is a kind of function which is called successively to obtain successive elements
@@ -10259,7 +10240,7 @@ is a special form which does all of this.  It is best described by example:
 @end lisp
 .end_defspec
 
-@section "Entities"
+@section Entities
 @cindex entity
 An entity is almost the same thing as a closure; the data type is
 nominally different but an entity behaves just like a closure when
@@ -10283,8 +10264,8 @@ To test whether an object is an entity, use the @code{entityp} predicate
 
 @c Need examples!
 
-@chapter "Stack Groups"
-@cindex "stack group"
+@chapter Stack Groups
+@cindex stack group
 @cindex coroutine
 
 	A @i{stack group} (usually abbreviated "SG") is a type of Lisp
@@ -10576,7 +10557,6 @@ programmers to know about.  Refer to the file SYS: LMWIN; EH LISP for them.
 @c If there was a way to "interrupt" a stack group (force it to call a function)
 @c it would be documented here.  There is only force-break currently.
 
-
 @section Input/Output in Stack Groups
 
 	Because each stack group has its own set of dynamic bindings, a
@@ -10599,7 +10579,6 @@ the variable @code{terminal-io}.
 of a stack group.  This closure can bind @code{terminal-io} and any other
 variables that are desired to be shared between the stack group and its
 creator.
-
 
 @section An Example of Stack Groups
 
@@ -10694,10 +10673,10 @@ not be an atom.
 
 Now we can compare the fringes of two trees with no allocation of memory whatsoever.
 
-@chapter "Locatives"
+@chapter Locatives
 @cindex locative
 
-@section "Cells and Locatives"
+@section Cells and Locatives
 @cindex cell
 
 	A @i{locative} is a type of Lisp object used as a @i{pointer}
@@ -10729,7 +10708,7 @@ creates a locative pointer to that cell: for example,
 a program from having to remember the names of all the functions
 that create locatives.
 
-@section "Functions That Operate on Locatives"
+@section Functions That Operate on Locatives
 
 	Either of the functions @code{car} and @code{cdr} 
 (see (car-fun))
@@ -10775,7 +10754,7 @@ it to work anyway, by recognizing @code{value-cell-location} of the name
 of a local variable, and compiling it as something other than a call
 to the @code{value-cell-location} function.
 
-@chapter "Subprimitives"
+@chapter Subprimitives
 @cindex subprimitive
 	Subprimitives are functions which are not intended to be used by
 the average program, only by "system programs".  They allow one to
@@ -11509,7 +11488,6 @@ recommendations should be to get optimum performance.
 Specifies the swap-in recommendation of all areas at once.
 @end defun
 
-
 @defun si:wire-page address &optional (wire-p @code{t})
 If @i{wire-p} is @code{t}, the page containing @i{address} is @i{wired-down}; that is,
 it cannot be paged-out.  If @i{wire-p} is @code{nil}, the page ceases to be wired-down.
@@ -11988,7 +11966,7 @@ A list of all of the above symbols (and any others added after this documentatio
 was written).
 @end defvar
 
-@chapter "Areas"
+@chapter Areas
 @cindex area
 
 Storage in the Lisp Machine is divided into @i{areas}.  Each area
@@ -12188,7 +12166,6 @@ Given an area number, returns the name.  This "function" is actually an array.
 See also @code{cons-in-area} ((cons-in-area-fun)), @code{list-in-area} ((list-in-area-fun)),
 and @code{room} ((room-fun)).
 
-
 @section Interesting Areas
 
 This section lists the names of some of the areas and tells what they are for.
@@ -12232,10 +12209,10 @@ This area holds the property lists of symbols.
 These two areas contain constants used by compiled programs.
 @end defvar
 
-@chapter "The Compiler"
+@chapter The Compiler
 @cindex compiler
 
-@section "The Basic Operations of the Compiler"
+@section The Basic Operations of the Compiler
 
 	The purpose of the Lisp compiler is to convert Lisp functions
 into programs in the Lisp Machine's instruction set, so that they
@@ -12266,7 +12243,7 @@ The @code{qc-file} function is used for translating source files into QFASL file
 @c Explain why the compiler expands macros.
 @c Explain specialness versus localness, etc.
 
-@section "How to Invoke the Compiler"
+@section How to Invoke the Compiler
 
 @defun compile function-spec &optional definition
 If @i{definition} is supplied, it should be a @code{lambda}-expression.
@@ -12328,8 +12305,7 @@ work properly.
 See also the @code{disassemble} function ((disassemble-fun)), which lists the instructions
 of a compiled function in symbolic form.
 
-
-@section "Input to the Compiler"
+@section Input to the Compiler
 @cindex input to the compiler
 
 	The purpose of @code{qc-file} is to take a file and produce
@@ -12494,8 +12470,7 @@ There is also a different use of @code{declare}, used in conjuction with the @co
 function (see (arglist-fun)).
 .def_spec
 
-
-@section "Compiler Declarations"
+@section Compiler Declarations
 
 @cindex declaration
 
@@ -12735,8 +12710,7 @@ obsolete-function declaration is:
 @end lisp
 .end_defspec
 
-
-@section "Compiler Source-Level Optimizers"
+@section Compiler Source-Level Optimizers
 @cindex optimizer, compiler
 
 The compiler stores optimizers for source code on property lists so as
@@ -12785,8 +12759,7 @@ names of functions which may be called in place of @i{function} as a result
 of the optimization.
 .end_defspec
 
-
-@section "Files that Maclisp Must Compile"
+@section Files that Maclisp Must Compile
 
 Certain programs are intended to be run both in Maclisp and in
 Zetalisp.  Their source files need some special conventions.  For
@@ -12937,11 +12910,11 @@ returned by @i{new-symbol-function} is ignored.
 
 @c Note: there are still some sections to be written; see end of the file.
 
-@chapter "Macros"
+@chapter Macros
 @cindex macros
 @c Macros!!!!!!!
 
-@section "Introduction to Macros"
+@section Introduction to Macros
 
 If @code{eval} is handed a list whose car is a symbol, then @code{eval}
 inspects the definition of the symbol to find out what to do.  If the
@@ -13066,7 +13039,7 @@ A macro to do this could be defined with
 Now he has defined his own new control structure primitive, and it
 will act just as if it were a special form provided by Lisp itself.
 
-@section "Aids for Defining Macros"
+@section Aids for Defining Macros
 
 	The main problem with the definition for the @code{for} macro is
 that it is verbose and clumsy.  If it is that hard to write a macro
@@ -13483,7 +13456,6 @@ name or a symbol in a constant.
 
 As with @code{defun}, @i{name} can be any function spec.
 .end_defspec
-
 
 @section Hints to Macro Writers
 
@@ -14119,8 +14091,7 @@ before compiling the main part of the program, which uses the macros.
 The @i{system} facility (see (system-system)) helps keep these
 various files straight, compiling and loading things in the right order.
 
-
-@section "Aids for Debugging Macros"
+@section Aids for Debugging Macros
 
 @defun mexp
 @code{mexp} goes into a loop in which it reads forms and sequentially
@@ -14133,7 +14104,7 @@ another form.  This allows you to see what your macros are
 expanding into, without actually evaluating the result of the expansion.
 @end defun
 
-@section "Displacing Macros"
+@section Displacing Macros
 @cindex displacing macros
 	Every time the the evaluator sees a macro form, it must
 call the macro to expand the form.  If this expansion always
@@ -14213,7 +14184,7 @@ it defines a displacing macro, using the @code{displace} function.
 All we have changed in this example is the @code{defmacro} into
 @code{defmacro-displace}.  @code{addone} is now a displacing macro.
 
-@section "Advanced Features of Defmacro"
+@section Advanced Features of Defmacro
 
 The pattern in a @code{defmacro} is more like the @code{lambda}-list
 of a normal function than revealed above.  It is allowed to
@@ -14289,7 +14260,7 @@ You can combine @code{&optional} and @code{&list-of}.  Consider the following ex
 In this example we aren't using @code{&body} or anything like it, so you do see
 the list itself; that is why you see parentheses around the @code{(bar 3)}.
 
-@section "Functions to Expand Macros"
+@section Functions to Expand Macros
 
 	The following two functions are provided to allow the user to
 control expansion of macros; they are often useful for the writer of
@@ -14506,7 +14477,7 @@ forms within @i{ref} may be evaluated more than once.
 
 @chapter The LOOP Iteration Macro
 
-@section "Introduction"
+@section Introduction
 @c For the sake of the Lispm Manual:
 .mindex loop
 @cindex loop
@@ -14616,7 +14587,7 @@ satisfies the predicate @code{frobp}.  If none is found, an error is
 generated.
 .end_group
 
-@section "Clauses"
+@section Clauses
 
 	Internally, @code{loop} constructs a @code{prog} which includes
 variable bindings, pre-iteration (initialization) code,
@@ -15341,7 +15312,7 @@ finishes normally, one may place a call to the @code{return} function in the
 epilogue (with the @code{finally} clause, (loop-finally-clause)).
 @end table
 
-@section "Loop Synonyms"
+@section Loop Synonyms
 
 @defmac define-loop-macro keyword
 May be used to make @i{keyword}, a @code{loop} keyword (such as
@@ -15360,7 +15331,7 @@ predecessor of @code{loop}.  Its unconstrained use is not recommended,
 as it tends to decrease the transportability of the code and
 needlessly uses up a function name.
 
-@section "Data Types"
+@section Data Types
 .loop_topic data type keywords
 	In many of the clause descriptions, an optional @i{data-type}
 is shown.  A @i{data-type} in this sense is an atomic symbol, and is
@@ -15412,7 +15383,7 @@ cause a variable to be initialized to @code{nil} when it should be
 the @code{nodeclare} clause, which is described on
 (loop-nodeclare-clause).
 
-@section "Destructuring"
+@section Destructuring
 	@i{Destructuring} provides one with the ability to
 "simultaneously" assign or bind multiple variables to components of
 some data structure.  Typically this is used with list structure.
@@ -15487,7 +15458,7 @@ then one should set this variable to @code{t};  there is, however,
 little (if any) efficiency loss if this is not done.
 @end defvar
 
-@section "The Iteration Framework"
+@section The Iteration Framework
 	This section describes the way @code{loop} constructs
 iterations.  It is necessary if you will be writing your own iteration
 paths, and may be useful in clarifying what @code{loop} does with its
@@ -15574,7 +15545,7 @@ is incorrect, but
 is safe because the endtest is explicitly dissociated from the
 stepping.
 
-@section "Iteration Paths"
+@section Iteration Paths
 	Iteration paths provide a mechanism for user extension of
 iteration-driving clauses.  The interface is constrained so that the
 definition of a path need not depend on much of the internals of
@@ -16049,14 +16020,14 @@ specification grouping.
 @c This needs more work.  More examples are needed.
 @c Everything needs more work....
 
-@chapter "Defstruct"
+@chapter Defstruct
 @cindex structures
 @cindex defstruct
 @cindex record (structure)
 @c Macro-defining macros!!!!!
 @cindex macro defining macros
 
-@section "Introduction to Structure Macros"
+@section Introduction to Structure Macros
 
 	@code{defstruct} provides a facility in Lisp for creating and
 using aggregate datatypes with named elements.  These are like
@@ -16198,7 +16169,7 @@ easier to write code that will run equally well in Zetalisp and
 Maclisp.  (Note that this @code{defstruct} is not necessarily the default
 one installed in Maclisp!)
 
-@section "How to Use Defstruct"
+@section How to Use Defstruct
 @cindex slot
 
 @defmac defstruct
@@ -16282,7 +16253,7 @@ however some named structures have their own idea of how to describe themselves.
 See (named-structure) for more information about named structures.
 @end defun
 
-@section "Options to Defstruct"
+@section Options to Defstruct
 
 This section explains each of the options that can be given to @code{defstruct}.
 
@@ -16706,7 +16677,7 @@ This provides a primitive way for you to define your own options to
 are actually implemented using this mechanism.
 @end table
 
-@section "Using the Constructor and Alterant Macros"
+@section Using the Constructor and Alterant Macros
 
 After you have defined a new structure with @code{defstruct}, you can
 create instances of this structure using the constructor macro, and
@@ -16843,7 +16814,7 @@ undefined.  Using the alterant macro can produce more efficient Lisp
 than using consecutive @code{setf}s when you are altering two byte fields
 of the same object, or when you are using the @code{:but-first} option.
 
-@section "Byte Fields"
+@section Byte Fields
 	The byte field feature of @code{defstruct} allows you to specify that
 several slots of your structure are bytes (see
 (byte-manipulation-functions)) in an integer stored in one
@@ -16943,7 +16914,7 @@ object is done first, followed by modifications to specific byte fields.
 If any byte fields being initialized or altered overlap each other, the
 action of the constructor and alterant will be unpredictable.
 
-@section "Grouped Arrays"
+@section Grouped Arrays
 @cindex grouped array
 
 	The grouped array feature allows you to store several instances
@@ -17242,7 +17213,6 @@ the form @code{(@i{option-name} .  @i{rest})}.  Different options interpret
 @i{rest} in different ways.  The symbol @i{type} is given an
 @code{si:defstruct-type-description} property of a structure that describes the type
 completely.
-
 
 @subsection Options to defstruct-define-type
 
@@ -17777,7 +17747,6 @@ inside the closure would have a big @code{selectq} form to dispatch on its
 first argument.  (Actually, rather than using closures and a @code{selectq},
 Zetalisp provides @i{entities} and @code{defselect}; see (entity).)
 
-
 While using closures (or entities) does work, it has several serious
 problems.  The main problem is that in order to add a new operation to a
 system, it is necessary to modify a lot of code; you have to find all
@@ -17944,7 +17913,6 @@ Let's do that and @code{describe} the result:
 			            ':y-position 2.0
 				    ':mass 3.5))
 		==> #<SHIP 13756521>
-
 
 (describe her-ship)
 #<SHIP 13756521>, an object of flavor SHIP,
@@ -18682,7 +18650,6 @@ loading some files that you suspect may have missing or obsolete
 
 @section Defflavor Options
 
-
 There are quite a few options to @code{defflavor}.  They are all described here,
 although some are for very specialized purposes and not of interest to most users.
 Each option can be written in two forms; either the keyword by itself, or a list
@@ -19147,7 +19114,6 @@ of the instance variables.
 
 @section Method Combination
 
-
 As was mentioned earlier, there are many ways to combine methods.  The
 way we have seen is called the @code{:daemon} type of combination.  To use
 one of the others, you use the @code{:method-combination} option to
@@ -19518,7 +19484,6 @@ in order for various tools in the editor to work correctly.
 
 @section Entities
 
-
 An @i{entity} is a Lisp object; the entity is one of the primitive
 datatypes provided by the Lisp Machine system (the @code{data-type}
 function (see (data-type-fun)) will return @code{dtp-entity} if it is
@@ -19679,7 +19644,7 @@ the property list to @i{list}.
 
 @c Need to add examples in the section on read, maybe print too.
 
-@chapter "The I/O System"
+@chapter The I/O System
 @cindex input and output
 	Zetalisp provides a powerful and flexible system for
 performing input and output to peripheral devices.  To allow device
@@ -19691,7 +19656,7 @@ manipulate streams, are described in this chapter.  This chapter also
 describes the Lisp "I/O" operations @code{read} and @code{print}, and the
 printed representation they use for Lisp objects.
 
-@section "The Character Set"
+@section The Character Set
 @cindex character set
 
 	Zetalisp represents characters as fixnums.
@@ -19846,7 +19811,6 @@ a character has its Hyper bit on, prefix it with a Lambda.
 To get an Alpha, Beta, Epsilon, Pi, Lambda, or Equivalence into the string,
 quote it by prefixing it with an Equivalence.
 
-
 	When characters are written to a file server computer that
 normally uses the ASCII character set to store text, Lisp Machine
 characters are mapped into an encoding that is reasonably close to an
@@ -19911,10 +19875,9 @@ stored in files.
 @c 207 rubout             217 hold-output   227 roman-iii
 @c 237-377 reserved for the future
 
-
 @center                    The Lisp Machine Character Set
 
-@section "Printed Representation"
+@section Printed Representation
 
 	People cannot deal directly with Lisp objects, because the
 objects live inside the machine.  In order to let us get at and talk
@@ -20364,7 +20327,6 @@ delimiter.  A sharp sign in the middle of a symbol is an ordinary character.
 The function @code{set-syntax-macro-char} (see (set-syntax-macro-char-fun))
 can be used to define your own macro characters.
 
-
 @subsection "Sharp-sign Abbreviations"
 @cindex sharp sign reader macros
 @cindex # reader macros
@@ -20543,7 +20505,6 @@ be read back in.  Attempting to read a @code{#<} will cause an error.
 
 The function @code{set-syntax-#-macro-char} (see (set-syntax-#-macro-char-fun)) can be
 used to define your own sharp sign abbreviations.
-
 
 @subsection Special Character Names
 @cindex special character
@@ -20759,8 +20720,7 @@ to remain in the input stream when @i{function} is called; this is useful if
 argument, which is @code{nil} or the number between the @code{#} and the @i{character}.
 @end defun
 
-
-@section "Input Functions"
+@section Input Functions
 
 Most of these functions take optional arguments called @i{stream} and @i{eof-option}.
 @i{stream} is the stream from which the input is to be read; if unsupplied it
@@ -20954,8 +20914,7 @@ enough characters, an "eof in middle of object" error is signalled.
 
 See also the @code{with-input-from-string} special form ((with-input-from-string-fun)).
 
-
-@section "Output Functions"
+@section Output Functions
 
 These functions all take an optional argument called @i{stream}, which is
 where to send the output.  If unsupplied @i{stream} defaults to the value of
@@ -21134,7 +21093,7 @@ of @i{x}.
 @c ---!!! Seems that this chapter is not complete?
 .insert lmman;stream >
 
-@section "Formatted Output"
+@section Formatted Output
 .cindex formatted output
 
 There are two ways of doing general formatted output.  One is the
@@ -21767,7 +21726,6 @@ the same way that the @code{~:;} command computes it;
 it is not possible to override the natural line-width of the stream.
 @end defun 
 
-
 .page
 .subsection The Output Subsystem
 
@@ -22005,7 +21963,6 @@ separated by commas, breaking lines between elements when necessary.
 @end lisp
 @end defmac
 
-
 .page
 .subsection Formatting Lisp Code
 .cindex formatting lisp code
@@ -22078,9 +22035,7 @@ with the list structure.  The "location" of a close parenthesis is @code{t}, bec
 close parentheses have no associated location.
 @end defun
 
-
-
-@section "Rubout Handling"
+@section Rubout Handling
 @cindex rubout handler
 
 The rubout handler is a feature of all interactive streams, that is, streams
@@ -22271,14 +22226,12 @@ Pretends that the user typed @i{string}.  When the rubout handler is entered,
 @i{string} is typed out.  The user can add more characters to it or rubout
 characters from it.
 
-
 @item (:do-not-echo @i{char-1} @i{char-2}...)
 The characters @i{char-1}, @i{char-2}, etc. are not to be echoed when
 the user types them.  The comparison is done with @code{=}, not
 @code{char-equal}.  You can use this to suppress echoing of the @code{return}
 character that terminated a @code{readline}, for example.
 @end table
-
 
 @section The :read and :print Stream Operations
 
@@ -22329,7 +22282,7 @@ normal way and the stream's @code{:print} hook to get a chance at each of the
 list's elements.
 @end defun
 
-@section "Accessing Files"
+@section Accessing Files
 @cindex file
 
 The Lisp Machine can access files on a variety of remote file servers,
@@ -22613,7 +22566,6 @@ normal form of file-opening options are preferred over these.
 
 @end table
 
-
 @subsection Loading Files
 @cindex loading
 @cindex program source file
@@ -22673,7 +22625,6 @@ specify what package to read the file into.  Unless @i{no-msg-p} is
 @code{t}, a message is printed indicating what file is being read into what
 package.  The defaulting of @i{pathname} is the same as in @code{load}.
 @end defun
-
 
 @subsection File Property Lists
 @cindex file property list
@@ -22939,7 +22890,6 @@ function.
 .nopara
 File output streams implement the @code{:finish} and @code{:force-output} messages.
 
-
 @section Accessing Directories
 
 To understand the functions in this section, it helps to have read the following
@@ -23139,7 +23089,6 @@ names of files and manipulate them without depending on anything about
 their syntax.  This lets a program deal with multiple remote file
 servers simultaneously, using a uniform set of conventions.
 
-
 @section Pathnames
 
 All file systems dealt with by the Lisp Machine are mapped into a common model,
@@ -23262,7 +23211,6 @@ store properties describing the file or family of files which the
 pathname represents.  The uniqueness implies that any time the same
 components are typed in, the program will get the same pathname object,
 and find there the properties it ought to find.
-
 
 If you wish to store properties that refer to a specific file rather
 than to a family of files, simply use the file's pathname.  To avoid
@@ -23476,7 +23424,6 @@ notifying the user, you must not expect the user to know what the
 value of this symbol is.  Using this symbol as a default may cause
 unfortunate surprises, and so such use is discouraged.
 @end defvar
-
 
 @section Generic Pathnames
 
@@ -23767,8 +23714,6 @@ This is the hash table in which pathname objects are interned.  Applying the
 function @code{maphash-equal} to this will extract all the pathnames in the world.
 @end defvar
 
-
-
 @section Pathname Messages
 
 This section documents the messages a user may send to a pathname object.  Pathnames
@@ -23895,7 +23840,6 @@ care you must take in using property lists of pathnames.
 @c omitted:
 @c init-file because it's internal
 @c open, rename, delete, truename, directory-stream because they are internal
-
 
 @section Host File Systems Supported
 
@@ -24519,9 +24463,9 @@ different: its version is @code{:unspecific}.  This difference does not
 appear in the printed representation because ITS filenames cannot convey
 both a meaningful type and a meaningful version number at the same time.
 
-@chapter "Packages"
+@chapter Packages
 @cindex package
-@section "The Need for Multiple Contexts"
+@section The Need for Multiple Contexts
 
 	A Lisp program is a collection of function definitions.
 The functions are known by their names, and so each must have its
@@ -24586,7 +24530,7 @@ it calls @code{intern} to look up that string in some name space and find
 a corresponding symbol.  The package system arranges that the correct
 name space is used whenever a file is loaded.
 
-@section "The Organization of Name Spaces"
+@section The Organization of Name Spaces
 
 	We could simply let every name space be implemented as one
 obarray, e.g. one big table of symbols.  The problem with this is
@@ -24659,7 +24603,7 @@ and install it on the @code{arpa} package.
 @code{chaos} and one for @code{arpa}.  The two programs are loaded together without name
 conflicts.
 
-@section "Shared Programs"
+@section Shared Programs
 
 	Now, a very important feature of the Lisp Machine is that of
 "shared programs"; if one person writes a function to, say, print
@@ -24716,7 +24660,7 @@ referred to as @code{foo:bar:finish}.  What happens here is that the second
 name, @code{bar}, is interpreted as a refname in the context of the package
 @code{foo}.
 
-@section "Declaring Packages"
+@section Declaring Packages
 @cindex declaring packages
 @cindex package declarations
 
@@ -24813,7 +24757,7 @@ The interpretation of the declaration is complicated; see (declaring-packages).
 that is, it describes the package whose name is @i{package-name}.
 @end defun
 
-@section "Packages and Writing Code"
+@section Packages and Writing Code
 
 	The unsophisticated user need never be aware of the existence of
 packages when writing his programs.  He should just load all of his
@@ -24886,7 +24830,7 @@ symbols passed in from outside, the property name should belong to the
 program's package, so that two programs using the same property name
 in that way don't conflict.
 
-@section "Shadowing"
+@section Shadowing
 
 	Suppose the user doesn't like the system @code{nth} function;  he
 might be a former Interlisp user, and expect a completely
@@ -24912,7 +24856,7 @@ for the @code{global} package.  Since @code{global} is the superpackage of the
 @code{snail} package, all refnames defined by @code{global}, including @code{"global"},
 are available in @code{snail}.
 
-@section "Packages and Interning"
+@section Packages and Interning
 
 	The function @code{intern} allows you to specify a package as the second
 argument.  It can be specified either by giving the package object
@@ -25140,7 +25084,7 @@ The refname alist of the package, associating strings with packages.
 The superpackage of the package.
 @end table
 
-@section "Status Information"
+@section Status Information
 
 	The current package--where your type-in is being interned--is
 always the value of the symbol @code{package}.  A package is a named
@@ -25157,7 +25101,7 @@ print out everything except a list of all the symbols in the package.
 If you want @i{that}, use @code{(mapatoms 'print @i{package} nil)}.
 @code{describe} of a package will call @code{describe-package}.
 
-@section "Packages, Loading, and Compilation"
+@section Packages, Loading, and Compilation
 
 	It's obvious that every file has to be loaded into the right package
 to serve its purpose.  It may not be so obvious that every file must be
@@ -25177,7 +25121,7 @@ If a file is not mentioned in a package's file-alist and doesn't
 have such a package specification in it, the system loads it into
 the current package, and tells you what it did.
 
-@section "Subpackages"
+@section Subpackages
 
 	Usually, each independent program occupies one package, which is
 directly under @code{global} in the hierarchy.  But large programs, such as
@@ -25262,7 +25206,7 @@ the @code{macsyma} package.  Then, from anywehere inside Macsyma, the function
 would be called @code{get-line}; from the @code{owl} package and subpackages
 it could be referred to as @code{macsyma:get-line}.
 
-@section "Initialization of the Package System"
+@section Initialization of the Package System
 
 	This section describes how the package system is initialized
 when generating a new software release of the Lisp Machine system;
@@ -25325,7 +25269,7 @@ moved into that package from all its subpackages, rather than into
 @code{global}.
 @end defun
 
-@section "Initial Packages"
+@section Initial Packages
 
 The initially present packages include:
 
@@ -25379,7 +25323,7 @@ user  zwei  chaos    system     tv     format  fonts   (etc)
 @c Remainder of this chapter deleted since it is wrong
 .eof
 
-@section "Multiple Instantiations of a Program"
+@section Multiple Instantiations of a Program
 
 	This isn't finished yet, which is why we don't say how to do
 any of this.
@@ -27082,7 +27026,7 @@ internal mask, not documented here.
 @c with-real-time would be here except it's in the hacks package
 
 @section Locks
-@cindex "lock"
+@cindex lock
 
 	A @i{lock} is a software construct used for synchronization
 of two processes.  A lock is either held by some process, or is free.
@@ -27339,7 +27283,6 @@ Returns @code{nil} for a normal process, @code{t} for a simple process.
 See (simple-process).
 .end_defmethod
 
-
 @subsection Run and Arrest Reasons
 
 .defmethod process :run-reasons
@@ -27497,7 +27440,6 @@ more information.
 
 @c [si:coroutining-process not documented here because it doesn't seem of general
 @c enough interest and what it does is too hard to explain.]
-
 
 @section Other Process Functions
 
@@ -29107,7 +29049,6 @@ The function versions of @code{advise-within} and @code{unadvise-within} are
 called @code{si:advise-within-1} and @code{si:unadvise-within-1}.  @code{advise-within} and
 @code{unadvise-within} are macros which expand into calls to the other two.
 
-
 @section Stepping Through an Evaluation
 @cindex stepping through evaluation
 
@@ -29217,8 +29158,7 @@ and try the stepper on it.  If you get a feel for what the stepper does
 and how it works, you will be able to tell when it is the right thing to use
 to find bugs.
 
-@section "Evalhook"
-
+@section Evalhook
 
 The @code{evalhook} facility provides a "hook" into the evaluator; it is a
 way you can get a Lisp form of your choice to be executed whenever the
@@ -29292,7 +29232,7 @@ value: c
 @end lisp
 @end defun
 
-@section "The MAR"
+@section The MAR
 @cindex MAR
 
 	The MAR facility allows any word or contiguous set of words to
@@ -30002,7 +29942,6 @@ code that uses it and look at the results, since sometimes the compiler
 converts a documented function with one name into an undocumented one
 with another name.
 
-
 @section Function Entry
 
 When a function is first entered in the Lisp Machine, interesting
@@ -30324,7 +30263,6 @@ is a special instruction called @code{%CATCH-OPEN-MULT-VALUE}, which is a
 cross between @code{%CATCH-OPEN} and @code{%CALL-MULT-VALUE}.
 @code{multiple-value-list} with @code{*catch} is not supported.
 
-
 @section Estimating Run Time
 
 You may sometimes want to estimate the speed at which a function will
@@ -30484,7 +30422,7 @@ The @code{cons} function takes 7 units if garbage collection is turned off.
 @code{(list a b c d)} takes 24 units, which includes 4 units for getting the
 local variables @code{a}, @code{b}, @code{c}, and @code{d}.
 
-@chapter "Querying the User"
+@chapter Querying the User
 @cindex querying the user
 @cindex yes-or-no
 
@@ -30827,7 +30765,6 @@ initializations are run before the world is saved out by @code{disk-save}.  Thus
 happen essentially at cold boot time, but only once when the world is saved, not each
 time it is started up.
 
-
 	The @code{:login} and @code{:logout} lists are run by the @code{login} and
 @code{logout} functions (see (login-fun)) respectively.  Note that @code{disk-save}
 calls @code{logout}.  Also note that often people don't call @code{logout}; they
@@ -31007,7 +30944,6 @@ Thus the output will be in one of the following three forms:
 8/17/74 15:30	;@t{a different year}
 @end lisp
 @end defun
-
 
 @section Reading Dates and Times
 
@@ -31189,7 +31125,7 @@ Return the three-letter abbreviation for this time zone.  For example, if
 @c this file is here so that the function descriptions can live
 @c somewhere until we sort them out.
 
-@chapter "Miscellaneous Useful Functions"
+@chapter Miscellaneous Useful Functions
 
 This chapter describes a number of functions which don't logically fit in anywhere else.
 Most of these functions are not normally used in programs, but are "commands", i.e.
@@ -31341,7 +31277,6 @@ no arguments.  Its initial value is:
 not exceed the amount of main memory on the machine.
 @end defun
 
-
 @section Utility Programs
 
 @defun ed &optional x
@@ -31467,7 +31402,7 @@ Type @code{NETWORK} followed by @code{HELP} for documentation.
 protocol, simulating a printing terminal rather than a display terminal.
 @end defun
 
-@section "The Lisp Top Level"
+@section The Lisp Top Level
 
 	These functions constitute the Lisp top level,
 and its associated functions.
@@ -31604,7 +31539,6 @@ In most cases, the @i{initialization} facility should be used rather than
 @code{lisp-crash-list}.  Refer to (initialization).
 @end defvar
 
-
 @section The Garbage Collector
 @cindex Garbage collector
 
@@ -31640,7 +31574,7 @@ Pages below that one can be used by garbage collection; other pages cannot.
 The previous function sets this variable.
 @end defvar
 
-@section "Logging In"
+@section Logging In
 
 	Logging in tells the Lisp Machine who you are, so that
 other users can see who is logged in, you can receive messages,
@@ -31711,7 +31645,6 @@ from INIT files, such as @code{zwei:set-comtab-return-undo}, which conveniently
 return a form to undo what they did.  @code{login-eval} adds
 the result of the form @i{x} to the @code{logout-list}.
 @end defun
-
 
 @section Dribble Files
 
