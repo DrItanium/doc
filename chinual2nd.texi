@@ -11334,8 +11334,6 @@ software.
 @defspec with-open-file
 @code{(with-open-file (@i{s} @i{fn} @i{options}) @i{body1} @i{body2}...)}
 [needs to be documented.  Discourage direct use of @code{open}.]
-
-.complain_to_user
 @end defspec
 
 @defun open filename options

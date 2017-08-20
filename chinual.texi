@@ -4,6 +4,8 @@
 @settitle Lisp Machine Manual
 @c %**end of header
 
+@defindex lkw
+
 @ifnottex
 @node Top
 @top Lisp Machine Manual
@@ -326,7 +328,7 @@ are violated.
 Operations, the message-passing equivalent of ordinary Lisp's functions,
 are described in this style:
 
-@defmethod flavor-name :operation-name arg1 arg2 &optional arg3
+@defmethod Operation flavor-name :operation-name arg1 arg2 &optional arg3
 This is the documentation of the effect of performing operation
 @code{:operation-name} (or, sending a message named @code{:operation-name}),
 with arguments @i{arg1}, @i{arg2}, and @i{arg3}, on an instance of
@@ -2531,7 +2533,7 @@ expressions.
 arguments have been processed, the default-form for the parameter is
 evaluated and the parameter is bound to its value.  All keyword
 parameters are optional.
-.kindex :allow-other-keys "keyword arguments"
+@kindex :allow-other-keys "keyword arguments"
 	There may be a keyword symbol among the arguments which does not
 match any keyword parameter name.  By default this is an error, but the
 lambda list can specify that there should be no error using
@@ -3755,7 +3757,7 @@ The proceed type @code{:new-keyword} is provided.  It expects one
 argument, which is a keyword to use instead of the one supplied.
 @end defvr
 
-.defcondition-flavor sys:cell-contents-error (@code{error})
+@defvr {Condition Flavor} sys:cell-contents-error (@code{error})
 This condition name categorizes all the errors signaled because of
 references to void memory locations.  It includes ``unbound'' variables,
 ``undefined'' functions, and other things.
@@ -3791,7 +3793,7 @@ in other packages; but only if the containing structure is a symbol.
 Two other proceed types take one argument: @code{:new-value} and @code{:store-new-value}.
 The argument is used as the contents of the memory cell.
 @code{:store-new-value} also permanently stores the argument into the cell.
-.end_defcondition-flavor
+@end defvr
 
 @defvr {Condition} sys:unbound-variable (@code{sys:cell-contents-error} @code{error})
 This condition name categorizes all errors of variables whose values are void.
@@ -5300,7 +5302,6 @@ for example,
 The functional argument to a mapping function must be a function, acceptable
 to @code{apply}--it cannot be a macro or the name of a special form.
 
-.group
 Here is a table showing the relations between
 the six map functions.
 
@@ -7591,24 +7592,24 @@ Returns the number of filled entries in hash-table.
 
 Hash tables are instances, and support the following operations:
 
-@defmethod hash-table :size
+@defmethod Operation hash-table :size
 Returns the number of entries in the hash table.
 Note that the hash table is rehashed when only a fraction of this many
 (the rehash threshold) are full.
 @end defmethod
 
-@defmethod hash-table :filled-entries
+@defmethod Operation hash-table :filled-entries
 Returns the number of entries that are currently occupied.
 @end defmethod
 
-@defmethod hash-table :get-hash key
-@defmethodx hash-table :put-hash key &rest values
-@defmethodx hash-table :swap-hash key &rest values
-@defmethodx hash-table :rem-hash key
-@defmethodx hash-table :map-hash function &rest extra-args
-@defmethodx hash-table :map-hash-return function
-@defmethodx hash-table :clear-hash
-@defmethodx hash-table :filled-entries
+@defmethod Operation hash-table :get-hash key
+@defmethodx Operation hash-table :put-hash key &rest values
+@defmethodx Operation hash-table :swap-hash key &rest values
+@defmethodx Operation hash-table :rem-hash key
+@defmethodx Operation hash-table :map-hash function &rest extra-args
+@defmethodx Operation hash-table :map-hash-return function
+@defmethodx Operation hash-table :clear-hash
+@defmethodx Operation hash-table :filled-entries
 Are equivalent to the functions @code{gethash}, @code{puthash}, @code{swaphash},
 @code{remhash}, @code{maphash}, @code{maphash-return}, @code{clrhash} and
 @code{hash-table-count} except that the hash table need not be specified as
@@ -7617,7 +7618,7 @@ functions (documented in the previous section) actually work by invoking
 these operations.
 @end defmethod
 
-@defmethod hash-table :modify-hash key function &rest additional-args
+@defmethod Operation hash-table :modify-hash key function &rest additional-args
 Passes the value associated with @i{key} in the table to @i{function};
 whatever @i{function} returns is stored in the table as the new value for @i{key}.
 Thus, the hash association for
@@ -9500,7 +9501,7 @@ Returns the logical complement of @i{number}.  This is the same as
 it controls the function which is computed.  If the binary representation
 of @i{fn} is @i{abcd} (@i{a} is the most significant bit, @i{d} the least)
 then the truth table for the Boolean operation is as follows:
-.sp
+
 @lisp
        y
    | 0  1
@@ -10787,11 +10788,11 @@ which returns the array that was used.
 The @code{:new-array} proceed-type is provided.
 @end defvr
 
-.defflavor-condition sys:bad-array-mixin
+@defvr {Condition Flavor} sys:bad-array-mixin
 This mixin is used in the conditions signaled by several kinds of
 problems pertaining to arrays.  It defines prompting for the
 @code{:new-array} proceed type.
-.end_defflavor-condition
+@end defvr
 
 @defvr {Condition} sys:array-wrong-number-of-dimensions (@code{sys:bad-array-mixin} @code{error})
 This is signaled when an array is referenced (either reading or writing)
@@ -11992,7 +11993,7 @@ Traditional programs can call this function as @code{cli:every}.
 These are the opposites of @code{cli:some} and @code{cli:every}.
 
 @code{(notany ...)} is equivalent to @code{(not (cli:some ...))}.
-.br
+
 @code{(notevery ...)} is equivalent to @code{(not (cli:every ...))}.
 @end defun
 
@@ -12484,7 +12485,7 @@ according to the predicate, and returns a modified sequence.  Note that
 since sorting requires many comparisons, and thus many calls to the
 predicate, sorting is much faster if the predicate is a compiled
 function rather than interpreted. 
-.br
+
 @noindent
 Example: Sort a list alphabetically by the first symbol found at any level
 in each element.
@@ -14928,7 +14929,7 @@ elements look like
 @end lisp
 @end defun
 
-.defflavor-condition sys:redefinition (@code{sys:warning})
+@defvr {Condition Flavor} sys:redefinition (@code{sys:warning})
 This condition, which is not an error, is signaled by
 @code{si:record-source-file-name} when something is redefined by a different
 file.  The handler for this condition can control what is done about the redefinition.
@@ -14947,7 +14948,7 @@ Two proceed types are available, @code{:proceed} and
 to return @code{t}, the second tells it to return @code{nil}.  If the
 condition is not handled at all, the user is queried or warned according
 to the value of @code{inhibit-fdefine-warnings}.
-.end_defflavor-condition
+@end defvr
 
 @defvar inhibit-fdefine-warnings
 This variable is normally @code{nil}.  Setting it to @code{t} prevents
@@ -18151,159 +18152,159 @@ Writes @i{value}, a fixnum or a bignum, into the microcode meter named @i{name}.
 @noindent
 The microcode meters are as follows:
 
-.defmeter sys:%count-chaos-transmit-aborts
+@defvr Meter sys:%count-chaos-transmit-aborts
 The number of times transmission on the Chaosnet was aborted, either by a collision
 or because the receiver was busy.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-cons-work
-.defmeter1 sys:%count-scavenger-work
+@defvr Meter sys:%count-cons-work
+@defvrx Meter sys:%count-scavenger-work
 Internal state of the garbage collection algorithm.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%tv-clock-rate
+@defvr Meter sys:%tv-clock-rate
 The number of TV frames per clock sequence break.
 The default value is 67., which causes clock sequence breaks to happen
 about once per second.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-first-level-map-reloads
+@defvr Meter sys:%count-first-level-map-reloads
 The number of times the first-level virtual-memory map was invalid
 and had to be reloaded from the page hash table.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-second-level-map-reloads
+@defvr Meter sys:%count-second-level-map-reloads
 The number of times the second-level virtual-memory map was invalid
 and had to be reloaded from the page hash table.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-meta-bits-map-reloads
+@defvr Meter sys:%count-meta-bits-map-reloads
 The number of times the virtual address map was reloaded to contain only
 ``meta bits'', not an actual physical address.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-pdl-buffer-read-faults
+@defvr Meter sys:%count-pdl-buffer-read-faults
 The number of read references to the pdl buffer that were
 virtual memory references that trapped.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-pdl-buffer-write-faults
+@defvr Meter sys:%count-pdl-buffer-write-faults
 The number of write references to the pdl buffer that were
 virtual memory references that trapped.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-pdl-buffer-memory-faults
+@defvr Meter sys:%count-pdl-buffer-memory-faults
 The number of virtual memory references that trapped in case
 they should have gone to the pdl buffer, but turned out to be
 real memory references after all (and therefore were needlessly
 slowed down).
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-reads
+@defvr Meter sys:%count-disk-page-reads
 The number of pages read from the disk.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-writes
+@defvr Meter sys:%count-disk-page-writes
 The number of pages written to the disk.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-fresh-pages
+@defvr Meter sys:%count-fresh-pages
 The number of fresh (newly-consed) pages created in core,
 which would have otherwise been read from the disk.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-read-operations
+@defvr Meter sys:%count-disk-page-read-operations
 The number of paging read operations; this can be smaller than the number of
 disk pages read when more than one page at a time is read.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-write-operations
+@defvr Meter sys:%count-disk-page-write-operations
 The number of paging write operations; this can be smaller than the number of
 disk pages written when more than one page at a time is written.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-prepages-used
+@defvr Meter sys:%count-disk-prepages-used
 The number of times a page was used after being read in before it was needed.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-prepages-not-used
+@defvr Meter sys:%count-disk-prepages-not-used
 The number of times a page was read in before it was needed, but got evicted
 before it was ever used.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-write-waits
+@defvr Meter sys:%count-disk-page-write-waits
 The number of times the machine waited for a page to finish being written out
 in order to evict the page.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-page-write-busys
+@defvr Meter sys:%count-disk-page-write-busys
 The number of times the machine waited for a page to finish being written out
 in order to do something else with the disk.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%disk-wait-time
+@defvr Meter sys:%disk-wait-time
 The time spent waiting for the disk, in microseconds.  This can be used to
 distinguish paging time from running time when measuring and optimizing the`
 performance of programs.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-errors
+@defvr Meter sys:%count-disk-errors
 The number of recoverable disk errors.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-recalibrates
+@defvr Meter sys:%count-disk-recalibrates
 The number of times the disk seek mechanism was recalibrated,
 usually as part of error recovery.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-ecc-corrected-errors
+@defvr Meter sys:%count-disk-ecc-corrected-errors
 The number of disk errors that were corrected through the error correcting code.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-read-compare-differences
+@defvr Meter sys:%count-disk-read-compare-differences
 The number of times a read compare was done, no disk error occurred, but the
 data on disk did not match the data in memory.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-read-compare-rereads
+@defvr Meter sys:%count-disk-read-compare-rereads
 The number of times a disk read was done over because after the read a read
 compare was done and did not succeed (either it got an error or the data on disk
 did not match the data in memory).
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-disk-read-compare-rewrites
+@defvr Meter sys:%count-disk-read-compare-rewrites
 The number of times a disk write was done over because after the write a read
 compare was done and did not succeed (either it got an error or the data on disk
 did not match the data in memory).
-.end_defmeter
+@end defvr
 
-.defmeter sys:%disk-error-log-pointer
+@defvr Meter sys:%disk-error-log-pointer
 Address of the next entry to be written in the disk error log.  The function
 @code{si:print-disk-error-log} (see (si:print-disk-error-log-fun)) prints this log.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-aged-pages
+@defvr Meter sys:%count-aged-pages
 The number of times the page ager set an age trap on a page, to determine
 whether it was being referenced.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-age-flushed-pages
+@defvr Meter sys:%count-age-flushed-pages
 The number of times the page ager saw that a page still had an age trap
 and hence made it ``flushable'', a candidate for eviction from main memory.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%aging-depth
+@defvr Meter sys:%aging-depth
 A number from 0 to 3 that controls how long a page must remain unreferenced
 before it becomes a candidate for eviction from main memory.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-findcore-steps
+@defvr Meter sys:%count-findcore-steps
 The number of pages inspected by the page replacement algorithm.
-.end_defmeter
+@end defvr
 
-.defmeter sys:%count-findcore-emergencies
+@defvr Meter sys:%count-findcore-emergencies
 The number of times no evictable page was found and extra aging had to be done.
-.end_defmeter
+@end defvr
 
 @defvr {Constant} sys:a-memory-counter-block-names
 A list of all of the above symbols (and any others added after this documentation
@@ -21669,7 +21670,6 @@ one, so you can simply refrain from defining any way.
 @chapter The LOOP Iteration Macro
 
 @section Introduction
-.mindex loop
 @cindex loop
 @cindex iteration
 
@@ -21714,8 +21714,7 @@ find this notation verbose and distasteful, while others find it
 flexible and convenient.  The former are invited to stick to @code{do}.
 
 	Here are some examples to illustrate the use of @code{loop}.
-.space 1
-.group
+
 @lisp
 (defun print-elements-of-list (list-of-elements)
     (loop for element in list-of-elements
@@ -21723,9 +21722,7 @@ flexible and convenient.  The former are invited to stick to @code{do}.
 @end lisp
 prints each element in its argument, which
 should be a list.  It returns @code{nil}.
-.end_group
-.space 1
-.group
+
 @lisp
 (defun gather-alist-entries (list-of-pairs)
     (loop for pair in list-of-pairs
@@ -21734,9 +21731,7 @@ should be a list.  It returns @code{nil}.
 takes an association list and
 returns a list of the keys;  that is, @code{(gather-alist-entries
 '((foo 1 2) (bar 259) (baz)))} returns @code{(foo bar baz)}.
-.end_group
-.space 1
-.group
+
 @lisp
 (defun extract-interesting-numbers (start-value end-value)
    (loop for number from start-value to end-value
@@ -21745,9 +21740,7 @@ returns a list of the keys;  that is, @code{(gather-alist-entries
 takes two arguments, which should be
 integers, and returns a list of all the numbers in that range
 (inclusive) which satisfy the predicate @code{interesting-p}.
-.end_group
-.space 1
-.group
+
 @lisp
 (defun find-maximum-element (an-array)
    (loop for i from 0 below (array-dimension-n 1 an-array)
@@ -21755,9 +21748,7 @@ integers, and returns a list of all the numbers in that range
 @end lisp
 returns the maximum of the elements
 of its argument, a one-dimensional array.
-.end_group
-.group
-.space 1
+
 @lisp
 (defun my-remove (object list)
    (loop for element in list
@@ -21765,9 +21756,7 @@ of its argument, a one-dimensional array.
 @end lisp
 is like the standard function @code{remove}, except
 that it copies the entire list.
-.end_group
-.space 1
-.group
+
 @lisp
 (defun find-frob (list)
    (loop for element in list
@@ -21778,7 +21767,6 @@ that it copies the entire list.
 returns the first element of its list argument which
 satisfies the predicate @code{frobp}.  If none is found, an error is
 signaled.
-.end_group
 
 Common Lisp defines @code{loop} as equivalent to @code{do-forever}: it is used
 with a body consisting only of forms to be evaluated until a nonlocal
@@ -21906,7 +21894,7 @@ evaluated in order in the body.
 @code{repeat}:
 @table @code
 @item repeat @i{expression}
-.loop_keyword_index repeat
+@lkwindex repeat
 Evaluates @i{expression} (during the variable binding phase),
 and causes the @code{loop} to iterate that many times.
 @i{expression} is expected to evaluate to an integer.  If
@@ -21933,7 +21921,7 @@ parts are enclosed in curly brackets.
 
 @item for @i{var} in @i{expr1} @{by @i{expr2}@}
 @c @item for @i{var} @{@i{data-type}@} in @i{expr1} @{by @i{expr2}@}
-.loop_keyword_index for
+@lkwindex for
 Iterates over each of the elements in the list @i{expr1}.  If
 the @code{by} subclause is present, @i{expr2} is evaluated once
 on entry to the loop
@@ -21942,7 +21930,7 @@ instead of @code{cdr}.
 
 @item for @i{var} on @i{expr1} @{by @i{expr2}@}
 @c @item for @i{var} @{@i{data-type}@} on @i{expr1} @{by @i{expr2}@}
-.loop_keyword_index for
+@lkwindex for
 Like the previous @code{for} format, except that @i{var} is
 set to successive sublists of the list instead of successive elements.
 Note that
@@ -21955,12 +21943,12 @@ implement both this and the preceding clause.
 
 @item for @i{var} = @i{expr}
 @c @item for @i{var} @{@i{data-type}@} = @i{expr}
-.loop_keyword_index for
+@lkwindex for
 On each iteration, @i{expr} is evaluated and @i{var} is set to the result.
 
 @item for @i{var} = @i{expr1} then @i{expr2}
 @c @item for @i{var} @{@i{data-type}@} = @i{expr1} then @i{expr2}
-.loop_keyword_index for
+@lkwindex for
 @i{var} is bound to @i{expr1} when the loop is entered, and set to
 @i{expr2} (re-evaluated) at all but the first iteration.  Since
 @i{expr1} is evaluated during the binding phase, it cannot reference
@@ -21968,7 +21956,7 @@ other iteration variables set before it;  for that, use the following:
 
 @item for @i{var} first @i{expr1} then @i{expr2}
 @c @item for @i{var} @{@i{data-type}@} first @i{expr1} then @i{expr2}
-.loop_keyword_index for
+@lkwindex for
 Sets @i{var} to @i{expr1} on the first iteration, and to
 @i{expr2} (re-evaluated) on each succeeding iteration.  The
 evaluation of both expressions is performed @i{inside} of the
@@ -21984,7 +21972,7 @@ some other iteration variable, allowing such constructs as
 
 @item for @i{var} from @i{expr1} @{to @i{expr2}@} @{by @i{expr3}@}
 @c @item for @i{var} @{@i{data-type}@} from @i{expr1} @{to @i{expr2}@} @{by @i{expr3}@}
-.loop_keyword_index for
+@lkwindex for
 This performs numeric iteration.  @i{var} is initialized to
 @i{expr1}, and on each succeeding iteration is incremented by
 @i{expr3} (default @code{1}).  If the @code{to} phrase is given, the
@@ -22011,7 +21999,7 @@ increasing.
 @itemx for @i{var} being @{each|the@} @i{path} ...
 @c @item for @i{var} @{@i{data-type}@} being @i{expr} and its @i{path} ...
 @c @itemx for @i{var} @{@i{data-type}@} being @{each|the@} @i{path} ...
-.loop_keyword_index for
+@lkwindex for
 Provides a user-definable iteration facility.  @i{path} names
 the manner in which the iteration is to be performed.  The ellipsis
 indicates where various path dependent preposition/expression pairs
@@ -22020,7 +22008,7 @@ may appear.  See the section on Iteration Paths
 @end table
 
 @subsection Bindings
-.loop_keyword_index with
+@lkwindex with
 'loop_topic variable bindings
 	The @code{with} keyword may be used to establish initial
 bindings, that is, variables that are local to the loop but are only
@@ -22135,7 +22123,7 @@ section (loop-destructuring-section).
 
 @table @code
 @item initially @i{expression}
-.loop_keyword_index initially
+@lkwindex initially
 Puts @i{expression} into the @i{prologue} of the iteration.  It
 will be evaluated before any other initialization code except for
 initial bindings.  For the sake of good style, the @code{initially}
@@ -22143,7 +22131,7 @@ clause should therefore be placed after any @code{with} clauses but
 before the main body of the loop.
 
 @item finally @i{expression}
-.loop_keyword_index finally
+@lkwindex finally
 Puts @i{expression} into the @i{epilogue} of the loop, which is
 evaluated when the iteration terminates (other than by an explicit
 @code{return}).  For stylistic reasons, then, this clause should appear
@@ -22165,7 +22153,7 @@ to return values in a non-standard way:
 @table @code
 @item do @i{expression}
 @itemx doing @i{expression}
-.loop_keyword_index do doing
+@lkwindex do doing
 @i{expression} is evaluated each time through the loop, as shown in
 the @code{print-elements-of-list} example on
 (print-elements-of-list-example).
@@ -22220,7 +22208,7 @@ new uninterned symbol would be created by each use of @r{#:}.)
 
 @item collect @i{expr} @{into @i{var}@}
 @itemx collecting ...
-.loop_keyword_index collect collecting
+@lkwindex collect collecting
 Causes the values of @i{expr} on each iteration to be collected
 into a list.
 
@@ -22228,7 +22216,7 @@ into a list.
 @itemx nconcing ...
 @itemx append ...
 @itemx appending ...
-.loop_keyword_index nconc nconcing append appending
+@lkwindex nconc nconcing append appending
 Like @code{collect}, but the results are @code{nconc}'ed or
 @code{append}'ed together as appropriate.
 @lisp
@@ -22240,14 +22228,14 @@ Like @code{collect}, but the results are @code{nconc}'ed or
 @item count @i{expr} @{into @i{var}@}
 @c @item count @i{expr} @{into @i{var}@} @{@i{data-type}@}
 @itemx counting ...
-.loop_keyword_index count counting
+@lkwindex count counting
 If @i{expr} evaluates non-@code{nil}, a counter is incremented.
 @c The @i{data-type} defaults to @code{fixnum}.
 
 @item sum @i{expr} @{into @i{var}@}
 @c @item sum @i{expr} @{@i{data-type}@} @{into @i{var}@}
 @itemx summing ...
-.loop_keyword_index sum summing
+@lkwindex sum summing
 Evaluates @i{expr} on each iteration and accumulates the sum of all
 the values.
 @c @i{data-type} defaults to
@@ -22258,7 +22246,7 @@ the values.
 @item maximize @i{expr} @{into @i{var}@}
 @c @item maximize @i{expr} @{@i{data-type}@} @{into @i{var}@}
 @itemx minimize ...
-.loop_keyword_index maximize minimize
+@lkwindex maximize minimize
 Computes the maximum (or minimum) of @i{expr} over all
 iterations.
 @c @i{data-type} defaults to @code{number}.
@@ -22290,7 +22278,7 @@ the collection must be compatible.  @code{collect}, @code{nconc}, and
       append y)
   => (a 1 2 b 3 4 c 5 6)
 @end lisp
-.group
+
 The following computes the average of the entries in the list
 @i{list-of-frobs}:
 @lisp
@@ -22299,7 +22287,6 @@ The following computes the average of the entries in the list
       sum x into sum-var
     finally (return (cli:// sum-var count-var)))
 @end lisp
-.end_group
 
 @subsection Endtests
 .loop_topic terminating the iteration
@@ -22310,14 +22297,14 @@ a value (e.g., from @code{collect}).
 
 @table @code
 @item while @i{expr}
-.loop_keyword_index while
+@lkwindex while
 If @i{expr} evaluates to @code{nil}, the loop is exited, performing
 exit code (if any) and returning any accumulated value.  The
 test is placed in the body of the loop where it is written.  It may
 appear between sequential @code{for} clauses.
 
 @item until @i{expr}
-.loop_keyword_index until
+@lkwindex until
 Identical to @code{while (not @i{expr})}.
 @end table
 
@@ -22357,7 +22344,7 @@ terminate the iteration depending on the result of that test.
 
 @table @code
 @item always @i{expr}
-.loop_keyword_index always
+@lkwindex always
 Causes the loop to return @code{t} if @i{expr} @code{always} evaluates
 non-@code{null}.  If @i{expr} evaluates to @code{nil} the loop
 immediately returns @code{nil}, without running the epilogue code (if
@@ -22366,12 +22353,12 @@ will be returned when the loop finishes, after the epilogue code has
 been run.
 
 @item never @i{expr}
-.loop_keyword_index never
+@lkwindex never
 Causes the loop to return @code{t} if @i{expr} @code{never} evaluates
 non-@code{null}.  This is equivalent to @code{always (not @i{expr})}.
 
 @item thereis @i{expr}
-.loop_keyword_index thereis
+@lkwindex thereis
 If @i{expr} evaluates non-@code{nil}, then the iteration is
 terminated, and that value is returned without running the epilogue
 code.
@@ -22387,8 +22374,7 @@ clauses, such as @code{do}, @code{collect}, @code{always}, or
 @table @code
 @item when @i{expr}
 @itemx if @i{expr}
-.loop_keyword_index when if
-.space 0
+@lkwindex when if
 @c Make sure this starts it on a new line....
 @c .break doesn't do it.
 @c Will a ".space 0" do it?
@@ -22396,7 +22382,7 @@ If @i{expr} evaluates to @code{nil}, the following clause will be
 skipped, otherwise not.
 
 @item unless @i{expr}
-.loop_keyword_index unless
+@lkwindex unless
 This is equivalent to @code{when (not @i{expr}))}.
 @end table
 
@@ -22473,7 +22459,6 @@ For example,
 does not make the @code{extra-special-significant-p} check unless the
 @code{significant-p} check succeeds.
 
-.group
 	The format of a conditionalized clause is typically something
 like
 @lisp
@@ -22498,13 +22483,12 @@ may only be used in the first.  If multiple @code{when}s,
 @code{unless}es, and/or @code{if}s occur in sequence, the value
 substituted for @code{it} will be that of the last test performed.
 The @code{it} keyword is not recognized in an @code{else}-phrase.
-.end_group
 
 @subsection Miscellaneous Other Clauses
 
 @table @code
 @item named @i{name}
-.loop_keyword_index named
+@lkwindex named
 Defines a @code{block} named @i{name} around the code for the @code{loop},
 so that one may use @code{return-from} to return explicitly out of
 this particular @code{loop}.  This is obsolete now that @code{block}
@@ -22516,7 +22500,7 @@ so the function @code{return} can always be used to exit the innermost
 @code{loop} (assuming no other construct generating a @code{block} @code{nil} intervenes).
 
 @item return @i{expression}
-.loop_keyword_index return
+@lkwindex return
 Immediately returns the value of @i{expression} as the value of the
 loop, without running the epilogue code.  This is most useful with
 some sort of conditionalization, as discussed in the previous
@@ -22667,16 +22651,15 @@ that type.  That is, the previous form could be written as
 @c @code{j}, and @code{k} to @code{0} for use as temporaries during the
 @c iteration, and declares @code{i}, @code{j}, and @code{k} to be fixnums
 @c for the benefit of the compiler.
-.group
+
 @lisp
-.space 1
 (defun map-over-properties (fn symbol)
    (loop for (propname propval) on (plist symbol) by 'cddr
 	 do (funcall fn symbol propname propval)))
 @end lisp
 maps @i{fn} over the properties on @i{symbol}, giving it arguments
 of the symbol, the property name, and the value of that property.
-.end_group
+
 @c 	In Lisp implementations where @code{loop} performs its own
 @c destructuring, notably Multics Maclisp and Zetalisp, one can
 @c cause @code{loop} to use already provided destructuring support
@@ -22903,7 +22886,7 @@ functions;  one implements a @code{mapatoms}-like iteration path
 facility and the other is used for defining iteration paths for
 stepping through sequences.
 
-.loop_subsection The Interned-Symbols Path
+@subsubsection The Interned-Symbols Path
 .loop_path_index interned-symbols
 'loop_path_preposition_index in
 	The @code{interned-symbols} iteration path is like a
@@ -22930,7 +22913,7 @@ the specified package, excluding inherited symbols, using the
 (loop for sym being the local-interned-symbols  @{in @i{package}@}
       ...)
 @end lisp
-.space 1
+
 Example:
 @lisp
 (defun my-apropos (sub-string &optional (pkg package))
@@ -22947,7 +22930,7 @@ that it will be transparent to changes to the implementation of
 packages.  In the Maclisp implementation, the obarray @i{must} be an
 array pointer, @i{not} a symbol with an @code{array} property.
 
-.loop_subsection The Hash-Elements Path
+@subsubsection The Hash-Elements Path
 .loop_path_index hash-elements
 'loop_path_preposition_index of
 'loop_path_preposition_index with-key
@@ -22965,7 +22948,7 @@ entries as well, write
 @end lisp
 and then @code{keysym}'s value each will be the hash key that corresponds to @i{value}.
 
-.loop_subsection Sequence Iteration
+@subsubsection Sequence Iteration
 	One very common form of iteration is done over the elements
 of some object that is accessible by means of an integer index.
 @code{loop} defines an iteration path function for doing this in a
@@ -22984,16 +22967,16 @@ the sequence.  These are applicable to use of @code{loop} in other
 Lisp systems; on the Lisp Machine they might as well be omitted.
 @end defmac
 
-.group
    The Zetalisp implementation of @code{loop} utilizes the
 Zetalisp array manipulation primitives to define both
 @code{array-element} and @code{array-elements} as iteration paths:
 'loop_path_index array-elements
-.nofill
+
+@lisp
 @r{(define-loop-sequence-path (array-element array-elements)
     aref array-active-length)}
-.fill
-.unbreak
+@end lisp
+
 Then, the @code{loop} clause
 'loop_path_preposition_index of
 @lisp
@@ -23002,7 +22985,7 @@ for @i{var} being the array-elements of @i{array}
 will step @i{var} over the elements of @i{array}, starting from
 element 0.  The sequence path function also accepts @code{in} as a
 synonym for @code{of}.
-.end_group
+
 	The range and stepping of the iteration may be specified with
 the use of all of the same keywords which are accepted by the @code{loop}
 arithmetic stepper (@code{for @i{var} from ...});  they are
@@ -23021,7 +23004,7 @@ steps @i{var} over all of the odd elements of @i{array}, and
       ...)
 @end lisp
 steps in reverse order.
-.space 1
+
 @lisp
 (define-loop-sequence-path (vector-elements vector-element)
     vref vector-length notype notype)
@@ -23038,8 +23021,6 @@ is how the @code{vector-elements} iteration path can be defined in NIL
 variable to be used as the index variable, by use of the @code{index}
 keyword with the @code{using} prepositional phrase, as described (with
 an example) on (loop-using-crock).
-
-.loop_insert_for_NIL "lsbdoc;()path >"
 
 @subsection Defining Paths
 
@@ -23167,7 +23148,7 @@ for which the path function does not call @code{si:loop-named-variable},
 @code{loop} will inform the user of his error.
 @end defun
 
-.loop_subsection Path Definition Example
+@subsubsection Path Definition Example
 	Here is an example function that defines the
 @code{string-characters} iteration path.  This path steps a variable
 through all of the characters of a string.  It accepts the format
@@ -23175,7 +23156,7 @@ through all of the characters of a string.  It accepts the format
 (loop for @i{var} being the string-characters of @i{str} ...)
 @end lisp
 @c I may regret this later:
-.page
+@page
 	The function is defined to handle the path by
 @lisp
 (define-loop-path string-characters string-chars-path (of))
@@ -26985,13 +26966,13 @@ that implement this protocol are automatically supplied by the flavor
 system unless the user specifically tells it not to do so.  These methods
 are associated with the flavor @code{si:vanilla-flavor}:
 
-.defflavor si:vanilla-flavor
+@defvr Flavor si:vanilla-flavor
 Unless you specify otherwise (with the @code{:no-vanilla-flavor} option to
 @code{defflavor}), every flavor includes the ``vanilla'' flavor, which has no
 instance variables but provides some basic useful methods.
-.end_defflavor
+@end defvr
 
-.defmessage :print-self stream prindepth escape-p
+@defvr Operation :print-self stream prindepth escape-p
 The object should output its printed-representation to a stream.  The
 printer sends this message when it encounters an instance or an entity.
 The arguments are the stream, the current depth in list-structure (for
@@ -27002,74 +26983,74 @@ of the value of @code{*print-escape*}; see (*print-escape*-var)).
 what type of object it is and the @i{octal-address} allows you to tell
 different objects apart (provided the garbage collector doesn't move
 them behind your back).
-.end_defmessage
+@end defvr
 
-.defmessage :describe
+@defvr Operation :describe
 The object should describe itself, printing a description onto the
 @code{*standard-output*} stream.  The @code{describe} function sends this
 message when it encounters an instance.  @code{si:vanilla-flavor}
 outputs in a reasonable format the object, the name of its flavor, and
 the names and values of its instance-variables.
-.end_defmessage
+@end defvr
 
-.defmessage :set keyword value
+@defvr Operation :set keyword value
 The object should set the internal value specified by @i{keyword}
 to the new value @i{value}.  For flavor instances, the @code{:set}
 operation uses @code{:case} method combination, and a method is
 generated automatically to set each settable instance variable,
 with @i{keyword} being the variable's name as a keyword.
-.end_defmessage
+@end defvr
 
-.defmessage :which-operations
+@defvr Operation :which-operations
 The object should return a list of the operations it can handle.
 @code{si:vanilla-flavor} generates the list once per flavor and remembers
 it, minimizing consing and compute-time.  If the set of operations
 handled is changed, this list is regenerated the next time someone asks
 for it.
-.end_defmessage
+@end defvr
 
-.defmessage :operation-handled-p operation
+@defvr Operation :operation-handled-p operation
 @i{operation} is an operation name.  The object should return @code{t} if it
 has a handler for the specified operation, @code{nil} if it does not.
-.end_defmessage
+@end defvr
 
-.defmessage :get-handler-for operation
+@defvr Operation :get-handler-for operation
 @i{operation} is an operation name.
 The object should return the method it uses to handle @i{operation}.
 If it has no handler for that operation, it should return @code{nil}.
 This is like the @code{get-handler-for} function (see (get-handler-for-fun)),
 but, of course, you can use it only on objects known to accept messages.
-.end_defmessage
+@end defvr
 
-.defmessage :send-if-handles operation &rest arguments
+@defvr Operation :send-if-handles operation &rest arguments
 @i{operation} is an operation name and @i{arguments} is a list of
 arguments for the operation.  If the object handles the operation, it
 should send itself a message with that operation and arguments, and
 return whatever values that message returns.  If it doesn't handle the
 operation it should just return @code{nil}.
-.end_defmessage
+@end defvr
 
-.defmessage :eval-inside-yourself form
+@defvr Operation :eval-inside-yourself form
 The argument is a form that is evaluated in an environment in which special
 variables with the names of the instance variables are bound to the values
 of the instance variables.  It works to @code{setq} one of these special variables;
 the instance variable is modified.  This is intended to be used mainly
 for debugging.
-.end_defmessage
+@end defvr
 
-.defmessage :funcall-inside-yourself function &rest args
+@defvr Operation :funcall-inside-yourself function &rest args
 @i{function} is applied to @i{args} in an environment in which special
 variables with the names of the instance variables are bound to the values
 of the instance variables.  It works to @code{setq} one of these special variables;
 the instance variable is modified.  This is a way of allowing callers
 to provide actions to be performed in an environment set up by the instance.
-.end_defmessage
+@end defvr
 
-.defmessage :break
+@defvr Operation :break
 @code{break} is called in an environment in which special
 variables with the names of the instance variables are bound to the values
 of the instance variables.
-.end_defmessage
+@end defvr
 
 @section Method Combination
 @cindex method combination
@@ -27782,17 +27763,17 @@ general discussion of property lists ((plist)).  The usual property
 list functions (@code{get}, @code{putprop}, etc.) all work on instances by
 sending the instance the corresponding message.
 
-.defflavor si:property-list-mixin
+@defvr Flavor si:property-list-mixin
 This mixin flavor provides the basic operations on property lists.
-.end_defflavor
+@end defvr
 
-@defmethod si:property-list-mixin :get property-name &optional default
+@defmethod Operation si:property-list-mixin :get property-name &optional default
 Looks up the object's @i{property-name} property.
 If it finds such a property, it returns the value; otherwise it
 returns @i{default}.
 @end defmethod
 
-@defmethod si:property-list-mixin :getl property-name-list
+@defmethod Operation si:property-list-mixin :getl property-name-list
 Like the @code{:get} operation, except that the
 argument is a list of property names.  The @code{:getl} operation searches
 down the property list until it finds a property whose property name is
@@ -27801,7 +27782,7 @@ of the property list begining with the first such property that it
 found.  If it doesn't find any, it returns @code{nil}.
 @end defmethod
 
-@defmethod si:property-list-mixin :putprop value property-name
+@defmethod Operation si:property-list-mixin :putprop value property-name
 Gives the object an @i{property-name} property of @i{value}.
 @lisp
 (send @i{object} :set :get @i{property-name} @i{value})
@@ -27809,15 +27790,15 @@ Gives the object an @i{property-name} property of @i{value}.
 also has this effect.
 @end defmethod
 
-@defmethod si:property-list-mixin :remprop property-name
+@defmethod Operation si:property-list-mixin :remprop property-name
 Removes the object's @i{property-name} property, by splicing it out
 of the property list.  It returns one of the cells spliced out, whose car
 is the former value of the property that was just removed.  If there was
 no such property to begin with, the value is @code{nil}.
 @end defmethod
 
-@defmethod si:property-list-mixin :get-location-or-nil property-name
-@defmethodx si:property-list-mixin :get-location property-name
+@defmethod Operation si:property-list-mixin :get-location-or-nil property-name
+@defmethodx Operation si:property-list-mixin :get-location property-name
 Both return a locative pointer to the cell in which this object's
 @i{property-name} property is stored.  If there is no such property,
 @code{:get-location-or-nil} returns @code{nil}, but @code{:get-location}
@@ -27825,7 +27806,7 @@ adds a cell to the property list and initialized to @code{nil}, and a
 pointer to that cell is returned.
 @end defmethod
 
-@defmethod si:property-list-mixin :push-property value property-name
+@defmethod Operation si:property-list-mixin :push-property value property-name
 The @i{property-name} property of the object should be a list (note that
 @code{nil} is a list and an absent property is @code{nil}).  This operation sets
 the @i{property-name} property of the object to a list whose car is
@@ -27837,17 +27818,17 @@ list.  This is analogous to doing
 See the @code{push} special form ((push-fun)).
 @end defmethod
 
-@defmethod si:property-list-mixin :property-list
+@defmethod Operation si:property-list-mixin :property-list
 Returns the list of alternating property names and values that implements
 the property list.
 @end defmethod
 
-@defmethod si:property-list-mixin :property-list-location
+@defmethod Operation si:property-list-mixin :property-list-location
 Returns a locative pointer to the cell in the instance which holds
 the property list data.
 @end defmethod
 
-@defmethod si:property-list-mixin :set-property-list list
+@defmethod Operation si:property-list-mixin :set-property-list list
 Sets the list of alternating property names and values that implements
 the property list to @i{list}.  So does
 @lisp
@@ -27874,12 +27855,12 @@ method that can parse the @i{additional-data} and return an instance
 (see (horseshoe-read)).  A convenient way of doing this is to use
 @code{si:print-readably-mixin}.
 
-.defflavor si:print-readably-mixin
+@defvr Flavor si:print-readably-mixin
 Provides for flavor instances to print out using the @code{#}
 syntax, and also for reading things that were printed in that way.
-.end_defflavor
+@end defvr
 
-@defmethod si:print-readably-mixin :reconstruction-init-plist
+@defmethod Operation si:print-readably-mixin :reconstruction-init-plist
 When you use @code{si:print-readably-mixin}, you must define the operation
 @code{:reconstruction-init-plist}.  This should return an alternating list
 of init options and values that could be passed to @code{make-instance} to
@@ -28630,7 +28611,6 @@ Clear the character position at the cursor.
 @end table
 @end defun
 
-.page
 @section I/O Streams
 @cindex stream
 @cindex I/O stream
@@ -29053,7 +29033,7 @@ Refer to the function @code{stream-element-type}, below, which works
 using this operation.
 .end_defmetamethod
 
-.need 2000
+@need 2000
 These functions for inquiring about streams are defined by Common Lisp.
 
 @defun input-stream-p stream
@@ -29648,35 +29628,35 @@ which are peculiar to your own type of stream.
 
 Flavors for defining unbuffered streams:
 
-.defflavor si:stream
+@defvr Flavor si:stream
 This flavor provides default definitions for a few standard operations such as
 @code{:direction} and @code{:characters}.  Usually you do not have to mention
 this explicitly; instead you use the higher level flavors below, which
 are built on this one.
-.end_defflavor
+@end defvr
 
-.defflavor si:input-stream
+@defvr Flavor si:input-stream
 This flavor provides default definitions of all the mandatory input
 operations except @code{:tyi} and @code{:untyi}, in terms of those two.  You
 can make a simple non-character input stream by defining a flavor
 incorporating this one and giving it methods for @code{:tyi} and
 @code{:untyi}.
-.end_defflavor
+@end defvr
 
-.defflavor si:output-stream
+@defvr Flavor si:output-stream
 This flavor provides default definitions of all the mandatory output
 operations except @code{:tyo}, in terms of @code{:tyo}.  All you need to do to
 define a simple unbuffered non-character output stream is to define a
 flavor incorporating this one and give it a method for the
 @code{:tyo} operation.
-.end_defflavor
+@end defvr
 
-.defflavor si:bidirectional-stream
+@defvr Flavor si:bidirectional-stream
 This is a combination of @code{si:input-stream} and @code{si:output-stream}.
 It defines @code{:direction} to return @code{:bidirectional}.  To define a
 simple unbuffered non-character bidirectional stream, build on this
 flavor and define @code{:tyi}, @code{:untyi} and @code{:tyo}.
-.end_defflavor
+@end defvr
 
 The unbuffered streams implement operations such as @code{:string-out} and
 @code{:string-in} by repeated use of @code{:tyo} or @code{:tyi}.
@@ -29688,17 +29668,17 @@ and manage the buffers for you.  You must provide other operations that
 the system uses to obtain the next input buffer or to write or discard
 an output buffer.
 
-.need 1800
+@need 1800
 Flavors for defining buffered streams:
 
-.defflavor si:buffered-input-stream
+@defvr Flavor si:buffered-input-stream
 This flavor is the basis for a non-character buffered input stream.
 It defines @code{:tyi} as well as all the other standard input operations,
 but you must define the two operations @code{:next-input-buffer} and
 @code{:discard-input-buffer}, which the buffer management routines use.
-.end_defflavor
+@end defvr
 
-@defmethod si:buffered-input-stream :next-input-buffer
+@defmethod Operation si:buffered-input-stream :next-input-buffer
 In a buffered input stream, this operation is used as a subroutine of
 the standard input operations, such as @code{:tyi}, to get the next
 bufferful of input data.  It should return three values: an array
@@ -29708,7 +29688,7 @@ packet of input data and return pointers delimiting the actual data in
 the packet.
 @end defmethod
 
-@defmethod si:buffered-input-stream :discard-input-buffer buffer-array
+@defmethod Operation si:buffered-input-stream :discard-input-buffer buffer-array
 In a buffered input stream, this operation is used as a subroutine of
 the standard input operations such as @code{:tyi}.  It says that the buffer
 management routines have used or thrown away all the input in a buffer,
@@ -29718,15 +29698,15 @@ In a Chaosnet stream, this operation would return the packet buffer
 to the pool of free packets.
 @end defmethod
 
-.defflavor si:buffered-output-stream
+@defvr Flavor si:buffered-output-stream
 This flavor is the basis for a non-character buffered output stream.  It
 defines @code{:tyo} as well as all the other standard output operations, but
 you must define the operations @code{:new-output-buffer},
 @code{:send-output-buffer} and @code{:discard-output-buffer}, which the buffer
 management routines use.
-.end_defflavor
+@end defvr
 
-@defmethod si:buffered-output-stream :new-output-buffer
+@defmethod Operation si:buffered-output-stream :new-output-buffer
 In a buffered output stream, this operation is used as a subroutine of
 the
 standard output operations, such as @code{:tyo}, to get an empty buffer for
@@ -29740,7 +29720,7 @@ and return indices delimiting the part of the packet array which can
 hold data bytes.
 @end defmethod
 
-@defmethod si:buffered-output-stream :send-output-buffer buffer-array ending-index
+@defmethod Operation si:buffered-output-stream :send-output-buffer buffer-array ending-index
 In a buffered output stream, this operation is used as a subroutine of
 the standard output operations, such as @code{:tyo}, to send the data in a
 buffer that has been completely or partially filled.
@@ -29755,7 +29735,7 @@ The method for this operation should process the buffer's data and, if
 necessary, return the buffer to a free pool.
 @end defmethod
 
-@defmethod si:buffered-output-stream :discard-output-buffer buffer-array
+@defmethod Operation si:buffered-output-stream :discard-output-buffer buffer-array
 In a buffered output stream, this operation is used as a subroutine
 of the standard output operations, such as @code{:clear-output}, to free an
 output buffer and say that the data in it should be ignored.
@@ -29770,7 +29750,7 @@ return that particular array each time; @code{:send-output-buffer} and
 the buffer to a free pool.  In fact, @code{:discard-output-buffer} can
 probably do nothing.
 
-.defflavor si:buffered-stream
+@defvr Flavor si:buffered-stream
 This is a combination of @code{si:buffered-input-stream} and
 @code{si:buffered-output-stream}, used to make a buffered bidirectional
 stream.  The input and output buffering are completely independent of
@@ -29778,40 +29758,40 @@ each other.  You must define all five of the low level operations:
 @code{:new-output-buffer}, @code{:send-output-buffer} and
 @code{:discard-output-buffer} for output, and @code{:next-input-buffer} and
 @code{:discard-input-buffer} for input.
-.end_defflavor
+@end defvr
 
 The data in most streams are characters.  Character streams should support
 either @code{:line-in} or @code{:line-out} in addition to the other standard
 operations.
 
-.defflavor si:unbuffered-line-input-stream
+@defvr Flavor si:unbuffered-line-input-stream
 This flavor is the basis for unbuffered character input streams.
 You need only define @code{:tyi} and @code{:untyi}.
-.end_defflavor
+@end defvr
 
-.defflavor si:line-output-stream-mixin
+@defvr Flavor si:line-output-stream-mixin
 To make an unbuffered character output stream, mix this flavor into the
 one you define, together with @code{si:output-stream}.  In addition, you
 must define @code{:tyo}, as for unbuffered non-character streams.
-.end_defflavor
+@end defvr
 
-.defflavor si:buffered-input-character-stream
+@defvr Flavor si:buffered-input-character-stream
 This is used just like @code{si:buffered-input-stream}, but it also
 provides the @code{:line-in} operation and makes @code{:characters} return
 @code{t}.
-.end_defflavor
+@end defvr
 
-.defflavor si:buffered-output-character-stream
+@defvr Flavor si:buffered-output-character-stream
 This is used just like @code{si:buffered-output-stream}, but it also
 provides the @code{:line-out} operation and makes @code{:characters} return
 @code{t}.
-.end_defflavor
+@end defvr
 
-.defflavor si:buffered-character-stream
+@defvr Flavor si:buffered-character-stream
 This is used just like @code{si:buffered-stream}, but it also
 provides the @code{:line-in} and @code{:line-out} operations and makes
 @code{:characters} return @code{t}.
-.end_defflavor
+@end defvr
 
 To make an unbuffered random-access stream, you need only define the
 @code{:read-pointer} and @code{:set-pointer} operations as appropriate.
@@ -29821,15 +29801,15 @@ cannot help you.
 In a buffered random-access stream, the random access operations must
 interact with the buffer management.  The system provides for this.
 
-.defflavor si:input-pointer-remembering-mixin
+@defvr Flavor si:input-pointer-remembering-mixin
 Incorporate this into a buffered input stream to
 support random access.  This flavor defines the @code{:read-pointer} and
 @code{:set-pointer} operations.  If you wish @code{:set-pointer} to work, you
 must provide a definition for the @code{:set-buffer-pointer} operation.
 You need not do so if you wish to support only @code{:read-pointer}.
-.end_defflavor
+@end defvr
 
-@defmethod si:input-pointer-remembering-mixin :set-buffer-pointer new-pointer
+@defmethod Operation si:input-pointer-remembering-mixin :set-buffer-pointer new-pointer
 You must define this operation if you use
 @code{si:input-pointer-remembering-mixin} and want the @code{:set-pointer}
 operation to work.
@@ -29842,20 +29822,20 @@ The value returned should be the file pointer corresponding to the first
 character or byte of that next bufferful.
 @end defmethod
 
-.defflavor si:output-pointer-remembering-mixin
+@defvr Flavor si:output-pointer-remembering-mixin
 Incorporate this into a buffered output stream to
 support random access.  This mixin defines the @code{:read-pointer} and
 @code{:set-pointer} operations.  If you wish @code{:set-pointer} to work, you
 must provide definitions for the @code{:set-buffer-pointer} and
 @code{:get-old-data} operations.  You need not do so if you wish to support
 only @code{:read-pointer}.
-.end_defflavor
+@end defvr
 
-@defmethod si:output-pointer-remembering-mixin :set-buffer-pointer new-pointer
+@defmethod Operation si:output-pointer-remembering-mixin :set-buffer-pointer new-pointer
 This is the same as in @code{si:input-pointer-remembering-mixin}.
 @end defmethod
 
-@defmethod si:output-pointer-remembering-mixin :get-old-data buffer-array lower-output-limit
+@defmethod Operation si:output-pointer-remembering-mixin :get-old-data buffer-array lower-output-limit
 The buffer management routines perform this operation when you do a
 @code{:set-pointer} that is outside the range of pointers that fit in the
 current output buffer.  They first send the old buffer, then do
@@ -29875,7 +29855,7 @@ The instance variable @code{si:output-pointer-base} is the file pointer
 corresponding to the starting index in the buffer. 
 @end defmethod
 
-.defflavor si:file-stream-mixin
+@defvr Flavor si:file-stream-mixin
 Incorporate this mixin together with @code{si:stream} to make a @i{file probe stream},
 which cannot do input or output but records the answers to an enquiry
 about a file.  You should specify the init option @code{:pathname} when you
@@ -29884,9 +29864,9 @@ instantiate the flavor.
 You must provide definitions for the @code{:plist} and @code{:truename}
 operations; in terms of them, this mixin defines the operations
 @code{:get}, @code{:creation-date}, and @code{:info}.
-.end_defflavor
+@end defvr
 
-.defflavor si:input-file-stream-mixin
+@defvr Flavor si:input-file-stream-mixin
 Incorporate this mixin into input streams that are used to read files.
 You should specify the file's pathname with the @code{:pathname} init option
 when you instantiate the flavor.
@@ -29896,12 +29876,12 @@ In addition to the services and requirements of
 in the who-line.  It also includes
 @code{si:input-pointer-remembering-mixin} so that the @code{:read-pointer}
 operation, at least, will be available.
-.end_defflavor
+@end defvr
 
-.defflavor si:output-file-stream-mixin
+@defvr Flavor si:output-file-stream-mixin
 This is the analogue of @code{si:input-file-stream-mixin} for output
 streams.
-.end_defflavor
+@end defvr
 
 @subsection Implementing Streams Without Flavors
 
@@ -30040,7 +30020,7 @@ By comparison, the same stream defined using flavors looks like this:
   (make-instance 'list-output-stream))
 @end lisp
 
-.need 1800
+@need 1800
 Here is a simple input stream, which generates successive characters of a list.
 
 @lisp
@@ -30157,7 +30137,7 @@ to be.  This feature allows variable column-widths and the like.  Also,
 you can use the character @code{#} in place of a parameter; it represents the
 number of arguments remaining to be processed.
 
-.need 1800
+@need 1800
 Here are some relatively simple examples to give you the general
 flavor of how @code{format} is used.
 @lisp
@@ -30257,7 +30237,7 @@ is a character to use for padding on the left, when the field
 width is specified and not that many characters are really needed.
 @end table
 
-.nopara
+@noindent
 If the @code{@@} modifier is used, a sign is printed even if @i{arg} is positive.
 
 Rational numbers are converted to floats and then printed.
@@ -30303,7 +30283,7 @@ The default is @code{e} or @code{s} or @code{f}, whichever would be used
 in printing the number normally.
 @end table
 
-.nopara
+@noindent
 If the @code{@@} modifier is used, a sign is printed even if @i{arg} is positive.
 
 @item ~@i{w},@i{d},@i{e},@i{k},@i{ovfl},@i{pad},@i{expt}G
@@ -30830,7 +30810,7 @@ The name is terminated by another @code{\} character.
 The following directives have names longer than one character
 and make use of the @code{~\} mechanism as part of their operation.
 
-.need 1500
+@need 1500
 @item ~\lozenged-string\
 This is like @code{~A} except when output is to a window, in which case the
 argument is printed in a small font inside a lozenge.
@@ -30919,7 +30899,6 @@ the same way that the @code{~:;} command computes it;
 it is not possible to override the natural line-width of the stream.
 @end defun 
 
-.page
 @subsection The Output Subsystem
 
 The formatting functions associated with the @code{format:output} subsystem allow
@@ -31165,8 +31144,6 @@ separated by commas, breaking lines between elements when necessary.
 @end lisp
 @end defmac
 
-.page
-
 @section Rubout Handling
 @cindex rubout handler
 
@@ -31188,7 +31165,7 @@ characters, and a few simple commands like clearing the screen and
 erasing the entire input typed so far.  All three kinds of rubout
 handler use the same protocol, which is described in this section.  We
 also say a little about the most common of the three rubout handlers.
-.br
+
 [Eventually some version of ZWEI will be used for all streams
 except the cold load stream]
 
@@ -31674,7 +31651,7 @@ The exponent, if present, consists of
 a delimiter, the letter @code{e}, @code{s} or @code{f}
 @item *
 a minus sign, if the exponent is negative
-.item
+@item *
 one to three decimal digits
 @end table
 @end table
@@ -34312,30 +34289,30 @@ version component does not need them either, because it is never a string.
 
 @subsection Pathname Component Operations
 
-@defmethod pathname :host
-@defmethodx pathname :device
-@defmethodx pathname :directory
-@defmethodx pathname :name
-@defmethodx pathname :type
-@defmethodx pathname :version
+@defmethod Operation pathname :host
+@defmethodx Operation pathname :device
+@defmethodx Operation pathname :directory
+@defmethodx Operation pathname :name
+@defmethodx Operation pathname :type
+@defmethodx Operation pathname :version
 These return the components of the pathname, in interchange form.  The
 returned values can be strings, special symbols, or lists of strings in
 the case of structured components.  The type is always a string or
 a symbol.  The version is always a number or a symbol.
 @end defmethod
 
-@defmethod pathname :raw-device
-@defmethodx pathname :raw-directory
-@defmethodx pathname :raw-name
-@defmethodx pathname :raw-type
+@defmethod Operation pathname :raw-device
+@defmethodx Operation pathname :raw-directory
+@defmethodx Operation pathname :raw-name
+@defmethodx Operation pathname :raw-type
 These return the components of the pathname, in raw form.
 @end defmethod
 
-@defmethod pathname :new-device dev
-@defmethodx pathname :new-directory dir
-@defmethodx pathname :new-name name
-@defmethodx pathname :new-type type
-@defmethodx pathname :new-version version
+@defmethod Operation pathname :new-device dev
+@defmethodx Operation pathname :new-directory dir
+@defmethodx Operation pathname :new-name name
+@defmethodx Operation pathname :new-type type
+@defmethodx Operation pathname :new-version version
 These return a new pathname that is the same as the pathname they are
 sent to except that the value of one of the components has been changed.
 The specified component value is interpreted as being in interchange
@@ -34346,17 +34323,17 @@ not define structured components, and you specify a list, its first
 element is used.
 @end defmethod
 
-@defmethod pathname :new-raw-device dev
-@defmethodx pathname :new-raw-directory dir
-@defmethodx pathname :new-raw-name name
-@defmethodx pathname :new-raw-type type
+@defmethod Operation pathname :new-raw-device dev
+@defmethodx Operation pathname :new-raw-directory dir
+@defmethodx Operation pathname :new-raw-name name
+@defmethodx Operation pathname :new-raw-type type
 These return a new pathname that is the same as the pathname they are
 sent to except that the value of one of the components has been changed.
 The specified component value is interpreted as raw.
 @end defmethod
 
-@defmethod pathname :new-suggested-name name
-@defmethodx pathname :new-suggested-directory dir
+@defmethod Operation pathname :new-suggested-name name
+@defmethodx Operation pathname :new-suggested-directory dir
 These differ from the @code{:new-name} and @code{:new-directory} operations in
 that the new pathname constructed has a name or directory based on the
 suggestion, but not necessarily identical to it.  It tries, in a
@@ -34369,7 +34346,7 @@ For example, on a TOPS-20 system, these operations would convert
 such pathnames by default.
 @end defmethod
 
-@defmethod pathname :new-pathname &rest options
+@defmethod Operation pathname :new-pathname &rest options
 This returns a new pathname that is the same as the pathname it is sent
 to except that the values of some of the components have been changed.
 @i{options} is a list of alternating keywords and values.  The keywords
@@ -34460,7 +34437,7 @@ pname.
 
 To match a pathname against a canonical type, use the @code{:canonical-type} operation.
 
-@defmethod pathname :canonical-type
+@defmethod Operation pathname :canonical-type
 Returns two values which describe whether and how this pathname's type
 component matches any canonical type.
 
@@ -34483,7 +34460,7 @@ described below.
 
 A new pathname may also be constructed by specifying a canonical type.
 
-@defmethod pathname :new-canonical-type canonical-type &optional original-type
+@defmethod Operation pathname :new-canonical-type canonical-type &optional original-type
 Returns a pathname different from this one in having a type component
 that matches @i{canonical-type}.
 
@@ -34537,7 +34514,7 @@ pathname, would look only for the preferred mapping of the canonical
 type.  @code{compile-file} actually tries to open @i{each} possible mapping,
 trying the preferred mapping first.  Here is how it does so:
 
-@defmethod pathname :open-canonical-default-type canonical-type &rest options
+@defmethod Operation pathname :open-canonical-default-type canonical-type &rest options
 If this pathname's type component is non-@code{nil}, the pathname is simply
 opened, passing the @i{options} to the @code{:open} operation.  If the type
 component is @code{nil}, each mapping of @i{canonical-type} is tried as a
@@ -35077,12 +35054,12 @@ for specific kinds of hosts, allow additional special purpose
 operations.  These are documented in (specific-host-syntax) in the
 section on the specific host type.
 
-@defmethod pathname :generic-pathname
+@defmethod Operation pathname :generic-pathname
 Returns the generic pathname for the family of files of which this pathname is a member.
 See (generic-pathname) for documentation on generic pathnames.
 @end defmethod
 
-@defmethod pathname :source-pathname
+@defmethod Operation pathname :source-pathname
 Returns the pathname for the source file in the family of files to which
 this pathname belongs.  The returned pathname has @code{:newest}
 as its version.  If the file has been loaded in some fashion into the
@@ -35091,7 +35068,7 @@ used.  Otherwise, the conventional file type for source files is determined
 from the generic pathname.
 @end defmethod
 
-@defmethod pathname :primary-device
+@defmethod Operation pathname :primary-device
 Returns the default device name for the pathname's host.  This is used
 in generating the initial default pathname for a host.
 @end defmethod
@@ -35124,7 +35101,7 @@ required for most use of the function @code{fs:directory-list};
 an entire directory's contents are obtained by specifying a
 pathname whose name, type and version components are @code{:wild}.
 
-@defmethod pathname :wild-p
+@defmethod Operation pathname :wild-p
 Returns non-@code{nil} if this pathname contains any sort of wildcards.
 If the value is not @code{nil}, it is a keyword, one of
 @code{device}, @code{:directory}, @code{:name}, @code{:type} and
@@ -35132,19 +35109,19 @@ If the value is not @code{nil}, it is a keyword, one of
 which is wild.
 @end defmethod
 
-@defmethod pathname :device-wild-p
+@defmethod Operation pathname :device-wild-p
 @code{t} if this pathname's device contains any sort of wildcards.
 @end defmethod
 
-@defmethod pathname :directory-wild-p
-@defmethodx pathname :name-wild-p
-@defmethodx pathname :type-wild-p
-@defmethodx pathname :version-wild-p
+@defmethod Operation pathname :directory-wild-p
+@defmethodx Operation pathname :name-wild-p
+@defmethodx Operation pathname :type-wild-p
+@defmethodx Operation pathname :version-wild-p
 Similar, for the other components that can be wild.  (The host cannot
 ever be wild.)
 @end defmethod
 
-@defmethod pathname :pathname-match candidate-pathname &optional (match-host-p @code{t})
+@defmethod Operation pathname :pathname-match candidate-pathname &optional (match-host-p @code{t})
 Returns @code{t} if @code{candidate-pathname} matches the pathname
 on which the operation is invoked (called, in this context, the
 @i{pattern pathname}).  If the pattern pathname contains
@@ -35193,7 +35170,7 @@ the two pathnames are not tested.  The result then depends only
 on the other components.
 @end defmethod
 
-@defmethod pathname :translate-wild-pathname target-pattern starting-data &optional reversible
+@defmethod Operation pathname :translate-wild-pathname target-pattern starting-data &optional reversible
 Returns a pathname corresponding to @i{starting-data} under the mapping
 defined by the wild pathnames @i{source-pattern}, which is the
 pathname this operation is invoked on, and @i{target-pattern}, the argument.
@@ -35268,41 +35245,41 @@ but with reversible translation the result is @code{GER}.
 @noindent
 Operations to get a path name string out of a pathname object:
 
-@defmethod pathname :string-for-printing
+@defmethod Operation pathname :string-for-printing
 Returns a string that is the printed representation of the path name.  This is
 the same as what you get if you @code{princ} the pathname or take @code{string} of it.
 @end defmethod
 
-@defmethod pathname :string-for-wholine length
+@defmethod Operation pathname :string-for-wholine length
 Returns a string like the @code{:string-for-printing}, but designed to fit
 in @i{length} characters.  @i{length} is a suggestion; the actual
 returned string may be shorter or longer than that.  However, the
 who-line updater truncates the value to that length if it is longer.
 @end defmethod
 
-@defmethod pathname :string-for-editor
+@defmethod Operation pathname :string-for-editor
 Returns a string that is the pathname with its components rearranged so
 that the name is first.  The editor uses this form to name its buffers.
 @end defmethod
 
-@defmethod pathname :string-for-dired
+@defmethod Operation pathname :string-for-dired
 Returns a string to be used by the directory editor.  The string contains only
 the name, type, and version.
 @end defmethod
 
-@defmethod pathname :string-for-directory
+@defmethod Operation pathname :string-for-directory
 Returns a string that contains only the device and directory of
 the pathname.  It identifies one directory among all directories on the host.
 @end defmethod
 
-@defmethod pathname :string-for-host
+@defmethod Operation pathname :string-for-host
 Returns a string that is the pathname the way the host file system likes to see it.
 @end defmethod
 
 @noindent
 Operations to move around through a hierarchy of directories:
 
-@defmethod pathname :pathname-as-directory
+@defmethod Operation pathname :pathname-as-directory
 Assuming that the file described by the pathname is a directory,
 return another pathname specifying that @i{as} a directory.
 Thus, if sent to a pathname @code{OZ:<RMS>FOO.DIRECTORY}, it would return the
@@ -35310,7 +35287,7 @@ pathname @code{OZ:<RMS.FOO>}.  The name, type and version of the returned
 pathname are @code{:unspecific}.
 @end defmethod
 
-@defmethod pathname :directory-pathname-as-file
+@defmethod Operation pathname :directory-pathname-as-file
 This is the inverse of the preceding operation.  It returns a pathname
 specifying as a file the directory of the original pathname.  The name,
 type and version of the original pathname are ignored.
@@ -35322,11 +35299,11 @@ pathname on file systems that have a root directory.
 @noindent
 Operations to manipulate the property list of a pathname:
 
-@defmethod pathname :get property-name &optional default-value
-@defmethodx pathname :getl list-of-property-names
-@defmethodx pathname :putprop value property-name
-@defmethodx pathname :remprop property-name
-@defmethodx pathname :plist
+@defmethod Operation pathname :get property-name &optional default-value
+@defmethodx Operation pathname :getl list-of-property-names
+@defmethodx Operation pathname :putprop value property-name
+@defmethodx Operation pathname :remprop property-name
+@defmethodx Operation pathname :plist
 These manipulate the pathname's property list, and are used if you call
 the property list functions of the same names (see (get-fun)) giving
 the pathname as the first argument.  Please read the paragraph on
@@ -35402,14 +35379,14 @@ number.  The initial list is
 Some users may need to add to this list.
 @end defvar
 
-@defmethod its-pathname :fn1
-@defmethodx its-pathname :fn2
+@defmethod Operation its-pathname :fn1
+@defmethodx Operation its-pathname :fn2
 These two operations return a string that is the FN1 or FN2 host-dependent
 component of the pathname.
 @end defmethod
 
-@defmethod pathname :type-and-version
-@defmethodx pathname :new-type-and-version new-type new-version
+@defmethod Operation pathname :type-and-version
+@defmethodx Operation pathname :new-type-and-version new-type new-version
 These two operations provide a way of pretending that ITS pathnames can
 have both a type and a version.  They use the first three characters of
 the FN2 to store a type and the last three to store a version number.
@@ -35754,7 +35731,7 @@ at appropriate times: by @code{load-patches}, and whenever
 site information is updated.
 @end defun
 
-@defmethod fs:logical-pathname :translated-pathname
+@defmethod Operation fs:logical-pathname :translated-pathname
 Converts a logical pathname to a physical pathname.  It returns the
 translated pathname of this instance, a pathname whose host
 component is the physical host that corresponds to this instance's
@@ -35764,7 +35741,7 @@ If this operation is applied to a physical pathname, it simply returns
 that pathname unchanged.
 @end defmethod
 
-@defmethod fs:logical-pathname :back-translated-pathname pathname
+@defmethod Operation fs:logical-pathname :back-translated-pathname pathname
 Converts a physical pathname to a logical pathname.
 @i{pathname} should be a pathname whose host is the physical host
 corresponding to this instance's logical host.  This returns
@@ -36563,12 +36540,12 @@ For an output stream the information is not guaranteed to be correct
 until after the stream has been closed.
 .end_defmetamethod
 
-@c .defmessage :status
+@c @defvr Operation :status
 @c Returns the status of the file stream.  This usually @code{:open} or @code{:closed}
 @c (which should be self-explanatory).  @code{:eof} means that the file is open but
 @c no more data are available.  There are other states associated with error handling.
 @c [Maybe this shouldn't be documented.]
-@c .end_defmessage
+@c @end defvr
 
 .defmetamethod "file streams" :properties &optional (error-p @code{t})
 This returns two values: a property list (like an element of the list
@@ -36597,13 +36574,13 @@ Renames the file open on this stream.  For the meaning of @i{error-p}, see the @
 function.
 .end_defmetamethod
 
-@c .defmessage :command mark-p command &rest strings
+@c @defvr Operation :command mark-p command &rest strings
 @c [Should this be documented?]
-@c .end_defmessage
+@c @end defvr
 @c 
-@c .defmessage :continue
+@c @defvr Operation :continue
 @c [Should this be documented?]
-@c .end_defmessage
+@c @end defvr
 
 @noindent
 File output streams implement the @code{:finish} and @code{:force-output} operations.
@@ -36857,7 +36834,7 @@ these arguments, @code{nil} and non-@code{nil} are the only significant values.
 to one of the file accessing functions (@code{open}, @code{deletef}, etc.)
 has its special significance at a higher level.
 
-@defmethod pathname :truename
+@defmethod Operation pathname :truename
 Returns a pathname object describing the exact name of the file specified
 by the pathname the object is sent to.
 
@@ -36866,7 +36843,7 @@ original pathname may have @code{:newest} as the version, but the truename
 always has a number as the version if the file system supports versions.
 @end defmethod
 
-@defmethod pathname :open pathname &rest options
+@defmethod Operation pathname :open pathname &rest options
 Opens a stream for the file named by the pathname.
 The argument @i{pathname} is what the @code{:pathname} operation on the
 resulting stream should return.  When a logical pathname is opened,
@@ -36879,8 +36856,8 @@ when they are used with @code{open}, @code{open} converts them to the new
 style before sending the @code{:open} message.
 @end defmethod
 
-@defmethod pathname :delete &optional (error-p @code{t})
-@defmethodx pathname :undelete &optional (error-p @code{t})
+@defmethod Operation pathname :delete &optional (error-p @code{t})
+@defmethodx Operation pathname :undelete &optional (error-p @code{t})
 Respectively delete or undelete the file specified by the pathname.
 
 All file systems support @code{:delete} but not all support @code{:undelete}.
@@ -36890,13 +36867,13 @@ string describing the problem to be returned.  Otherwise, they signal an
 error.
 @end defmethod
 
-@defmethod pathname :undeletable-p
+@defmethod Operation pathname :undeletable-p
 Returns @code{t} if this pathname is for a file system which allows
 deletion to be undone.  Such pathnames support the @code{:undelete}
 and @code{:expunge} operations.
 @end defmethod
 
-@defmethod pathname :rename new-name &optional (error-p @code{t})
+@defmethod Operation pathname :rename new-name &optional (error-p @code{t})
 Renames the file specified by the pathname.  @i{new-name}, a string or
 pathname, specifies the name to rename to.  If it is a string, it is
 parsed using @code{self} as the defaults.
@@ -36906,7 +36883,7 @@ string describing the problem to be returned.  Otherwise, they signal an
 error.
 @end defmethod
 
-@defmethod pathname :complete-string string options
+@defmethod Operation pathname :complete-string string options
 Attempts to complete the filename @i{string}, returning the results.
 This operation is used by the function @code{fs:complete-pathname} (see
 (fs:complete-pathname-fun)).  The pathname the message is sent to is
@@ -36922,23 +36899,23 @@ and a flag, which can be @code{:old}, @code{:new} or @code{nil}.
 @code{nil} says that no completion was possible.
 @end defmethod
 
-@defmethod pathname :change-properties error-p &rest properties
+@defmethod Operation pathname :change-properties error-p &rest properties
 Changes the properties of the file specified by the
 pathname.  @i{properties} should be an
 alternating list of property names and values.
 @end defmethod
 
-@defmethod pathname :directory-list options
+@defmethod Operation pathname :directory-list options
 Performs the work of @code{(fs:directory-list @i{this-pathname} @i{options}...)}.
 @end defmethod
 
-@defmethod pathname :properties
+@defmethod Operation pathname :properties
 Returns a property list (in the form
 of a directory-list element) and a list of settable properties.
 See (directory-list) for more information on file properties.
 @end defmethod
 
-@defmethod pathname :wildcard-map function plistp dir-list-options &rest args
+@defmethod Operation pathname :wildcard-map function plistp dir-list-options &rest args
 Maps @i{function} over all the
 files specified by this pathname (which may contain wildcards).
 Each time @i{function} is called, its first argument is a pathname
@@ -36961,7 +36938,7 @@ to get deleted files mentioned in the list, for example.
 The remaining file-access operations are defined only on certain file
 systems.
 
-@defmethod pathname :expunge &key (error @code{t})
+@defmethod Operation pathname :expunge &key (error @code{t})
 Expunges the directory specified by the host, device and directory
 components of the pathname.
 
@@ -36969,11 +36946,11 @@ The argument @i{error} says whether to signal an error if the directory
 does not exist.  @code{nil} means just return a string instead.
 @end defmethod
 
-@defmethod pathname :create-directory &key (error @code{t})
+@defmethod Operation pathname :create-directory &key (error @code{t})
 Creates the directory specified in this pathname.
 @end defmethod
 
-@defmethod pathname :remote-connect &key (error @code{t}) access
+@defmethod Operation pathname :remote-connect &key (error @code{t}) access
 Performs the work of @code{fs:remote-connect} with the same arguments
 on this pathname's host.
 @end defmethod
@@ -37602,7 +37579,7 @@ as appropriate.
 
 @section Errors in Accessing Files
 
-.defcondition-flavor fs:file-error (@code{error})
+@defvr {Condition Flavor} fs:file-error (@code{error})
 This flavor is the basis for all errors signaled by the file system.
 
 It defines two special operations, @code{:pathname} and @code{:operation}.
@@ -37616,7 +37593,7 @@ It defines prompting for the proceed types @code{:retry-file-operation} and
 requested by the program; @code{:new-pathname} expects on argument, a
 pathname, and tries the same operation on this pathname instead of the
 original one.
-.end_defcondition-flavor
+@end defvr
 
 @defvr {Condition} fs:file-operation-failure (@code{fs:file-error})
 This condition name signifies a problem with the file operation
@@ -38417,54 +38394,54 @@ characters read are translated from ASCII to the Lisp Machine character
 set.
 @end defun
 
-@defmethod chaos:basic-stream :connection
+@defmethod Operation chaos:basic-stream :connection
 Returns the connection with which this stream is connected.
 @end defmethod
 
-@defmethod chaos:basic-stream :contact-name
+@defmethod Operation chaos:basic-stream :contact-name
 Return the contact name with with this stream was opened.
 @end defmethod
 
-@defmethod chaos:basic-stream :foreign-host
+@defmethod Operation chaos:basic-stream :foreign-host
 Returns the host object for the host at the other end of this stream's connection.
 @end defmethod
 
-@defmethod chaos:basic-stream :accept
+@defmethod Operation chaos:basic-stream :accept
 Accepts the request for a connection which this stream received.
 Used only for streams made by @code{chaos:open-stream} with @code{nil} as
 the @i{host} argument.
 @end defmethod
 
-@defmethod chaos:basic-stream :reject reason-string
+@defmethod Operation chaos:basic-stream :reject reason-string
 Rejects the request for a connection which this stream received, sending
 @i{reason-string} in the CLS packet as the reason.  Used only for
 streams made by @code{chaos:open-stream} with @code{nil} as the @i{host}
 argument.
 @end defmethod
 
-@defmethod chaos:basic-stream :close &optional abort-p
+@defmethod Operation chaos:basic-stream :close &optional abort-p
 Sends a CLS packet and removes the connection.  For output connections and bidirectional
 connections, the @code{:eof} operation is performed first, if
 @i{abort-p} is @code{nil}.
 @end defmethod
 
-@defmethod chaos:basic-output-stream :force-output
+@defmethod Operation chaos:basic-output-stream :force-output
 Any buffered output is transmitted.  Normally output is accumulated until a
 full packet's worth of bytes are available, so that maximum-size packets are
 transmitted.
 @end defmethod
 
-@defmethod chaos:basic-output-stream :finish
+@defmethod Operation chaos:basic-output-stream :finish
 Waits until either all packets have been sent and acknowledged, or the connection ceases
 to be open.  If successful, returns @code{t}; if the connection goes into a bad state,
 returns @code{nil}.
 @end defmethod
 
-@defmethod chaos:basic-output-stream :eof
+@defmethod Operation chaos:basic-output-stream :eof
 Forces out any buffered output, sends an EOF packet, and does a @code{:finish}.
 @end defmethod
 
-@defmethod chaos:basic-input-stream :clear-eof
+@defmethod Operation chaos:basic-input-stream :clear-eof
 Allows you to read past an EOF packet on input.  Normally, each @code{:tyi}
 done at eof returns @code{nil} or signals the specified eof error.  If you
 do @code{:clear-eof} on the stream, you can then read more data (assuming
@@ -38703,16 +38680,16 @@ in the @code{chaos:pkt-link} of its predecessor.  The list is terminated with @c
 
 @section Chaosnet Errors
 
-.defflavor-condition sys:network-error (@code{error})
+@defvr {Condition Flavor} sys:network-error (@code{error})
 All errors from the Chaosnet code use flavors built on this one.
-.end_defflavor-condition
+@end defvr
 
 @subsection Local Problems
 
-.defflavor-condition sys:local-network-error (@code{sys:network-error} @code{error})
+@defvr {Condition Flavor} sys:local-network-error (@code{sys:network-error} @code{error})
 This flavor is used for problems in connection with the Chaosnet
 that have entirely to do with what is going on in this Lisp Machine.
-.end_defflavor-condition
+@end defvr
 
 @defvr {Condition} sys:network-resources-exhausted (@code{sys:local-network-error} @code{sys:network-error} @code{error})
 Signaled when some local resource in the NCP was exhausted.  Most
@@ -38727,14 +38704,14 @@ The @code{:address} operation on the condition instance returns the address that
 
 @subsection Problems Involving Other Machines' Actions
 
-.defflavor-condition sys:remote-network-error (@code{sys:network-error} @code{error})
+@defvr {Condition Flavor} sys:remote-network-error (@code{sys:network-error} @code{error})
 This flavor is used for network problems that involve the
 actions (or lack of them) of other machines.
 It is often useful to test for as a condition name.
 
 The operations @code{:connection} and @code{:foreign-host} return the
 @code{chaos:conn} object and the host object for the foreign host.
-.end_defflavor-condition
+@end defvr
 
 All the condition names listed below imply the presence of
 @code{sys:remote-network-error}, @code{sys:network-error} and
@@ -40940,7 +40917,6 @@ Here is a picture depicting the initial package inheritance structure
 @end lisp
 
 @c Remainder of this chapter deleted since it is wrong
-.eof
 
 @section Multiple Instantiations of a Program
 
@@ -42929,14 +42905,14 @@ operations are listed here, only those of interest to the user.
 
 @subsection Process Attributes
 
-@defmethod si:process :name
+@defmethod Operation si:process :name
 Returns the name of the process, which was the first argument to @code{make-process}
 or @code{process-run-function} when the process was created.  The name is
 a string that appears in the printed-representation of the process, stands for
 the process in the who-line and the @code{peek} display, etc.
 @end defmethod
 
-@defmethod si:process :stack-group
+@defmethod Operation si:process :stack-group
 Returns the stack group currently executing on behalf of this process.
 This can be different from the initial-stack-group if the process contains
 several stack groups that coroutine among themselves,
@@ -42946,12 +42922,12 @@ Note that the stack-group of a @i{simple} process (see (simple-process))
 is not a stack group at all, but a function.
 @end defmethod
 
-@defmethod si:process :initial-stack-group
+@defmethod Operation si:process :initial-stack-group
 Returns the stack group the initial-function is called in when the process starts up
 or is reset.
 @end defmethod
 
-@defmethod si:process :initial-form
+@defmethod Operation si:process :initial-form
 Returns the initial ``form'' of the process.
 This isn't really a Lisp form; it is a cons whose car is the initial-function
 and whose cdr is the list of arguments to which that function is applied
@@ -42963,7 +42939,7 @@ element, the process's function.
 To change the initial form, use the @code{:preset} operation (see (si:process-preset-method)).
 @end defmethod
 
-@defmethod si:process :wait-function
+@defmethod Operation si:process :wait-function
 Returns the process's current wait-function, which is the predicate used
 by the scheduler to determine if the process is runnable.  This is
 @code{#'true} if the process is running, and @code{#'false} if the process has
@@ -42973,14 +42949,14 @@ indefinitely.  The wait-function of a flushed process is @code{si:flushed-proces
 a function equivalent to @code{#'false} but recognizably distinct.
 @end defmethod
 
-@defmethod si:process :wait-argument-list
+@defmethod Operation si:process :wait-argument-list
 Returns the arguments to the process's current wait-function.  This is
 frequently the @code{&rest} argument to @code{process-wait} in the
 process's stack.  The system always uses it in
 a safe manner, i.e. it forgets about it before @code{process-wait} returns.
 @end defmethod
 
-@defmethod si:process :whostate
+@defmethod Operation si:process :whostate
 Returns a string that is the state of the process to go in the who-line at
 the bottom of the screen.  This is @code{"run"} if the process is running or
 trying to run; otherwise, it is the reason why the process is waiting.  If the
@@ -42989,20 +42965,20 @@ displays @code{arrest} if the process is arrested or @code{stop} if the process 
 no run reasons.
 @end defmethod
 
-@defmethod si:process :quantum
-@defmethodx si:process :set-quantum 60ths
+@defmethod Operation si:process :quantum
+@defmethodx Operation si:process :set-quantum 60ths
 Respectively return and change the number of 60ths of a second this
 process is allowed to run without waiting before the scheduler will run
 someone else.  The quantum defaults to 1 second.
 @c [This feature doesn't really work very well.]
 @end defmethod
 
-@defmethod si:process :quantum-remaining
+@defmethod Operation si:process :quantum-remaining
 Returns the amount of time remaining for this process to run, in 60ths of a second.
 @end defmethod
 
-@defmethod si:process :priority
-@defmethodx si:process :set-priority priority-number
+@defmethod Operation si:process :priority
+@defmethodx Operation si:process :set-priority priority-number
 Respectively return and change the priority of this process.  The larger the number, the
 more this process gets to run.  Within a priority level the scheduler runs all
 runnable processes in a round-robin fashion.  Regardless of priority a process
@@ -43010,8 +42986,8 @@ will not run for more than its quantum.  The default priority is 0, and no
 normal process uses other than 0.
 @end defmethod
 
-@defmethod si:process :warm-boot-action
-@defmethodx si:process :set-warm-boot-action action
+@defmethod Operation si:process :warm-boot-action
+@defmethodx Operation si:process :set-warm-boot-action action
 Respectively return and change the process's warm-boot-action, which controls what
 happens if the machine is booted while this process is active.
 (Contrary to the name, this applies to both cold and warm booting.) This
@@ -43028,72 +43004,72 @@ reinitialization itself.
 
 @end defmethod
 
-@defmethod si:process :simple-p
+@defmethod Operation si:process :simple-p
 Returns @code{nil} for a normal process, @code{t} for a simple process.
 See (simple-process).
 @end defmethod
 
-@defmethod si:process :idle-time
+@defmethod Operation si:process :idle-time
 Returns the time in seconds since this process last ran, or @code{nil} if it has never run.
 @end defmethod
 
-@defmethod si:process :total-run-time
+@defmethod Operation si:process :total-run-time
 Returns the amount of time this process has run, in 60ths of a second.
 This includes cpu time and disk wait time.
 @end defmethod
 
-@defmethod si:process :disk-wait-time
+@defmethod Operation si:process :disk-wait-time
 Returns the amount of time this process has spent
 waiting for disk I/O, in 60ths of a second.
 @end defmethod
 
-@defmethod si:process :cpu-time
+@defmethod Operation si:process :cpu-time
 Returns the amount of time this process has spent actually
 executing instructions, in 60ths of a second.
 @end defmethod
 
-@defmethod si:process :percent-utilization
+@defmethod Operation si:process :percent-utilization
 Returns the fraction of the machine's time this
 process has been using recently, as a percentage
 (a number between 0 and 100.0).  The value is a weighted
 average giving more weight to more recent history.
 @end defmethod
 
-@defmethod si:process :reset-meters
+@defmethod Operation si:process :reset-meters
 Resets the run-time counters of the process to zero.
 @end defmethod
 
 @subsection Run and Arrest Reasons
 
-@defmethod si:process :run-reasons
+@defmethod Operation si:process :run-reasons
 Returns the list of run reasons, which are the reasons why this process should
 be active (allowed to run).
 @end defmethod
 
-@defmethod si:process :run-reason object
+@defmethod Operation si:process :run-reason object
 Adds @i{object} to the process's run reasons.  This can activate the process.
 @end defmethod
 
-@defmethod si:process :revoke-run-reason object
+@defmethod Operation si:process :revoke-run-reason object
 Removes @i{object} from the process's run reasons.  This can stop the process.
 @end defmethod
 
-@defmethod si:process :arrest-reasons
+@defmethod Operation si:process :arrest-reasons
 Returns the list of arrest reasons, which are the reasons why this process
 should be inactive (forbidden to run).
 @end defmethod
 
-@defmethod si:process :arrest-reason object
+@defmethod Operation si:process :arrest-reason object
 Adds @i{object} to the process's arrest reasons.  This can stop the process.
 @end defmethod
 
-@defmethod si:process :revoke-arrest-reason object
+@defmethod Operation si:process :revoke-arrest-reason object
 Removes @i{object} from the process's arrest reasons.  This can activate
 the process.
 @end defmethod
 
-@defmethod si:process :active-p
-@defmethodx si:process :runnable-p
+@defmethod Operation si:process :active-p
+@defmethodx Operation si:process :runnable-p
 These two operations are the same.  @code{t} is returned if the process is
 active, i.e. it can run if its wait-function allows.  @code{nil} is returned
 if the process is stopped.
@@ -43101,7 +43077,7 @@ if the process is stopped.
 
 @subsection Bashing the Process
 
-@defmethod si:process :preset function &rest args
+@defmethod Operation si:process :preset function &rest args
 Sets the process's initial function to @i{function} and initial arguments
 to @i{args}.  The process is then reset so that any computation occuring in it
 is terminated and it begins anew by applying @i{function} to @i{args}.
@@ -43110,7 +43086,7 @@ returns immediately, but does not activate the process; hence the
 process will not really apply @i{function} to @i{args} until it is activated later.
 @end defmethod
 
-@defmethod si:process :reset &optional no-unwind kill
+@defmethod Operation si:process :reset &optional no-unwind kill
 Forces the process to throw out of its present computation and apply its
 initial function to its initial arguments, when it next runs.  The
 throwing out is skipped if the process has no present computation (e.g.
@@ -43138,7 +43114,7 @@ does not activate the process; hence the process will not really get
 reset until it is activated later.
 @end defmethod
 
-@defmethod si:process :flush
+@defmethod Operation si:process :flush
 Forces the process to wait forever.  A process may not @code{:flush} itself.
 Flushing a process is different from stopping it, in that it is still active
 and hence if it is reset or preset it will start running again.
@@ -43149,12 +43125,12 @@ If a process belonging to a window is flushed, exposing or selecting the window
 resets the process.
 @end defmethod
 
-@defmethod si:process :kill
+@defmethod Operation si:process :kill
 Gets rid of the process.  It is reset, stopped,
 and removed from @code{sys:all-processes}.
 @end defmethod
 
-@defmethod si:process :interrupt function &rest args
+@defmethod Operation si:process :interrupt function &rest args
 Forces the process to @code{apply} @i{function} to @i{args}.  When @i{function} returns,
 the process continues the interrupted computation.  If the process is waiting,
 it wakes up, calls @i{function}, then waits again when @i{function} returns.
@@ -43170,11 +43146,11 @@ state @code{:interrupt} may have to wait for it to get out of that state.
 These are the flavors of process provided by the system.  It is possible for users
 to define additional flavors of their own.
 
-.defflavor si:process
+@defvr Flavor si:process
 This is the standard default kind of process.
-.end_defflavor
+@end defvr
 
-.defflavor si:simple-process
+@defvr Flavor si:simple-process
 @cindex simple process
 A simple process is not a process in the conventional sense.  It has no
 stack group of its own; instead of having a stack group that gets
@@ -43212,7 +43188,7 @@ way to specify its wait-function.  To set the wait-function of a simple
 process, use @code{si:set-process-wait} (see below).  So, when a simple
 process wants to wait for a condition, it should call
 @code{si:set-process-wait} to specify the condition, then return.
-.end_defflavor
+@end defvr
 
 @defun si:set-process-wait simple-process wait-function wait-argument-list
 Sets the @i{wait-function} and @i{wait-argument-list} of @i{simple-process}.
@@ -43424,7 +43400,7 @@ This is normally equivalent to @code{(typep @i{object} 'error)}.  Some functions
 occurs.  @code{errorp} is useful in testing the value returned.
 @end defun
 
-@defmethod condition :condition-names
+@defmethod Operation condition :condition-names
 Returns a list of all the condition names possesses by this condition instance.
 @end defmethod
 
@@ -43734,7 +43710,7 @@ format is the same as that of @code{eh:condition-handlers}.
 
 @section Standard Condition Flavors
 
-.defflavor condition
+@defvr Flavor condition
 The flavor @code{condition} is the base flavor of all conditions, and provides default
 definitions for all the operations described in this chapter.
 
@@ -43747,35 +43723,35 @@ to @code{(send instance :set :get :foo @i{value})}.
 @code{condition} also provides two instance variables, @code{eh:format-string} and @code{eh:format-args}.
 @code{condition}'s method for the the @code{:report} operation passes these to @code{format} to print
 the error message.
-.end_defflavor
+@end defvr
 
-.defflavor error
+@defvr Flavor error
 The flavor @code{error} makes a condition an error condition.  @code{errorp} returns @code{t} for such
 conditions, and the debugger is entered if they are signaled and not otherwise
 handled.
-.end_defflavor
+@end defvr
 
-.defflavor sys:no-action-mixin
+@defvr Flavor sys:no-action-mixin
 This mixin provides a definition of the proceed type @code{:no-action}.
-.end_defflavor
+@end defvr
 
-.defflavor sys:proceed-with-value-mixin
+@defvr Flavor sys:proceed-with-value-mixin
 This mixin provides a definition of the proceed type @code{:new-value}.
-.end_defflavor
+@end defvr
 
-.defflavor ferror
+@defvr Flavor ferror
 This flavor is a mixture of @code{error}, @code{sys:no-action-mixin} and
 @code{sys:proceed-with-value-mixin}.  It is the flavor used by default by the functions
 @code{ferror} and @code{cerror}, and is often convenient for users to instantiate.
-.end_defflavor
+@end defvr
 
-.defflavor sys:warning
+@defvr Flavor sys:warning
 This flavor is a mixture of @code{sys:no-action-mixin} and @code{condition}.
-.end_defflavor
+@end defvr
 
-.defflavor sys:bad-array-mixin
+@defvr Flavor sys:bad-array-mixin
 This mixin provides a definition of the proceed type @code{:new-array}.
-.end_defflavor
+@end defvr
 
 @section Condition Operations
 
@@ -43787,7 +43763,7 @@ implements the printing of an error message.  When a condition instance is
 printed with escaping, it uses the @code{#} syntax so that it can be read back in.
 This is done using @code{si:print-readably-mixin}, (si:print-readably-mixin-flavor).
 
-@defmethod condition :report stream
+@defmethod Operation condition :report stream
 Prints on @i{stream} the condition's error message, a description of the circumstances
 for which the condition instance was signaled.  The output should neither start
 nor end with a carriage return.
@@ -43797,7 +43773,7 @@ error message is printed, this is the operation to redefine.  All others use thi
 one.
 @end defmethod
 
-@defmethod condition :report-string
+@defmethod Operation condition :report-string
 Returns a string containing the text that the @code{:report} operation would
 print.
 @end defmethod
@@ -43805,14 +43781,14 @@ print.
 @noindent
 Operations provided specifically for condition handlers to use:
 
-@defmethod condition :dangerous-condition-p
+@defmethod Operation condition :dangerous-condition-p
 Returns @code{t} if the condition instance is one of those that indicate events
 that are considered extremely dangerous, such as running out of memory.
 Handlers that normally handle all conditions might want to
 make an exception for these.
 @end defmethod
 
-@defmethod condition :debugging-condition-p
+@defmethod Operation condition :debugging-condition-p
 Returns @code{t} if the condition instance is one of those that are signaled as
 part of debugging, such as @code{break}, which is signaled when you type
 @code{Meta-Break}.  Although these conditions normally enter the debugger,
@@ -43831,7 +43807,7 @@ Some operations are intended for the debugger to use.  They are documented
 because some flavors of condition redefine them so as to cause the debugger to
 behave differently.  This section is of interest only to advanced users.
 
-@defmethod condition :print-error-message stack-group brief-flag stream
+@defmethod Operation condition :print-error-message stack-group brief-flag stream
 This operation is used by the debugger to print a complete error message.  This
 is done primarily using the @code{:report} operation.
 
@@ -43849,25 +43825,25 @@ information that is not considered crucial to the error itself, and is therefore
 not recorded in the condition instance.
 @end defmethod
 
-@defmethod condition :maybe-clear-input stream
+@defmethod Operation condition :maybe-clear-input stream
 This operation is used on entry to the debugger to discard input.
 Certain condition flavors, used by stepping redefine this operation to do nothing,
 so that input is not discarded.
 @end defmethod
 
-@defmethod condition :bug-report-recipient-system
+@defmethod Operation condition :bug-report-recipient-system
 The value returned by this operation is used to determine what address to mail
 bug reports to, when the debugger @code{Control-M} command is used.
 By default, it returns @code{"LISPM"}.  The value is passed to the function @code{bug}.
 @end defmethod
 
-@defmethod condition :bug-report-description stream &optional numeric-arg
+@defmethod Operation condition :bug-report-description stream &optional numeric-arg
 This operation is used by the @code{Control-M} command to print on @i{stream} the
 information that should go in the bug report.  @i{numeric-arg} is the numeric
 argument, if any, that the user gave to the @code{Control-M} command.
 @end defmethod
 
-@defmethod condition :find-current-frame stack-group
+@defmethod Operation condition :find-current-frame stack-group
 Returns the stack indices of the stack frames that the debugger should operate
 on.
 
@@ -43889,7 +43865,7 @@ to be ``interesting''.  Normally, frames that are part of the interpreter (calls
 This is a flavor operation so that certain flavors of condition can redefine it.
 @end defmethod
 
-@defmethod condition :debugger-command-loop stack-group &optional error-object
+@defmethod Operation condition :debugger-command-loop stack-group &optional error-object
 Enters the debugger command loop.  The initial error message and backtrace have
 already been printed.  This message is sent in an error handler stack group;
 @i{stack-group} is the stack group in which the condition was signaled.  @i{error-object}
@@ -44462,14 +44438,14 @@ instances returns a keyword describing the data type that was desired.
 @noindent
 Here the argument to the @code{:argument-value} proceed type is @code{nil}.
 
-@defmethod condition :proceed-types
+@defmethod Operation condition :proceed-types
 Returns a list of the proceed types available for this condition instance.
 This operation should be used only within the signaling of the condition
 instance, as it refers to the special variable in which @code{signal-condition}
 stores its second argument.
 @end defmethod
 
-@defmethod condition :proceed-type-p proceed-type
+@defmethod Operation condition :proceed-type-p proceed-type
 @code{t} if @i{proceed-type} is one of the proceed types available for this condition instance.
 This operation should be used only within the signaling of the condition
 instance, as it refers to the special variable in which @code{signal-condition}
@@ -44511,7 +44487,7 @@ a condition instance describing an unbound variable error, if the
 proceed type specified is @code{:new-value}, the text printed is something
 like ``Proceed, reading a value to use instead.''
 
-@defmethod condition :document-proceed-type proceed-type stream
+@defmethod Operation condition :document-proceed-type proceed-type stream
 Prints on @i{stream} a description of the purpose of proceed type @i{proceed-type}.  This
 operation uses @code{:case} method combination (see (method-combination)), to
 make it convenient to define the way to document an individual proceed type.
@@ -44546,7 +44522,7 @@ arguments to pass with the proceed type.  Sending @code{:proceed-asking-user}
 to an instance of @code{sys:unbound-variable} with argument @code{:new-value} would
 read and evaluate one expression, prompting appropriately.
 
-@defmethod condition :proceed-asking-user proceed-type continuation read-object-fn
+@defmethod Operation condition :proceed-asking-user proceed-type continuation read-object-fn
 The method for @code{:proceed-asking-user} embodies the knowledge of how to
 prompt for and read the additional arguments that go with @i{proceed-type}.
 
@@ -44613,7 +44589,7 @@ Finally, there may be proceed types intended only for the debugger
 which do not actually proceed; these should be inserted into the list
 by the @code{:user-proceed-types} method.
 
-@defmethod condition :user-proceed-types proceed-types
+@defmethod Operation condition :user-proceed-types proceed-types
 Assuming that @i{proceed-types} is the list of proceed types available for
 condition handlers to return, this operation returns the list of
 proceed types that the debugger should offer to the user.
@@ -45245,8 +45221,8 @@ and so on.  The backtrace commands all accept numeric arguments
 which say how many frames to describe, the default being to describe
 all the frames.
 
-.need 1500
-.nopara
+@need 1500
+@noindent
 Moving around in the stack:
 
 The @code{Control-N} command makes the ``next'' older frame be current.
@@ -45291,8 +45267,8 @@ keys, as in the editor.  Some other commands such as @code{Control-M} also
 use the numeric argument; refer to the table at the end of the section
 for detailed information.
 
-.need 1500
-.nopara
+@need 1500
+@noindent
 Resuming execution:
 
 @code{Meta-C} is similar to @code{Control-C}, but in the case of an unbound
@@ -45329,8 +45305,8 @@ arguments.  @code{Space} is allowed only if this argument was previously passed,
 and @code{End} is not allowed for a required argument.  Once you have finished
 specifying the arguments, you must confirm before execution resumes.
 
-.need 1500
-.nopara
+@need 1500
+@noindent
 Stepping through function calls and returns:
 
 You can request a trap to the debugger on exit from a particular frame,
@@ -45353,8 +45329,8 @@ on calling a particular function.  Trapping on entry to a frame
 automatically sets the trap-on-exit bit for that frame; use
 @code{Control-X} to clear it if you do not want another trap.
 
-.need 1500
-.nopara
+@need 1500
+@noindent
 Transfering to other systems:
 
 @code{Control-E} puts you into the editor, looking at the source code for the
@@ -45370,8 +45346,8 @@ says how many frames to include in the backtrace.
 debugger.  It is not documented in this manual, but should be usable
 without further documentation.
 
-.need 1500
-.nopara
+@need 1500
+@noindent
 Examining and setting the arguments, local variables, and values:
 
 @code{Control-Meta-A} takes a numeric argument, @i{n}, and prints out the
@@ -46234,7 +46210,6 @@ Events include beginning to evaluate a form at any level
 or finishing the evaluation of a form at any level.
 
 @item @code{Space}
-.br
 Steps to the next event at this level.  In other words, continue to
 evaluate at this level, but don't step anything at lower levels.  This is a good
 way to skip over parts of the evaluation that don't interest you.
