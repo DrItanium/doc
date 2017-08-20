@@ -4,6 +4,8 @@
 @settitle Lisp Machine Manual
 @c %**end of header
 
+@include lmchar.txi
+
 @defindex lkw
 
 @ifnottex
@@ -415,7 +417,7 @@ Comma is used in conjunction with backquote.
 Colon is the package prefix.
 @item |
 Characters between pairs of vertical-bars are escaped.
-@item 
+@item @circleX{}
 Circle-cross lets you type in characters using their octal codes.
 @end table
 
@@ -505,8 +507,8 @@ programs, the reader is directed to replace @code{member} with
 @code{cli:member} wherever it is seen.  So traditional and Common Lisp
 programs both get the @code{member} functions they expect.  Programs
 written in traditional syntax can refer to the new @code{cli} functions
-with explicit @code{cli:} package prefixes.  Programs written in Common Lisp
-syntax can refer to the traditional symbols with explicit @code{global:}
+with explicit @code{cli:} package prefixes.  Programs written in Common Lisp
+syntax can refer to the traditional symbols with explicit @code{global:}
 package prefixes, but this is not expected to be necessary in code.
 
 The symbol replacements are under control of the current readtable,
@@ -514,11 +516,11 @@ so that the Common Lisp readtable is responsible for causing
 @code{cli:close} to replace @code{close} and so on.
 
 In this manual, the incompatible Common Lisp functions are documented
-under names starting with @code{cli:}, the names by which a traditional
+under names starting with @code{cli:}, the names by which a traditional
 program could refer to them.  Keep in mind that, in Common Lisp programs,
-the @code{cli:} would be omitted.  A list of symbols which
+the @code{cli:} would be omitted.  A list of symbols which
 have incompatible Common Lisp substitutes can be found by looking up
-@code{cli:} in the function and variable indices. 
+@code{cli:} in the function and variable indices. 
 
 Traditional read syntax is used nearly everywhere in the manual.
 This includes the use of `@code{/}' as an escape character, the escaping of
@@ -3106,7 +3108,7 @@ In addition, the compiler knows that the argument to @code{function}
 should be compiled.  The argument of @code{quote} cannot be compiled
 since it may be intended for other uses.
 
-To ease typing, the reader converts @code{#'@i{thing}} into @code{(function @i{thing})}.
+To ease typing, the reader converts @code{#'@i{thing}} into @code{(function @i{thing})}.
 So @code{#'} is similar to @code{'} except that it produces a
 @code{function} form instead of a @code{quote} form.  The last example
 could be written as 
@@ -3629,7 +3631,7 @@ was unnecessary.  Since extra returned values are generally ignored,
 it is not vital to eliminate them.
 
 Note that use of a form as an argument to a function never receives
-multiple values from that form.  That is, if the form @code{(foo (bar))}
+multiple values from that form.  That is, if the form @code{(foo (bar))}
 is evaluated and the call to @code{bar} returns many values, @code{foo} is
 still called on only one argument (namely, the first value returned),
 rather than being called on all the values returned.  We choose not to
@@ -4700,7 +4702,7 @@ values of @code{(do-last)} are returned.
 
 Note that the @code{return-from} form is very unusual: it does not ever
 return a value itself, in the conventional sense.  It isn't useful to
-write @code{(setq a (return-from foo 3))}, because when the
+write @code{(setq a (return-from foo 3))}, because when the
 @code{return-from} form is evaluated, the containing @code{block} is
 immediately exited, and the @code{setq} never happens.
 
@@ -4877,7 +4879,7 @@ are evaluated only for effect.
 An element of the @code{tagbody}'s body which is a symbol is not a statement
 but a tag instead.  It identifies a place in the sequence of statements
 which you can go to.  Going to a tag is accomplished by the form
-@code{(go @i{tag})}, executed at any point lexically within the @code{tagbody}.
+@code{(go @i{tag})}, executed at any point lexically within the @code{tagbody}.
 
 @code{go} transfers control immediately to the first statement following
 @i{tag} in its @code{tagbody}, pausing only to deal with any
@@ -5368,7 +5370,7 @@ of some typical lists:
 (foo bar)		  ;This list has two elements.
 (a (b c d) e)		  ;This list has three elements.
 @end lisp
-Note that the second list has three elements: @code{a}, @code{(b c d)}, and @code{e}.
+Note that the second list has three elements: @code{a}, @code{(b c d)}, and @code{e}.
 The symbols @code{b}, @code{c}, and @code{d} are @i{not} elements of the list itself.
 (They are elements of the list which is the second element of the original
 list.)
@@ -5393,7 +5395,7 @@ other conses.  The following are all printed representations of trees:
 @end lisp
 
 These definitions are not mutually exclusive.  Consider a cons whose
-car is @code{a} and whose cdr is @code{(b (c d) e)}.  Its printed
+car is @code{a} and whose cdr is @code{(b (c d) e)}.  Its printed
 representation is
 @lisp
 (a b (c d) e)
@@ -7467,7 +7469,7 @@ produce identical (@code{eq}) hash codes for them.
 For an @code{eq} hash table, the key itself is a suitable hash code, so
 no hash function is needed.  Then this option's value should be
 @code{nil} (@code{identity} would also work, but slower).  @code{nil} is the
-default in @code{make-hash-table}.  @code{make-equal-hash-table}
+default in @code{make-hash-table}.  @code{make-equal-hash-table}
 specifies an appropriate function which uses @code{sxhash}.
 
 @item :number-of-values
@@ -7817,7 +7819,7 @@ of two-dimensional arrays to be used as temporary storage in a calculation, the
 resource would typically have two parameters, the number of rows and the number of
 columns.  In the simplest case @i{parameters} is @code{()}.
 
-The documentation string is recorded for @code{(documentation @i{name} 'resource)} to access.  It may be omitted.
+The documentation string is recorded for @code{(documentation @i{name} 'resource)} to access.  It may be omitted.
 
 The keyword options control how the objects of the resource are made and kept
 track of.  The following keywords are allowed:
@@ -8650,13 +8652,13 @@ one of the following:
 @item l
 x < 0
 @item le
-x @code{} 0
+x @code{@lessOrEqual{}} 0
 @item e
 x = 0
 @item n
-x @code{} 0
+x @code{@notEquals{}} 0
 @item ge
-x @code{} 0
+x @code{@greaterOrEqual{}} 0
 @item g
 x > 0
 @end table
@@ -8712,9 +8714,9 @@ a single argument.
 @end defun
 
 @defun >= &rest numbers
-@defunx  &rest numbers
-@code{} compares each pair of successive arguments.  If any argument
-is less than the next, @code{} returns @code{nil}.  But if the
+@defunx @greaterOrEqual{} &rest numbers
+@code{@greaterOrEqual{}} compares each pair of successive arguments.  If any argument
+is less than the next, @code{@greaterOrEqual{}} returns @code{nil}.  But if the
 arguments are monotonically decreasing or equal, the result is @code{t}.
 
 @code{>=} is the Common Lisp name for this function.
@@ -8739,15 +8741,15 @@ arguments are monotonically strictly increasing, the result is @code{t}.
 @end defun
 
 @defun <= &rest numbers
-@defunx  &rest numbers
-@code{} compares its arguments from left to right.  If any argument
-is greater than the next, @code{} returns @code{nil}.  But if the
+@defunx @lessOrEqual{} &rest numbers
+@code{@lessOrEqual{}} compares its arguments from left to right.  If any argument
+is greater than the next, @code{@lessOrEqual{}} returns @code{nil}.  But if the
 arguments are monotonically increasing or equal, the result is @code{t}.
 
 @code{<=} is the Common Lisp name for this function.
 @end defun
 
-@defun  &rest numbers
+@defun @notEquals{} &rest numbers
 @defunx //= &rest numbers
 @code{t} if no two arguments are numerically equal.
 This is the same as @code{(not (= ...))} when there are two arguments,
@@ -9150,10 +9152,10 @@ this is the same as @i{z}.
 @defun phase z
 Returns the phase angle of the complex number @i{z} in its polar form.
 This is the angle from the positive @i{x} axis to the ray from the
-origin through @i{z}.  The value is always in the interval @code{(-, ]}.
+origin through @i{z}.  The value is always in the interval @code{(-@pi{}, @pi{}]}.
 @lisp
-(phase -4) => 
-(phase -4-.0001i) @t{is just over @code{-}.}
+(phase -4) => @pi{}
+(phase -4-.0001i) @t{is just over @code{-@pi{}}.}
 (phase 0) => 0 @t{(an arbitrary choice)}
 @end lisp
 @end defun
@@ -9179,7 +9181,7 @@ they convert it to a float.  If given a short float, they return a
 short float.
 
 @defvr {Constant} pi
-The value of @code{}, as a full-size float.
+The value of @code{@pi{}}, as a full-size float.
 @end defvr
 
 @defun exp x
@@ -9189,8 +9191,8 @@ Returns @i{e} raised to the @i{x}'th power, where @i{e} is the base of natural l
 @defun log x &optional base
 Returns the logarithm of @i{x} to base @i{base}.  @i{base}
 defaults to @i{e}.  When @i{base} is @i{e}, the imaginary
-part of the value is in the interval @code{(-, ]}; for
-negative real @i{x}, the value has imaginary part @code{}.
+part of the value is in the interval @code{(-@pi{}, @pi{}]}; for
+negative real @i{x}, the value has imaginary part @code{@pi{}}.
 
 If @i{base} is specified, the result is
 @lisp
@@ -9220,30 +9222,30 @@ Return, respectively, the sine, cosine and tangent of @i{x}, where
 @defunx acos x
 Returns the angle (in radians) whose sine (respectively, cosine)
 is @i{x}.  The real part of the result of @code{asin} is
-between @code{-/2} and @code{/2}; @code{acos} and @code{asin}
-of any given argument always add up to @code{/2}.
+between @code{-@pi{}/2} and @code{@pi{}/2}; @code{acos} and @code{asin}
+of any given argument always add up to @code{@pi{}/2}.
 @end defun
 
 @defun atan y &optional x
 If only @i{y} is given, the value is the angle, in radians, whose
-tangent is @i{y}.  The real part of the result is between zero and @code{-}.
+tangent is @i{y}.  The real part of the result is between zero and @code{-@pi{}}.
 
 If @i{x} is also given, both arguments must be real, and the value is
 an angle, in radians, whose tangent is @i{y/x}.  However, the signs
 of the two arguments are used to choose between two angles which
-differ by @code{} and have the same tangent.  The one chosen is the
+differ by @code{@pi{}} and have the same tangent.  The one chosen is the
 angle from the @i{x}-axis counterclockwise to the line from the origin
 to the point (@i{x}, @i{y}).
 
 @code{atan} always returns a non-negative number between zero and
-@code{2}.
+@code{2@pi{}}.
 @end defun
 
 @defun atan2 y &optional x
 @defunx cli:atan y &optional x
 Like @code{atan} but always returns a value whose real part is between
-@code{-/2} and @code{/2}.  The value is either the same as
-the value of @code{atan} or differs from it by @code{}.
+@code{-@pi{}/2} and @code{@pi{}/2}.  The value is either the same as
+the value of @code{atan} or differs from it by @code{@pi{}}.
 
 @code{atan2} is the traditional name of this function.
 In Common Lisp it is called @code{atan}; it is documented as
@@ -11335,7 +11337,7 @@ varies fastest in row-major order.
 
 @i{from-array} and @i{to-array} are allowed to be the same array.
 @code{bitblt} normally traverses the arrays in increasing order of @i{x}
-and @i{y} subscripts.  If @i{width} is negative, then @code{(abs @i{width})}
+and @i{y} subscripts.  If @i{width} is negative, then @code{(abs @i{width})}
 is used as the width, but the processing of the @i{x} direction is done
 backwards, starting with the highest value of @i{x} and working down.
 If @i{height} is negative it is treated analogously.  When
@@ -12991,38 +12993,38 @@ automatically perform character set conversion when text files
 are read or written.  The details of the mapping are explained in
 (character-set-differences).
 
-@c 000 center-dot ( )             040 space       100 @@           140 `
-@c 001 down arrow ()             041 !           101 A           141 a
-@c 002 alpha ()                  042 "           102 B           142 b
-@c 003 beta ()                   043 #           103 C           143 c
-@c 004 and-sign ()               044 $           104 D           144 d
-@c 005 not-sign ()               045 %           105 E           145 e
-@c 006 epsilon ()                046 &           106 F           146 f
-@c 007 pi ()                     047 '           107 G           147 g
+@c 000 center-dot (@centerDot{})             040 space       100 @@           140 `
+@c 001 down arrow (@downArrow{})             041 !           101 A           141 a
+@c 002 alpha (@alpha{})                  042 "           102 B           142 b
+@c 003 beta (@beta{})                   043 #           103 C           143 c
+@c 004 and-sign (@andSign{})               044 $           104 D           144 d
+@c 005 not-sign (@notSign{})               045 %           105 E           145 e
+@c 006 epsilon (@epsilon{})                046 &           106 F           146 f
+@c 007 pi (@pi{})                     047 '           107 G           147 g
 @c 010 lambda ((ctl-h))                 050 (           110 H           150 h
-@c 011 gamma (	)                  051 )           111 I           151 i
-@c 012 delta ()                  052 *           112 J           152 j
-@c 013 uparrow ()                053 +           113 K           153 k
-@c 014 plus-minus ()             054 ,           114 L           154 l
+@c 011 gamma (@gamma{})                  051 )           111 I           151 i
+@c 012 delta (@delta{})                  052 *           112 J           152 j
+@c 013 uparrow (@uparrow{})                053 +           113 K           153 k
+@c 014 plus-minus (@plusMinus{})             054 ,           114 L           154 l
 @c 015 circle-plus ((ctl-m))            055 -           115 M           155 m
-@c 016 infinity ()               056 .           116 N           156 n
-@c 017 partial delta ()          057 /           117 O           157 o
-@c 020 left horseshoe ()         060 0           120 P           160 p
-@c 021 right horseshoe ()        061 1           121 Q           161 q
-@c 022 up horseshoe ()           062 2           122 R           162 r
-@c 023 down horseshoe ()         063 3           123 S           163 s
-@c 024 universal quantifier ()   064 4           124 T           164 t
-@c 025 existential quantifier () 065 5           125 U           165 u
-@c 026 circle-X ()               066 6           126 V           166 v
-@c 027 double-arrow ()           067 7           127 W           167 w
-@c 030 left arrow ()             070 8           130 X           170 x
-@c 031 right arrow ()            071 9           131 Y           171 y
-@c 032 not-equals ()             072 :           132 Z           172 z
+@c 016 infinity (@infinity{})               056 .           116 N           156 n
+@c 017 partial delta (@partialDelta{})          057 /           117 O           157 o
+@c 020 left horseshoe (@leftHorseshoe{})         060 0           120 P           160 p
+@c 021 right horseshoe (@delta{})        061 1           121 Q           161 q
+@c 022 up horseshoe (@upHorseshoe{})           062 2           122 R           162 r
+@c 023 down horseshoe (@downHorseshoe{})         063 3           123 S           163 s
+@c 024 universal quantifier (@universalQuantifier{})   064 4           124 T           164 t
+@c 025 existential quantifier (@existentialQuantifier{}) 065 5           125 U           165 u
+@c 026 circle-X (@circleX{})               066 6           126 V           166 v
+@c 027 double-arrow (@doubleArrow{})           067 7           127 W           167 w
+@c 030 left arrow (@leftArrow{})             070 8           130 X           170 x
+@c 031 right arrow (@rightArrow{})            071 9           131 Y           171 y
+@c 032 not-equals (@notEquals{})             072 :           132 Z           172 z
 @c 033 diamond (altmode) ()      073 ;           133 [           173 @{
-@c 034 less-or-equal ()          074 <           134 \           174 |
-@c 035 greater-or-equal ()       075 =           135 ]           175 @}
-@c 036 equivalence ()            076 >           136 ^           176 ~
-@c 037 or ()                     077 ?           137 _           177 (ctl-qm)
+@c 034 less-or-equal (@lessOrEqual{})          074 <           134 \           174 |
+@c 035 greater-or-equal (@greaterOrEqual{})       075 =           135 ]           175 @}
+@c 036 equivalence (@equivalence{})            076 >           136 ^           176 ~
+@c 037 or (@or{})                     077 ?           137 _           177 (ctl-qm)
 @c 200 Null character     210 Overstrike    220 Stop-output   230 Roman-iv
 @c 201 Break              211 Tab           221 Abort         231 Hand-up
 @c 202 Clear              212 Line          222 Resume        232 Hand-down
@@ -13051,7 +13053,7 @@ Thus @code{(standard-char-p #\end)} is @code{nil}.
 
 @defun graphic-char-p char
 @code{t} if @i{char} is a graphic character; one which has a printed shape.
-@code{A}, @code{-}, @code{Space} and @r{} are all graphic characters; @code{Return},
+@code{A}, @code{-}, @code{Space} and @r{@epsilon{}} are all graphic characters; @code{Return},
 @code{End} and @code{Abort} are not.  A character whose modifier bits are
 nonzero is never graphic.
 
@@ -14022,7 +14024,7 @@ Simply doing @code{(breakon 'eval)} will probably blow away your machine.
 
 @item (:internal @i{function-spec} @i{number})
 Some Lisp functions contain internal functions, created by
-@code{(function (lambda ...))} forms.  These internal functions need names when
+@code{(function (lambda ...))} forms.  These internal functions need names when
 compiled, but they do not have symbols as names; instead they are named
 by @code{:internal} function-specs.  @i{function-spec} is the name of the
 containing function.  @i{number} is a sequence number; the first
@@ -14379,7 +14381,7 @@ Example:
   (list x y z))
 @end lisp
 would define a function called @code{some-interlisp-like-function}
-with the definition @code{(ilisp (x y z) (list x y z))}.
+with the definition @code{(ilisp (x y z) (list x y z))}.
 
 @code{(defun foo ...)} could be considered an abbreviation for
 @code{(deffunction foo lambda ...)}
@@ -15314,7 +15316,7 @@ uninterned symbol used to hold the prior definition of
 @i{function-spec}.  If @code{si:encapsulate} were a function, @i{body-form}
 would just get evaluated normally by the evaluator before @code{si:encapsulate}
 ever got invoked, and so there would be no opportunity to bind @code{si:encapsulated-function}.
-The form @i{body-form} should contain @code{`(apply ,si:encapsulated-function arglist)}
+The form @i{body-form} should contain @code{`(apply ,si:encapsulated-function arglist)}
 somewhere if the encapsulation is
 to live up to its name and truly serve to encapsulate the original
 definition.  (The variable @code{arglist} is bound by some of the code
@@ -15618,7 +15620,7 @@ the function @code{frob}, the symbol @code{x}, and that binding.
 Finally the old binding of @code{x} is restored, and the closure is
 returned.  Notice that the new binding is still around, because
 it is still known about by the closure.  When the closure is applied,
-say by doing @code{(funcall a 7)},
+say by doing @code{(funcall a 7)},
 this binding is temporarily restored and the value of @code{x} is @code{3}
 again.  If @code{frob} uses @code{x} as a free variable, it sees @code{3}
 as the value.
@@ -15739,10 +15741,10 @@ The following example uses closures which share bindings:
 
 When the @code{let} is entered, new bindings are created for the symbols
 @code{a} and @code{b}, and two closures are created that both point to those
-bindings.  If we do @code{(funcall x)}, the function @code{foo} is
+bindings.  If we do @code{(funcall x)}, the function @code{foo} is
 be run, and it changes the contents of the remembered binding
-of @code{a} to @code{5}.  If we then do @code{(funcall y)}, the function @code{bar}
-returns @code{(5 . 1)}.  This shows that the binding of @code{a} seen
+of @code{a} to @code{5}.  If we then do @code{(funcall y)}, the function @code{bar}
+returns @code{(5 . 1)}.  This shows that the binding of @code{a} seen
 by the closure @code{y} is the same binding seen by the closure @code{x}.  The
 top-level binding of @code{a} is unaffected.
 
@@ -15803,7 +15805,7 @@ This is what @code{(makunbound @i{symbol})} would do if executed in
 @end defun
 
 @defun closure-alist closure
-Returns an alist of @code{(@i{symbol} . @i{value})} pairs describing the
+Returns an alist of @code{(@i{symbol} . @i{value})} pairs describing the
 bindings that the closure performs when it is called.  This list is not
 the same one that is actually stored in the closure; that one contains
 pointers to value cells rather than symbols, and @code{closure-alist}
@@ -19113,7 +19115,7 @@ process, the editor proceeds to visit the code for the first
 warning.  From then on, to move to the next warning, use the command
 @code{Control-Shift-W}.  To move to the previous warning, use
 @code{Meta-Shift-W}.  You can also switch to the warnings window with
-@code{Control-X O} or with the mouse, and move around in that buffer.
+@code{Control-X O} or with the mouse, and move around in that buffer.
 When you use @code{Control-Shift-W} and there are no more warnings after
 the cursor, you return to single-window mode.
 
@@ -19825,7 +19827,7 @@ a macro.
 @code{eval} takes the cdr of the cons, which is supposed to be the macro's
 @i{expander function}, and calls it providing as arguments the original
 form that @code{eval} was handed, and an environment data structure that
-this macro does not use.  So it calls @code{(lambda (x ignore) (list 'car
+this macro does not use.  So it calls @code{(lambda (x ignore) (list 'car
 (cadr x)))} and the first argument is @code{(first '(a b c))}.  Whatever
 this returns is the @i{expansion} of the macro call.  It will be
 evaluated in place of the original form.
@@ -20155,7 +20157,7 @@ You can combine @code{&optional} and @code{&list-of}.  Consider the following ex
 
 @noindent
 In this example we aren't using @code{&body} or anything like it, so you do see
-the list itself; that is why you see parentheses around the @code{(bar 3)}.
+the list itself; that is why you see parentheses around the @code{(bar 3)}.
 
 @subsection Backquote
 @cindex backquote
@@ -20218,8 +20220,8 @@ guarantees about how it does what it does.  In particular, in some
 circumstances it may decide to create constant forms, which will cause
 sharing of list structure at run time, or it may decide to create forms
 that will create new list structure at run time.
-For example, if the reader sees @code{`(r . ,nil)},
-it may produce the same thing as @code{(cons 'r nil)}, or @code{'(r . nil)}.
+For example, if the reader sees @code{`(r . ,nil)},
+it may produce the same thing as @code{(cons 'r nil)}, or @code{'(r . nil)}.
 Be careful that your program does not depend on which of these it does.
 
 	This is generally found to be pretty confusing by most people; the best way
@@ -20248,7 +20250,7 @@ look how closely it resembles the code it is producing.  The functionality
 of the @code{for} really stands right out when written this way.
 
 	If a comma inside a backquote form is followed by an at-sign
-character (`@code{@@}'), it has a special meaning.  The `@code{,@@}' should
+character (`@code{@@}'), it has a special meaning.  The `@code{,@@}' should
 be followed by a form whose value is a list; then each of the elements
 of the list is put into the list being created by the backquote.  In other
 words, instead of generating a call to the @code{cons} function, backquote
@@ -20256,7 +20258,7 @@ generates a call to @code{append}.  For example, if @code{a} is bound to
 @code{(x y z)}, then @code{`(1 ,a 2)} would evaluate to @code{(1 (x y z) 2)},
 but @code{`(1 ,@@a 2)} would evaluate to @code{(1 x y z 2)}.
 
-	Here is an example of a macro definition that uses the `@code{,@@}'
+	Here is an example of a macro definition that uses the `@code{,@@}'
 construction.  One way to define @code{do-forever} would be for it to expand
 @lisp
 (do-forever @i{form1} @i{form2} @i{form3})
@@ -20281,8 +20283,8 @@ into
 defined outside of it.  A more robust implementation would construct a
 new tag each time, using @code{gensym}.)
 
-A similar construct is `@code{,.}' (comma, dot).  This means the same thing
-as `@code{,@@}' except that the list which is the value of the following form
+A similar construct is `@code{,.}' (comma, dot).  This means the same thing
+as `@code{,@@}' except that the list which is the value of the following form
 may be modified destructively; backquote uses @code{nconc} rather than @code{append}.
 This should, of course, be used with caution.
 
@@ -20309,7 +20311,7 @@ One possible expansion is
 
 Backquote of course guarantees not to do any destructive operations
 (@code{rplaca}, @code{rplacd}, @code{nconc}) on the components of the
-structure it builds, unless the `@code{,.}' syntax is used.
+structure it builds, unless the `@code{,.}' syntax is used.
 
 	Advanced macro writers sometimes write macro-defining macros:
 forms which expand into forms which, when evaluated, define macros.  In
@@ -21730,7 +21732,7 @@ should be a list.  It returns @code{nil}.
 @end lisp
 takes an association list and
 returns a list of the keys;  that is, @code{(gather-alist-entries
-'((foo 1 2) (bar 259) (baz)))} returns @code{(foo bar baz)}.
+'((foo 1 2) (bar 259) (baz)))} returns @code{(foo bar baz)}.
 
 @lisp
 (defun extract-interesting-numbers (start-value end-value)
@@ -23432,7 +23434,7 @@ given explicitly.
 
 @i{doc-string} is a string which is recorded as the documentation of
 @i{name} as a structure.  It can be accessed via @code{(documentation
-'@i{name} 'structure)}.  It is not required.
+'@i{name} 'structure)}.  It is not required.
 
 Each @i{slot-description} may be in any of three forms:
 @lisp
@@ -26270,7 +26272,7 @@ flavor does not include @i{flavor-name} as a component, it is an error.
 
 Cleaner than using @code{declare-flavor-instance-variables}, because it
 does not involve putting anything around the function definition, is using
-a local declaration.  Put @code{(declare (:self-flavor @i{flavorname}))} as
+a local declaration.  Put @code{(declare (:self-flavor @i{flavorname}))} as
 the first expression in the body of the function.  For example:
 @lisp
 (defun foo (a b)
@@ -27848,7 +27850,7 @@ as you give it a @code{:print-self} method that produces a suitable
 printed representation, and provide a way to parse it.  The convention
 for doing this is to print as
 @lisp
-#@i{flavor-name} @i{additional-data}
+#@leftHorseshoe{}@i{flavor-name} @i{additional-data}@delta{}
 @end lisp
 and make sure that the flavor defines or inherits a @code{:read-instance}
 method that can parse the @i{additional-data} and return an instance
@@ -27856,7 +27858,7 @@ method that can parse the @i{additional-data} and return an instance
 @code{si:print-readably-mixin}.
 
 @defvr Flavor si:print-readably-mixin
-Provides for flavor instances to print out using the @code{#}
+Provides for flavor instances to print out using the @code{#@leftHorseshoe{}}
 syntax, and also for reading things that were printed in that way.
 @end defvr
 
@@ -29425,7 +29427,7 @@ specified range.
 
 @table @code
 @item t
-The character @code{} is recognized as special when you output to the
+The character @code{@epsilon{}} is recognized as special when you output to the
 stream; sequences such as @code{} are interpreted as font-changes.  They
 do not get inserted into the buffer; instead, they change the font in
 which following output will be inserted.  On input, font change
@@ -29931,7 +29933,7 @@ care of all other operations, if it can.
 				  op arg1 rest))))
 @end lisp
 
-If the operation is not one that the stream understands (e.g. @code{:string-out}),
+If the operation is not one that the stream understands (e.g. @code{:string-out}),
 it calls @code{stream-default-handler}.  Note how the rest argument is
 passed to it.  This is why the argument list must look the way it does.
 @code{stream-default-handler} can be thought of as a restricted analogue of
@@ -30150,7 +30152,7 @@ flavor of how @code{format} is used.
 (setq y "elephant")
 (format nil "Look at the ~A!" y) => "Look at the elephant!"
 (format nil "The character ~:@@C is strange." #\meta-beta)
-      => "The character Meta- (Greek-b) is strange."
+      => "The character Meta-@beta{} (Greek-b) is strange."
 @end lisp
 @lisp
 (setq n 3)
@@ -30196,7 +30198,7 @@ instead of space.  If @i{arg} is not a number, it is printed
 in @code{~A} format and decimal base.
 The @code{@@} modifier causes the number's sign to be printed always; the default
 is only to print it if the number is negative.
-The @code{:} modifier causes commas to be printed between groups of three digits;
+The @code{:} modifier causes commas to be printed between groups of three digits;
 the third prefix parameter may be used to change the character used as the comma.
 Thus the most general form of @code{~D} is
 @code{~@i{mincol},@i{padchar},@i{commachar}D}.
@@ -30225,11 +30227,11 @@ is the number of digits to print after the decimal point.
 If @i{d} is omitted, it is chosen to do a good job based on @i{w}
 (if specified) and the value of @i{arg}.
 @item k
-is a scale factor.  @i{arg} is multiplied by @code{(exp 10. @i{k})}
+is a scale factor.  @i{arg} is multiplied by @code{(exp 10. @i{k})}
 before it is printed.
 @item ovfl
 is a character to use for overflow.  If @i{arg}
-is too big to print and fit the constraints of field width, etc.,
+is too big to print and fit the constraints of field width, etc.,
 and @i{ovfl} is specified then the whole field is filled with @i{ovfl}.
 If @i{ovfl} is not specified, @i{arg} is printed using extra width as needed.
 @item pad
@@ -30289,7 +30291,7 @@ If the @code{@@} modifier is used, a sign is printed even if @i{arg} is positive
 @item ~@i{w},@i{d},@i{e},@i{k},@i{ovfl},@i{pad},@i{expt}G
 Prints a floating point number @i{arg} in either @code{~F} or @code{~E}
 format.  Fixed format is used if the absolute value of @i{arg} is less
-than @code{(expt 10. @i{d})}, and exponential format otherwise.  (If @i{d}
+than @code{(expt 10. @i{d})}, and exponential format otherwise.  (If @i{d}
 is not specified, it defaults based on the value of @i{arg}.)  If fixed
 format is used, @i{e}+2 blanks are printed at the end (where the
 exponent and its separator and sign would go, in exponential format).
@@ -30318,7 +30320,7 @@ the padding, rather than just to the left of the number.  The atsign modifier
 says that the sign character should always be output.
 
 If @i{arg} is not a number, or is unreasonably large, it is printed
-in @code{~@i{field},,,@i{padchar}@@A} format; i.e. it is @code{princ}'ed
+in @code{~@i{field},,,@i{padchar}@@A} format; i.e. it is @code{princ}'ed
 right-justified in the specified field width.
 
 @item ~C
@@ -30329,14 +30331,14 @@ abbreviated prefixes: `@code{C-}' for @code{Control}, `@code{M-}' for @code{Meta
 and `@code{S-}' for @code{Super}.
 
 With the colon flag (@code{~:C}), the names of the control bits are spelled out
-(e.g. `@code{Control-Meta-F}') and non-printing characters
-are represented by their names (e.g. `@code{Return}') rather than being output
+(e.g. `@code{Control-Meta-F}') and non-printing characters
+are represented by their names (e.g. `@code{Return}') rather than being output
 as themselves.  The printing characters Space and Altmode are also represented
 as their names, but all others are printed directly.
 
 With both colon and atsign (@code{~:@@C}), the colon-only format is printed, and then
 if the character requires the @code{Top} or @code{Greek} (@code{Front}) shift key(s) to type it,
-this fact is mentioned (e.g. `@code{ (Top-U)}').  This is the format
+this fact is mentioned (e.g. `@code{@universalQuantifier{} (Top-U)}').  This is the format
 used for telling the user about a key he is expected to type, for instance
 in prompt messages.
 
@@ -30362,9 +30364,9 @@ and then outputs @i{n}-1 carriage returns.
 
 @item ~|
 Outputs a page separator character (@code{#\page}).  @code{~@i{n}|} does this
-@i{n} times.  With a @code{:} modifier, if the output stream supports the
+@i{n} times.  With a @code{:} modifier, if the output stream supports the
 @code{:clear-screen} operation this directive clears the screen, otherwise
-it outputs page separator character(s) as if no @code{:} modifier were
+it outputs page separator character(s) as if no @code{:} modifier were
 present.  @code{|} is vertical bar, not capital I.
 
 @item ~~
@@ -30372,7 +30374,7 @@ Outputs a tilde.  @code{~@i{n}~} outputs @i{n} tildes.
 
 @item ~ <CR>
 Tilde immediately followed by a carriage return ignores the carriage return
-and any whitespace at the beginning of the next line.  With a @code{:}, the whitespace
+and any whitespace at the beginning of the next line.  With a @code{:}, the whitespace
 is left in place.  With an @code{@@}, the carriage return is left in place.
 This directive is typically used when a format control string is too long
 to fit nicely into one line of the program.
@@ -30418,10 +30420,10 @@ of @i{period}.  If the output stream does not support @code{:read-cursorpos}
 then it simply outputs @i{rel} spaces.
 
 @item ~R
-@code{~R} prints @i{arg} as a cardinal English number, e.g. four.
-@code{~:R} prints @i{arg} as an ordinal number, e.g. fourth.
-@code{~@@R} prints @i{arg} as a Roman numeral, e.g. @code{IV}.
-@code{~:@@R} prints @i{arg} as an old Roman numeral, e.g. @code{IIII}.
+@code{~R} prints @i{arg} as a cardinal English number, e.g. four.
+@code{~:R} prints @i{arg} as an ordinal number, e.g. fourth.
+@code{~@@R} prints @i{arg} as a Roman numeral, e.g. @code{IV}.
+@code{~:@@R} prints @i{arg} as an old Roman numeral, e.g. @code{IIII}.
 
 @code{~@i{n}R} prints @i{arg} in radix @i{n}.
 The flags and any remaining parameters are used as for the @code{~D} directive.
@@ -30503,7 +30505,7 @@ For example,
 @cindex kitty, yu-shiang
 The @i{arg}th
 alternative is selected; @code{0} selects the first.
-If a prefix parameter is given (i.e. @code{~@i{n}[}),
+If a prefix parameter is given (i.e. @code{~@i{n}[}),
 then the parameter is used instead of an argument
 (this is useful only if the parameter is `@code{#}').
 If @i{arg} is out of range no alternative is selected.
@@ -30653,7 +30655,7 @@ the error.
 @lisp
 (defun format-error (string &rest args)
   (if (stringp ctl-string)
-      (ferror nil "~1@{~:@}~%~VT~%~3@@T/"~A/"~%"
+      (ferror nil "~1@{~:@}~%~VT@downArrow{}~%~3@@T/"~A/"~%"
 	      string args (+ ctl-index 3) ctl-string)
     (ferror nil "~1@{~:@}" string args)))
 @end lisp
@@ -30664,9 +30666,9 @@ string between double-quotes.  The effect is something like this:
 (format t "The item is a ~[Foo~;Bar~;Loser~]." 'quux)
 >>ERROR: The argument to the FORMAT "~[" command 
          must be a number
-                   
+                   @downArrow{}
    "The item is a ~[Foo~;Bar~;Loser~]."
-...
+...
 @end lisp
 
 @item ~@}
@@ -30675,12 +30677,12 @@ Terminates a @code{~@{}.  It is undefined elsewhere.
 @item ~<
 @code{~@i{mincol},@i{colinc},@i{minpad},@i{padchar}<@i{text}~>}
 justifies @i{text} within a field at least @i{mincol} wide.  @i{text}
-may be divided up into segments with @code{~;}--the
+may be divided up into segments with @code{~;}--the
 spacing is evenly divided between the text segments.
 With no modifiers, the leftmost text segment is left justified in the
 field, and the rightmost text segment right justified;  if there is
 only one, as a special case, it is right justified.
-The @code{:} modifier causes
+The @code{:} modifier causes
 spacing to be introduced before the first text segment;  the @code{@@}
 modifier causes spacing to be added after the last.
 @i{Minpad}, default @code{0}, is the minimum number of @i{padchar}
@@ -30742,7 +30744,7 @@ For example, the control string
 @end lisp
 can be used to print a list of items separated by commas, without
 breaking items over line boundaries, and beginning each line with
-`@code{;; }'.  The prefix parameter @code{1} in @code{~1:;} accounts for the width of the
+`@code{;; }'.  The prefix parameter @code{1} in @code{~1:;} accounts for the width of the
 comma which will follow the justified item if it is not the last
 element in the list, or the period if it is.  If @code{~:;} has a second
 prefix parameter, then it is used as the width of the line,
@@ -30793,7 +30795,7 @@ its arguments are the prefix parameters to @code{~Q}, if any.  @i{args} can be
 passed to the function by using the @code{V} prefix parameter.  The function may
 output to @code{*standard-output*} and may look at the variables @code{format:colon-flag}
 and @code{format:atsign-flag}, which are @code{t} or @code{nil} to reflect the
-@code{:} and @code{@@} modifiers on the @code{~Q}.  For example,
+@code{:} and @code{@@} modifiers on the @code{~Q}.  For example,
 @lisp
 (format t "~VQ" foo bar)
 @end lisp
@@ -30860,7 +30862,7 @@ It took 1 hour 1 second.
 
 You can define your own directives.  How to do this is not documented
 here; read the code.  Names of user-defined directives longer than one
-character may be used if they are enclosed in backslashes (e.g.
+character may be used if they are enclosed in backslashes (e.g.
 @code{~4,3\GRAPH\}).
 
 (Note: @code{format} also allows @i{control-string} to be a list.  If the
@@ -30879,14 +30881,14 @@ and arguments.
 @defun format:print-list destination element-format list &optional separator start-line tilde-brace-options
 This function provides a simpler interface for the specific purpose of
 printing comma-separated lists with no list element split across two
-lines; see the description of the @code{~:;} directive
+lines; see the description of the @code{~:;} directive
 ((ultra-hairy-print-list)) to see the more complex way to do this
 within @code{format}.  @i{destination} tells where to send the output; it
 can be @code{t}, @code{nil}, a @code{string-nconc}'able string, or a stream, as
 with @code{format}.  @i{element-format} is a @code{format} control-string
 that tells how to print each element of @i{list}; it is used as the
 body of a @code{~@{...~@}} construct.  @i{separator}, which defaults to
-@code{", "} (comma, space) is a string which goes after each element
+@code{", "} (comma, space) is a string which goes after each element
 except the last.  @code{format} control commands are not recommended in
 @i{separator}.  @i{start-line}, which defaults to three spaces, is a
 @code{format} control-string that is used as a prefix at the beginning of
@@ -30895,7 +30897,7 @@ allowed in @i{separator}, but they should not swallow arguments from
 @i{list}.  @i{tilde-brace-options} is a string inserted before the
 opening `@code{@{}'; it defaults to the null string, but allows you to
 insert colon and/or atsign.  The line-width of the stream is computed
-the same way that the @code{~:;} command computes it;
+the same way that the @code{~:;} command computes it;
 it is not possible to override the natural line-width of the stream.
 @end defun 
 
@@ -30975,7 +30977,7 @@ Outputs @i{number} in base @i{radix}, padding to at least
 as described above.
 
 @i{radix} can be a number, or it can be @code{:roman}, @code{:english},
-or @code{:ordinal}.  The default @i{radix} is @code{10.} (decimal).
+or @code{:ordinal}.  The default @i{radix} is @code{10.} (decimal).
 
 If @i{signed} is non-@code{nil}, a @code{+} sign is printed if the number is
 positive.  If @i{commas} is non-@code{nil}, a comma is printed every third
@@ -31044,7 +31046,7 @@ operation is used instead of @code{:string-out} to print the text.  On
 windows this operation puts the character name inside a lozenge.
 
 @item :sail
-`@r{}', `@r{}', etc. are used to represent @code{Control} and @code{Meta},
+`@r{}', `@r{}', etc. are used to represent @code{Control} and @code{Meta},
 and shorter names for characters are also used when possible.  See
 (character-set).
 @end table
@@ -31053,7 +31055,7 @@ and shorter names for characters are also used when possible.  See
 @code{:sail}
 styles.  It says that any character that has to be typed using the
 Top or Greek keys should be followed by an explanation of how to type
-it.  For example: `@code{ (Top-K)}' or `@code{ (Greek-a)}'.
+it.  For example: `@code{@rightArrow{} (Top-K)}' or `@code{@alpha{} (Greek-a)}'.
 @end defun
 
 @defun format:tab mincol &key padchar minpad tab-period terpri unit
@@ -31541,7 +31543,7 @@ things.  For example, without escaping, the pathname @code{SYS: SYS; QCP1 LISP} 
 exactly those characters.  The string with those contents prints indistinguishably.
 With escaping, the pathname prints as 
 @lisp
-#FS:LOGICAL-PATHNAME "SYS: SYS; QCP1 LISP"
+#FS:LOGICAL-PATHNAME "SYS: SYS; QCP1 LISP"@delta{}
 @end lisp
 and the string prints as @code{"SYS: SYS; QCP1 LISP"}.
 
@@ -31556,7 +31558,7 @@ the object should be printed with escaping:
 Your output is in the file SYS: SYS; QCP1 QFASL.
 @exdent vs
 Expected pathname properties missing from
- #FS:LOGICAL-PATHNAME "SYS: SYS; QCP1 LISP".
+ #FS:LOGICAL-PATHNAME "SYS: SYS; QCP1 LISP".
 @end lisp
 
 @cindex Common Lisp syntax
@@ -31724,7 +31726,7 @@ it is printed with a package prefix (e.g., @code{global:member})
 to make it read in properly.  See (reader-symbol-substitutions)
 for more information on this.
 
-If the symbol is uninterned, @r{#:} is printed instead of a package
+If the symbol is uninterned, @r{#:} is printed instead of a package
 prefix, provided @code{*print-gensym*} is non-@code{nil}.
 
 Secondly, if the p.r. would not read in as a symbol at all (that is, if
@@ -31908,7 +31910,7 @@ instances.  Most such objects print like ``any other data type'' below,
 except with additional information such as a name.  Some objects print
 only their name when escaping is not in effect (when
 @code{princ}'ed).  Some objects, including pathnames, use a printed
-representation that begins with @r{#}, ends with @code{}, and contains
+representation that begins with @r{#}, ends with @code{@delta{}}, and contains
 sufficient information for the reader to reconstruct an
 equivalent object.  See (horseshoe-read).  If the object cannot handle
 @code{:print-self}, it is printed like ``any other data type''.
@@ -31923,7 +31925,7 @@ octal machine address of the object.  The object's name, if one can be
 determined, often appears before the address.  If this style of printed
 representation is being used for a named structure or instance, other
 interesting information may appear as well.  Finally a greater-than sign
-(@r{>}) is printed in octal.  Examples:
+(@r{>}) is printed in octal.  Examples:
 @lisp
 #'equal => #<DTP-U-ENTRY EQUAL 410>
 (value-cell-location nil) => #<DTP-LOCATIVE 1>
@@ -31965,7 +31967,7 @@ a greater-than sign.  A typical use of this macro might look like:
   (tyo #\space stream)
   (prin1 (ship-name ship) stream))
 @end lisp
-This might print @code{#<ship "ralph" 23655126>}.
+This might print @code{#<ship "ralph" 23655126>}.
 @end defmac
 
 The following keywords may be used to modify the behaviour of @code{si:printing-random-object}:
@@ -32058,7 +32060,7 @@ whitespace for the sake of formatting.  The default is @code{nil}.
 @end defvar
 
 @defvar *print-gensym*
-If non-@code{nil}, uninterned symbols are printed with the prefix @r{#:} to mark them as such
+If non-@code{nil}, uninterned symbols are printed with the prefix @r{#:} to mark them as such
 (but only when @code{*print-escape*} is non-@code{nil}).  The prefix causes the
 reader to construct a similar uninterned symbol when the expression is read.
 If @code{nil}, no prefix is used for uninterned symbols.  The default is @code{t}.
@@ -32179,12 +32181,12 @@ represents a list of two elements, both symbols.  Escaping also prevents
 conversion of letters to upper case, so that @code{|x|} is
 the symbol whose print name contains a lower-case @code{x}.
 
-The circle-cross (@r{}) character an @i{octal escape character}
+The circle-cross (@r{@circleX{}}) character an @i{octal escape character}
 which may be useful for including weird characters in the input.  The
 next three characters are read and interpreted as an octal number, and the
 character whose code is that number replaces the circle-cross and the digits in the
 input stream.  This character is always treated as a token constituent and
-forces the token to be read as a symbol.  @r{} is allowed in both traditional
+forces the token to be read as a symbol.  @r{@circleX{}} is allowed in both traditional
 and Common Lisp syntax, but it is not valid Common Lisp.
 
 @noindent
@@ -32451,7 +32453,7 @@ starting a comment; it is part of a symbol or part of the string.
 
 Another way to write a comment is to start it with @r{#|} and end it with @r{|#}.
 This is useful for commenting out multiple-line segments of code.
-The two delimiters nest, so that @r{#| #| |# |#} is a single comment.
+The two delimiters nest, so that @r{#| #| |# |#} is a single comment.
 This prevents surprising results if you use this construct to comment out
 code which already contains such a comment.
 
@@ -32470,8 +32472,8 @@ Abbreviations:
 The single-quote character (@code{'}) is an abbreviation for a list starting with the
 symbol @code{quote}.  The following pairs of p.r.'s produce equal lists:
 @lisp
-'a   @t{and}   (quote a)
-'(x (y))   @t{and}   (quote (x (y)))
+'a   @t{and}   (quote a)
+'(x (y))   @t{and}   (quote (x (y)))
 @end lisp
 
 The backquote character (@code{`}) and comma are used in a syntax that
@@ -32583,7 +32585,7 @@ must precede it by a slash character.  Examples:
 @r{#/}@code{CTRL-META-/(}.
 
 An obsolete method of specifying control bits in a character is to
-insert the characters @code{}, @code{}, @code{}, @code{} and @code{} between the
+insert the characters @code{@alpha{}}, @code{@beta{}}, @code{@epsilon{}}, @code{@pi{}} and @code{} between the
 @r{#} and the @r{/}.  Those stand for @code{control}, @code{meta},
 @code{control-meta}, @code{super} and @code{hyper}, respectively.  This syntax should
 be converted to the new @r{#\}@code{control-meta-x} syntax described below.
@@ -32872,9 +32874,9 @@ be read back in.  Attempting to read a @r{#}@code{<} signals an error.
 This is used in the p.r. of miscellaneous objects (usually named
 structures or instances) that can be read back in.  @r{#}@code{} should be
 followed by a typename and any other data needed to construct an
-object, terminated with a @code{}.  For example, a pathname might print as
+object, terminated with a @code{@delta{}}.  For example, a pathname might print as
 @lisp
-#FS:ITS-PATHNAME "AI: RMS; TEST 5"
+#FS:ITS-PATHNAME "AI: RMS; TEST 5"@delta{}
 @end lisp
 The typename is a keyword that @code{read} uses to figure out how to read in
 the rest of the printed representation and construct the object.  It is read in in
@@ -32894,9 +32896,9 @@ instance variables should not be referred to.
 
 In either case, the handler function should read the remaining data from
 the stream, and construct and return the datum it describes.  It should
-return with the @code{} character waiting to be read from the input stream
+return with the @code{@delta{}} character waiting to be read from the input stream
 (@code{:untyi} it if necessary).  @code{read} signals an error after it is returned
-to if a @code{} character is not next.
+to if a @code{@delta{}} character is not next.
 
 The typename can be any symbol with an appropriate property or flavor, not
 necessarily related to the type of object that is created; but for clarity, it is good
@@ -32980,7 +32982,7 @@ in terms of @code{`}.
 
 The subforms to @code{grindef} are the function specs whose
 definitions are to be printed; the usual way @code{grindef} is used
-is with a form like @code{(grindef foo)} to print the definition
+is with a form like @code{(grindef foo)} to print the definition
 of @code{foo}.  When one of these subforms is a symbol, if
 the symbol has a value its value is prettily printed also.  Definitions are
 printed as @code{defun} special forms, and values are printed as @code{setq} special
@@ -33582,7 +33584,7 @@ An ordinary character such as `@code{A}'.
 A token separator such as `@code{(}'.  (Obviously left parenthesis has other
 properties besides being a break.
 @item si:whitespace
-A token separator that can be ignored, such as `@code{ }'.
+A token separator that can be ignored, such as `@code{ }'.
 @item si:single
 @cindex single-character symbol
 A self-delimiting single-character symbol.  The initial readtable does not
@@ -33599,7 +33601,7 @@ initial readtable, `@r{#}' is such a character.  (It is also a dispatching
 macro, but that is another matter.) The correct way to make a character
 be a macro is with @code{set-macro-character}.
 @item si:character-code-escape
-The octal escape for special characters.  In the initial readtable this is `@code{}'.
+The octal escape for special characters.  In the initial readtable this is `@code{@circleX{}}'.
 @item si:digitscale
 a character for shifting an integer by digits.
 In the initial readtable this is `@r{^}'.
@@ -33679,7 +33681,7 @@ with dotted lists and with indentation checking.)  Semicolon is implemented as
 a macro character whose defining function swallows characters until a @code{Return}
 and then returns no values.
 
-Close-parenthesis and close-horseshoe (@r{}) are also macro
+Close-parenthesis and close-horseshoe (@r{@delta{}}) are also macro
 characters so that they will terminate symbols.  Their defining
 functions signal errors if actually called; but when these delimiters
 are encountered in their legitimate contexts they are recognized
@@ -34950,8 +34952,8 @@ it is important that they be as standardized and conceptualized as possible.
 For this reason, generic pathnames are defined to be backtranslated, i.e.
 the generic pathname of a pathname that is (or could be) the result of a logical host
 translation has the host and directory of the logical pathname.  For
-example, the generic pathname of @code{OZ:<L.WINDOW>;STREAM LISP} would be
-@code{SYS:WINDOW;STREAM  } if @code{OZ} is the system host.
+example, the generic pathname of @code{OZ:<L.WINDOW>;STREAM LISP} would be
+@code{SYS:WINDOW;STREAM  } if @code{OZ} is the system host.
 
   All version numbers of a particular pathname share the
 same identical generic pathname.  If the values of particular properties have
@@ -35354,7 +35356,7 @@ Each component of an ITS pathname is mapped to upper case and truncated to
 six characters.
 
 Special characters (space, colon, and semicolon) in a component of an ITS pathname
-can be quoted by prefixing them with right horseshoe (@r{})
+can be quoted by prefixing them with right horseshoe (@r{@delta{}})
 or equivalence sign (@r{}).  Right horseshoe is the same character code in the
 Lisp Machine character set as control-Q in the ITS character set.
 
@@ -35413,7 +35415,7 @@ A pathname on TOPS-20 (better known as Twenex) looks like
 The primary device is @code{PS:}.
 
 TOPS-20 pathnames are mapped to upper case.  Special characters (including
-lower-case letters) are quoted with the circle-cross (@r{}) character, which
+lower-case letters) are quoted with the circle-cross (@r{@circleX{}}) character, which
 has the same character code in the Lisp Machine character set as Control-V,
 the standard Twenex quoting character, in the ASCII character set.
 
@@ -35432,7 +35434,7 @@ directory @code{<FOO.BAR>} is represented as the list @code{("FOO" "BAR")}.
 The characters @code{*} and @code{%} are wildcards that match any sequence of
 characters and any single character (within one pathname component),
 respectively.  To specify a filename that actually contains a @code{*} or
-@code{%} character, quote the character with @code{}.  When a component is
+@code{%} character, quote the character with @code{@circleX{}}.  When a component is
 specified with just a single @code{*}, the symbol @code{:wild} appears in the
 pathname object.
 
@@ -35711,7 +35713,7 @@ Example:
 @end lisp
 
 This creates a new logical host called @code{MUSIC}.  An attempt to open the
-file @code{MUSIC:DOC;MANUAL  TEXT  2} will be re-directed to the file
+file @code{MUSIC:DOC;MANUAL  TEXT  2} will be re-directed to the file
 @code{MUSIC-10-A:PS:<MUSIC-DOCUMENTATION>MANUAL.TEXT.2} (assuming that the
 host @code{MUSIC-10-A} is a TOPS-20 system).
 @end defun
@@ -35793,7 +35795,7 @@ This is because devices don't have any meaning in logical pathnames.
 The equivalence-sign character (@code{}) can be used for quoting special
 characters such as spaces and semicolons.  The double-arrow character
 (`@code{}') can be used as a place-holder for components that are @code{nil},
-and the up-horseshoe (`@code{}') indicates @code{:unspecific} (generic pathnames
+and the up-horseshoe (`@code{@downHorseshoe{}}') indicates @code{:unspecific} (generic pathnames
 typically have @code{:unspecific} as the type and the version).
 All letters are mapped to upper case unless quoted.  The @code{:newest}, @code{:oldest},
 and @code{:wild} values for versions are written as
@@ -35835,7 +35837,7 @@ pathname that follows @code{ED-FILE}, when the pathname is parsed.
 Each host known to the Lisp Machine is represented by a flavor instance
 known as a host object.  The host object records such things as the name(s)
 of the host, its operating system type, and its network address(es).
-Host objects print like @code{#FS:TOPS20-CHAOS-HOST "MIT-OZ"}, so they
+Host objects print like @code{#FS:TOPS20-CHAOS-HOST "MIT-OZ"@delta{}}, so they
 can be read back in.
 
 Not all hosts support file access.  Those that do support it appear on the list
@@ -36603,7 +36605,7 @@ Both delete the specified file.  The two functions differ in accepting
 keyword arguments versus positional arguments.  @i{file} may contain
 wildcard characters, in which case multiple files are deleted.
 
-If @i{query?} is non-@code{nil}, the user is queried about each file
+If @i{query?} is non-@code{nil}, the user is queried about each file
 (whether there are wildcards or not).  Only the files that the user
 confirms are actually deleted.
 
@@ -36638,7 +36640,7 @@ are renamed.  Each file's new name is produced by passing @i{new-name}
 to @code{merge-pathname-defaults} with the file's truename as the defaults.
 Therefore, @i{new-name} should be a string in this case.
 
-If @i{query?} is non-@code{nil}, the user is queried about each file
+If @i{query?} is non-@code{nil}, the user is queried about each file
 (whether there are wildcards or not).  Only the files that the user
 confirms are actually renamed.
 
@@ -36979,7 +36981,7 @@ This defines three attributes: mode, package, and base.
 The initial semicolon makes the line look like a comment rather than a Lisp expression.
 Another example is:
 @lisp
-@c Part of the Lisp Machine manual.  -*- Mode:Bolio -*-
+.c Part of the Lisp Machine manual.  -*- Mode:Bolio -*-
 @end lisp
 
 An attribute name is made up of letters, numbers, and otherwise-undefined
@@ -37059,14 +37061,14 @@ The attribute value is a list of font names, separated by commas.  The editor
 uses this for files that are to be displayed in a specific font, or
 contain multiple fonts.  If this attribute is present,
 the file is actually stored in the file system with font-change indicators.
-A font-change indicator is an epsilon (@r{}) followed by a digit or @r{*}.
-@r{}@i{n} means to enter font @i{n}.  The previous font is saved on a stack
-and @r{}@i{*} means to pop the stack, returning to the previous font.
+A font-change indicator is an epsilon (@r{@epsilon{}}) followed by a digit or @r{*}.
+@r{@epsilon{}}@i{n} means to enter font @i{n}.  The previous font is saved on a stack
+and @r{@epsilon{}}@i{*} means to pop the stack, returning to the previous font.
 If the file includes an epsilon as part of its contents, it is stored as
-@r{}.
+@r{@epsilon{}@epsilon{}}.
 
 When expressions are read from such files, font-change indicators
-are ignored, and @r{} is treated as a single @r{}.
+are ignored, and @r{@epsilon{}@epsilon{}} is treated as a single @r{@epsilon{}}.
 
 @item Backspace
 If the attribute value is not @code{nil}, @code{Overstrike} characters in the
@@ -39750,7 +39752,7 @@ rather than calling this function explicitly.
 
 Printing of package prefixes is based on the contents of the symbol's
 package cell.  If the cell contains the @code{chaos} package, then
-@code{chaos:} is printed as the prefix when a prefix is necessary.
+@code{chaos:} is printed as the prefix when a prefix is necessary.
 As a result of obscure actions involving interning and uninterning in multiple
 packages, the symbol may not actually be present in @code{chaos} any more.
 Then the printed prefix is inaccurate.  This cannot be helped.
@@ -41156,7 +41158,7 @@ can then be used instead of repeating the filenames.  The format is
 a list of filenames (strings).  In general, it is a
 @i{module-specification}, which can be any of the following:
 @table @strong
-@item a string    
+@item a string    
 This is a file name.
 
 @item a symbol
@@ -41253,10 +41255,10 @@ can be performed on @code{main}.
 The dependency has to be a tranformation that is explicitly specified
 as a transformation in the system definition, not just an action
 that might be performed by anything.  That is, if you have
-a dependency @code{(:fasload foo)}, it means that @code{(fasload foo)} is
+a dependency @code{(:fasload foo)}, it means that @code{(fasload foo)} is
 a tranformation of your system and you depend on that tranformation;
 it does not simply mean that you depend on @code{foo}'s being loaded.
-Furthermore, it doesn't work if @code{(:fasload foo)} is an implicit
+Furthermore, it doesn't work if @code{(:fasload foo)} is an implicit
 piece of another tranformation.  For example, the following works:
 @lisp
 (defsystem foo
@@ -41275,7 +41277,7 @@ but this doesn't work:
 @end lisp
 @noindent
 because @code{foo}'s @code{:fasload} is not mentioned explicitly (i.e. at
-top level) but is only implicit in the @code{(:compile-load (foo bar))}.  One
+top level) but is only implicit in the @code{(:compile-load (foo bar))}.  One
 must instead write: 
 @lisp
 (defsystem foo
@@ -43760,7 +43762,7 @@ the circumstances that led to the signaling of the condition.  The easiest way
 to print one is to print the condition instance without escaping (@code{princ}, or
 @code{format} operation @code{~A}).  This actually uses the @code{:report} operation, which
 implements the printing of an error message.  When a condition instance is
-printed with escaping, it uses the @code{#} syntax so that it can be read back in.
+printed with escaping, it uses the @code{#@leftHorseshoe{}} syntax so that it can be read back in.
 This is done using @code{si:print-readably-mixin}, (si:print-readably-mixin-flavor).
 
 @defmethod Operation condition :report stream
@@ -44921,7 +44923,7 @@ is a microcode error, the debugger prints out a message such as the following:
 @lisp
 >>TRAP 5543 (TRANS-TRAP)
 The symbol FOOBAR is unbound.
-While in the function LOSE-XCT  LOSE-COMMAND-LOOP  LOSE
+While in the function LOSE-XCT @leftArrow{} LOSE-COMMAND-LOOP @leftArrow{} LOSE
 @end lisp
 
 	The first line of this error message indicates entry to
@@ -44936,7 +44938,7 @@ function @code{lose-xct}, which was called by @code{lose-command-loop}.
 	Here is an example of an error from Lisp code:
 @lisp
 >>ERROR: The argument X was 1, which is not a symbol,
-While in the function FOO  SI:EVAL1  SI:LISP-TOP-LEVEL1
+While in the function FOO @leftArrow{} SI:EVAL1 @leftArrow{} SI:LISP-TOP-LEVEL1
 @end lisp
 
 	Here the first line contains the English description of the
@@ -44969,7 +44971,7 @@ is the one that counts.
 @end defvar
 
 	The debugger can be manually entered either by causing an error
-(e.g. by typing a ridiculous symbol name such as @code{ahsdgf} at the Lisp
+(e.g. by typing a ridiculous symbol name such as @code{ahsdgf} at the Lisp
 read-eval-print loop) or by typing the @code{Break} key with the @code{Meta} shift
 held down while the program is reading from the terminal.  Typing the @code{Break}
 key with both @code{Control} and @code{Meta} held down forces the program
@@ -45022,7 +45024,7 @@ at the end of the listing.
 with an arrow:
 
 @lisp
-@r{ }
+@r{ @rightArrow{}}
 @end lisp
 
 If the error took place in the evaluation of an expression that you
@@ -45056,13 +45058,13 @@ any debugger command that is in progress and get back to command level.
 as @code{Abort} can.
 
 This @code{read-eval-print} loop maintains the values of @code{+}, @code{*}, and
-@code{-} almost like the Lisp listen loop.  The difference is that some
+@code{-} almost like the Lisp listen loop.  The difference is that some
 single-character debugger commands such as @code{C-M-A} also set @code{*} and
 @code{+} in their own way.
 
 If an error occurs in the evaluation of the Lisp expression you type,
 you may enter a second invocation of the debugger, looking at the new
-error.  The prompt in this event is `@r{}' to make it clear which
+error.  The prompt in this event is `@r{@rightArrow{}@rightArrow{}}' to make it clear which
 level of error you are examining.  You can abort the computation and get
 back to the first debugger level by typing the @code{Abort} key (see
 below).
@@ -45200,8 +45202,8 @@ information.  The debugger has two backtrace commands.  @code{Control-B}
 simply prints out the names of the functions on the stack; in the above
 example it would print
 @lisp
-BAZ  BAR  FOO  SI:*EVAL
-  SI:LISP-TOP-LEVEL1  SI:LISP-TOP-LEVEL
+BAZ @leftArrow{} BAR @leftArrow{} FOO @leftArrow{} SI:*EVAL
+ @leftArrow{} SI:LISP-TOP-LEVEL1 @leftArrow{} SI:LISP-TOP-LEVEL
 @end lisp
 The arrows indicate the direction of calling.  The @code{Meta-B} command prints
 a more extensive backtrace, indicating the names of the arguments to the functions
@@ -45368,7 +45370,7 @@ frame is with the functions @code{eh-arg}, @code{eh-loc}, @code{eh-val} and
 the debugger, and they refer to the arguments, locals, values and
 function, respectively, of the debugger's current frame.
 
-The names @code{eh:arg}, @code{eh:val}, etc. are for compatibility with
+The names @code{eh:arg}, @code{eh:val}, etc. are for compatibility with
 the Symbolics system.
 
 @defun eh-arg arg-number-or-name
@@ -45539,7 +45541,7 @@ In either case, an audible beep is made.
 
 In the case of a notification that the debugger is waiting to
 use a deexposed window, you can select and expose the window
-in which the error happened by typing @code{Terminal 0 S}.
+in which the error happened by typing @code{Terminal 0 S}.
 You can do this even if the notification has not been printed yet
 because the selected window cannot print it.  If you select
 the waiting window, in this way or in any other way, the notification
@@ -45548,7 +45550,7 @@ is discarded since you already know what it was intended to tell you.
 If the debugger is entered in a process that has no window or other suitable stream to
 type out on, the window system assigns it a ``background window''.  Since this
 window is initially not exposed, a notification is printed as above and you
-must use @code{Terminal 0 S} to see the window.
+must use @code{Terminal 0 S} to see the window.
 
 If an error happens in the scheduler stack group or the first level
 error handler stack group which are needed for processes to function, or
@@ -45814,7 +45816,7 @@ If you attempt to trace a function already being traced, @code{trace} calls
 @code{untrace} before setting up the new trace.
 
 Tracing is implemented with encapsulation (see (encapsulate)), so if the
-function is redefined (e.g. with @code{defun} or by loading it from a QFASL file)
+function is redefined (e.g. with @code{defun} or by loading it from a QFASL file)
 the tracing will be transferred from the old definition to the new definition.
 
 Tracing output is printed on the stream that is the value of @code{*trace-output*}.
@@ -45823,7 +45825,7 @@ This is synonymous with @code{*terminal-io*} unless you change it.
 @defspec untrace
 Undoes the effects of @code{trace} and restores functions to
 their normal, untraced state.  @code{untrace} accepts multiple specifications,
-e.g. @code{(untrace foo quux fuphoo)}.  Calling @code{untrace} with no arguments
+e.g. @code{(untrace foo quux fuphoo)}.  Calling @code{untrace} with no arguments
 will untrace all functions currently being traced.
 @end defspec
 
@@ -45930,7 +45932,7 @@ source files or your login init file (see (login-fun)), rather than modifying t
 person's source code.
 
 Advising is implemented with encapsulation (see (encapsulate)), so if the
-function is redefined (e.g. with @code{defun} or by loading it from a QFASL file)
+function is redefined (e.g. with @code{defun} or by loading it from a QFASL file)
 the advice will be transferred from the old definition to the new definition.
 
 @defmac advise
@@ -46076,8 +46078,8 @@ substituted for @code{:do-it} in the last piece of advice.
 @code{:around} advice can access @code{arglist}, but @code{values} is not set up until the
 outermost @code{:around} advice returns.  At that time, it is set to the
 value returned by the @code{:around} advice.  It is reasonable for the advice to
-receive the values of the @code{:do-it} (e.g. with @code{multiple-value-list}) and
-fool with them before returning them (e.g. with @code{values-list}).
+receive the values of the @code{:do-it} (e.g. with @code{multiple-value-list}) and
+fool with them before returning them (e.g. with @code{values-list}).
 
 @code{:around} advice can @code{return} from the @code{block} at any time, whether the
 original definition has been executed yet or not.  It can also override
@@ -46185,11 +46187,11 @@ must be a lambda-expression.  Compiled code cannot be stepped by the stepper.
 
 	When evaluation is proceeding with single stepping, before any
 form is evaluated, it is (partially) printed out, preceded by a forward
-arrow (@r{}) character When a macro is expanded, the expansion is
-printed out preceded by a double arrow (@r{}) character.  When a form
+arrow (@r{@rightArrow{}}) character When a macro is expanded, the expansion is
+printed out preceded by a double arrow (@r{@doubleArrow{}}) character.  When a form
 returns a value, the form and the values are printed out preceded by a
-backwards arrow (@r{}) character; if there is more than one value
-being returned, an and-sign (@r{}) character is printed between the
+backwards arrow (@r{@leftArrow{}}) character; if there is more than one value
+being returned, an and-sign (@r{@andSign{}}) character is printed between the
 values.  When the stepper has evaluated the args to a form and is about
 to apply the function, it prints a lambda (@r{}) because entering the
 lambda is the next thing to be done.
@@ -46230,7 +46232,7 @@ Exits; finishes evaluation without any more stepping.
 Retypes the current form in full (without truncation).
 
 @item @code{Control-G} (Grind)
-Grinds (i.e. prettyprints) the current form.
+Grinds (i.e. prettyprints) the current form.
 
 @item @code{Control-E} (Editor)
 Switches windows, to the editor.
@@ -46250,7 +46252,7 @@ the first returned value.
 If you change the values of these variables, you will affect execution.
 
 @item @code{Control-L}
-Clears the screen and redisplays the last 10. pending forms (forms
+Clears the screen and redisplays the last 10. pending forms (forms
 that are being evaluated).
 
 @item @code{Meta-L}
@@ -46412,7 +46414,7 @@ To set the MAR to detect @code{setq} (and binding) of the variable @code{foo}, u
 
 @defun clear-mar
 Turns off the MAR.  Warm-booting the machine disables the
-MAR but does not turn it off, i.e. references to the MARed pages
+MAR but does not turn it off, i.e. references to the MARed pages
 are still slowed down.  @code{clear-mar} does not currently speed
 things back up until the next time the pages are swapped out;
 this may be fixed some day.
@@ -49662,12 +49664,12 @@ Lisp starts running using the data already in the @code{PAGE} partition.
 
 For each partition, the directory of partitions contains a brief textual
 description of the contents of the partition.  For microcode partitions,
-a typical description might be @code{"UCADR 310"}; this means that version
+a typical description might be @code{"UCADR 310"}; this means that version
 @code{310} of the microcode is in the partition.  For saved Lisp images, it
 is a little more complicated.  Ideally, the description would say which
 versions of which systems are loaded into the band.  Unfortunately,
 there isn't enough room for that in most cases.  A typical description
-is @code{"99.4 Daed 5.1"}, meaning that this band contains version
+is @code{"99.4 Daed 5.1"}, meaning that this band contains version
 @code{99.4} of @code{System} and version @code{5.1} of @code{Daedalus}.  The description
 is created when a Lisp world is saved away by @code{disk-save} (see below).
 
@@ -50185,10 +50187,10 @@ commands and functions to use.  Possible values include @code{:dover},
 Like @code{:default-printer}, but this is the default for only @code{hardcopy-bit-array} to use.
 
 @item :esc-f-arg-alist
-This says what various numeric arguments to the @code{Terminal F} command
+This says what various numeric arguments to the @code{Terminal F} command
 mean.  It is a list of elements, one for each possible argument.
 The car of an element is either a number or @code{nil} (which applies to
-@code{Terminal F} with no argument).  The cdr is either @code{:login}
+@code{Terminal F} with no argument).  The cdr is either @code{:login}
 (finger the login host), @code{:lisp-machines} (finger all Lisp Machines at
 this site), @code{:read} (read some hosts from the keyboard), or a list of
 host names.

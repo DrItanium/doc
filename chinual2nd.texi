@@ -4,6 +4,8 @@
 @settitle Lisp Machine Manual
 @c %**end of header
 
+@include lmchar.txi
+
 @ifnottex
 @node Top
 @top Lisp Machine Manual
@@ -235,7 +237,7 @@ Package prefix
 List structure construction
 @item |
 Symbol quoter
-@item 
+@item @circleX{}
 Octal escape
 @end table
 
@@ -4751,13 +4753,13 @@ evaluated, but @i{x} is.
 @item l
 x < 0
 @item le
-x  0
+x @lessOrEqual{} 0
 @item e
 x = 0
 @item n
-x  0
+x @notEquals{} 0
 @item ge
-x  0
+x @greaterOrEqual{} 0
 @item g
 x > 0
 @end table
@@ -4800,7 +4802,7 @@ otherwise.
 @end defun
 
 @defmac >= x y
-@defmacx  x y
+@defmacx @greaterOrEqual{} x y
 Returns @code{t} if @i{x} is greater than or equal to @i{y}, and @code{nil}
 otherwise.
 @end defmac
@@ -4825,12 +4827,12 @@ otherwise.
 @end defun
 
 @defmac <= x y
-@defmacx  x y
+@defmacx @lessOrEqual{} x y
 Returns @code{t} if @i{x} is less than or equal to @i{y}, and @code{nil}
 otherwise.
 @end defmac
 
-@defmac  x y
+@defmac @notEquals{} x y
 Returns @code{t} if @i{x} is not equal to @i{y}, and @code{nil} otherwise.
 @end defmac
 
@@ -5367,7 +5369,7 @@ of the product of @i{num1} and @i{num2}.
 If you call this and @code{%24-bit-times} on the same arguments @i{num1}
 and @i{num2}, regarding them as integers, you can combine
 the results into a double-precision product.
-If @i{num1} and @i{num2} are regarded as fractions, @code{-1  @i{num} < 1},
+If @i{num1} and @i{num2} are regarded as fractions, @code{-1 @lessOrEqual{} @i{num} < 1},
 @code{%multiply-fractions} returns 1/2 of their correct product as a fraction.
 (The name of this function isn't too great.)
 @end defun
@@ -5932,7 +5934,7 @@ The @code{samepnamep} function is also provided; see (samepnamep-fun).
 @defun format destination control-string &rest args
 @code{format} is used to produce formatted output.
 @code{format} outputs the characters of @i{control-string}, except
-that a tilde ("~") introduces a directive.  The character after
+that a tilde ("~") introduces a directive.  The character after
 the tilde, possibly preceded by arguments and modifiers, specifies
 what kind of formatting is desired.  Some directives use one or more
 elements of @i{args} to create their output.
@@ -6035,7 +6037,7 @@ are represented by their names (e.g. "@code{Return}").
 
 With both colon and atsign (@code{~:@@C}), the colon-only format is printed, and then
 if the character requires the Top, Front, or Greek key(s) to type it,
-this fact is mentioned (e.g. "@code{ (Top-L)}").
+this fact is mentioned (e.g. "@code{@greaterOrEqual{} (Top-L)}").
 
 For all three of these formats,
 if the character is not a keyboard character but a mouse "character",
@@ -6235,7 +6237,7 @@ the error.
 @c @lisp
 @c (DEFUN FORMAT-ERROR (STRING &REST ARGS)
 @c        (COND ((STRINGP CTL-STRING)
-@c            (FERROR NIL "~1@{~:@}~%~VT~%~3X/"~A/"~%"
+@c            (FERROR NIL "~1@{~:@}~%~VT@downArrow{}~%~3X/"~A/"~%"
 @c                    STRING ARGS (+ CTL-INDEX 3) CTL-STRING))
 @c           (T (FERROR NIL "~1@{~:@}" STRING ARGS))))
 @c @end lisp
@@ -6247,9 +6249,9 @@ string between double-quotes.  The effect is something like this:
 @c @lisp
 @c (format t "The item is a ~[Foo~;Bar~;Loser~]." 'quux)
 @c >>ERROR: The argument to the FORMAT "~[" command must be a number
-@c                    
+@c                    @downArrow{}
 @c    "The item is a ~[Foo~;Bar~;Loser~]."
-@c ...
+@c ...
 @c @end lisp
 
 @item ~@}
@@ -6279,7 +6281,7 @@ use @code{~:^}.
 @item ~<
 @code{~@i{mincol},@i{colinc},@i{minpad},@i{padchar}<@i{text}~>}
 justifies @i{text} within a field @i{mincol} wide.  @i{Text}
-may be divided up into clauses with @code{~;}--the
+may be divided up into clauses with @code{~;}--the
 spacing is evenly divided between the text segments.
 With no modifiers, the leftmost text segment is left justified in the
 field, and the rightmost text segment right justified;  if there is
@@ -6366,7 +6368,7 @@ may be used if they are enclosed in backslashes (e.g. @code{~4,3\GRAPH\}).
 (setq y "elephant")
 (format nil "Look at the ~A!" y) => "Look at the elephant!"
 (format nil "The character ~:@@C is strange." 1003)
-      => "The character Meta- (Top-X) is strange."
+      => "The character Meta-@beta{} (Top-X) is strange."
 (setq n 3)
 (format nil "~D item~P found." n n) => "3 items found."
 (format nil "~R dog~:[s are~; is~] here." n (= n 1))
@@ -6394,7 +6396,7 @@ split across two lines.  @i{destination} tells where to send the output;
 it can be @code{t}, @code{nil}, or a stream, as with @code{format}.
 @i{element-format} is a format-control-string which tells how
 to print each element of @i{list}; it is used as the body of a @code{"~@{...~@}"} construct.
-@i{separator}, which defaults to @code{", "} (comma, space) is a string which goes after
+@i{separator}, which defaults to @code{", "} (comma, space) is a string which goes after
 each element except the last.  Format-control commands are not recommended in @i{separator}.
 @i{start-line}, which defaults to three spaces, is a format-control-string which
 is used as a prefix at the beginning of each line of output, except the first.
@@ -9295,7 +9297,7 @@ to @code{cons} and @code{list}.  For this we must introduce some @i{reader
 macros}.  Reader macros are not the same as normal macros, and they
 are not described in this chapter; see (reader).
 
-The backquote facility is used by giving a backquote character ("@code{`}",
+The backquote facility is used by giving a backquote character ("@code{@leftArrow{}`}",
 ASCII code 140 octal), followed by a form.  If the form does not contain
 any use of the comma macro-character, the form will simply be quoted.  For example,
 
@@ -9355,7 +9357,7 @@ of the @code{for} really stands right out when written this way.
 @c New part starts here.
 
 If a comma inside a backquote form is followed by an "atsign"
-character ("@code{@@}"), it has a special meaning.  The "@code{,@@}" should
+character ("@code{@@}"), it has a special meaning.  The "@code{,@@}" should
 be followed by a form whose value is a @i{list}; then each of the elements
 of the list are put into the list being created by the backquote.  In other
 words, instead of generating a call to the @code{cons} function, backquote
@@ -9363,7 +9365,7 @@ generates a call to @code{append}.  For example, if @code{a} is bound to
 @code{(x y z)}, then @code{`(1 ,a 2)} would evaluate to @code{(1 (x y z) 2)},
 but @code{`(1 ,@@a 2)} would evaluate to @code{`(1 x y z 2)}.
 
-Here is an example of a macro definition that uses the "@code{,@@}"
+Here is an example of a macro definition that uses the "@code{,@@}"
 construction.  Suppose you wanted to extend Lisp by adding a kind of
 special form called @code{repeat-forever}, which evaluates all of its
 subforms repeatedly.  One way to implement this would be to expand
@@ -10171,38 +10173,38 @@ To get an Alpha, Beta, Epsilon, or Equivalence into the string,
 quote it by prefixing it with an Equivalence.
 
 @verbatim
-@c 000 center-dot ( )             040 space       100 @@           140 `
-@c 001 down arrow ()             041 !           101 A           141 a
-@c 002 alpha ()                  042 "           102 B           142 b
-@c 003 beta ()                   043 #           103 C           143 c
-@c 004 and-sign ()               044 $           104 D           144 d
-@c 005 not-sign ()               045 %           105 E           145 e
-@c 006 epsilon ()                046 &           106 F           146 f
-@c 007 pi ()                     047 '           107 G           147 g
-@c 010 lambda ()                 050 (           110 H           150 h
-@c 011 gamma ()                  051 )           111 I           151 i
-@c 012 delta ()                  052 *           112 J           152 j
-@c 013 uparrow ()                053 +           113 K           153 k
-@c 014 plus-minus ()             054 ,           114 L           154 l
-@c 015 circle-plus ()            055 -           115 M           155 m
-@c 016 infinity ()               056 .           116 N           156 n
-@c 017 partial delta ()          057 /           117 O           157 o
-@c 020 left horseshoe ()         060 0           120 P           160 p
-@c 021 right horseshoe ()        061 1           121 Q           161 q
-@c 022 up horseshoe ()           062 2           122 R           162 r
-@c 023 down horseshoe ()         063 3           123 S           163 s
-@c 024 universal quantifier ()   064 4           124 T           164 t
-@c 025 existential quantifier () 065 5           125 U           165 u
-@c 026 circle-X ()               066 6           126 V           166 v
-@c 027 double-arrow ()           067 7           127 W           167 w
-@c 030 left arrow ()             070 8           130 X           170 x
-@c 031 right arrow ()            071 9           131 Y           171 y
-@c 032 not-equals ()             072 :           132 Z           172 z
+@c 000 center-dot (@centerDot{})             040 space       100 @@           140 `
+@c 001 down arrow (@downArrow{})             041 !           101 A           141 a
+@c 002 alpha (@alpha{})                  042 "           102 B           142 b
+@c 003 beta (@beta{})                   043 #           103 C           143 c
+@c 004 and-sign (@andSign{})               044 $           104 D           144 d
+@c 005 not-sign (@notSign{})               045 %           105 E           145 e
+@c 006 epsilon (@epsilon{})                046 &           106 F           146 f
+@c 007 pi (@pi{})                     047 '           107 G           147 g
+@c 010 lambda (@lambda{})                 050 (           110 H           150 h
+@c 011 gamma (@delta{})                  051 )           111 I           151 i
+@c 012 delta (@delta{})                  052 *           112 J           152 j
+@c 013 uparrow (@uparrow{})                053 +           113 K           153 k
+@c 014 plus-minus (@plusMinus{})             054 ,           114 L           154 l
+@c 015 circle-plus (@delta{})            055 -           115 M           155 m
+@c 016 infinity (@infinity{})               056 .           116 N           156 n
+@c 017 partial delta (@partialDelta{})          057 /           117 O           157 o
+@c 020 left horseshoe (@leftHorseshoe{})         060 0           120 P           160 p
+@c 021 right horseshoe (@delta{})        061 1           121 Q           161 q
+@c 022 up horseshoe (@upHorseshoe{})           062 2           122 R           162 r
+@c 023 down horseshoe (@downHorseshoe{})         063 3           123 S           163 s
+@c 024 universal quantifier (@universalQuantifier{})   064 4           124 T           164 t
+@c 025 existential quantifier (@existentialQuantifier{}) 065 5           125 U           165 u
+@c 026 circle-X (@circleX{})               066 6           126 V           166 v
+@c 027 double-arrow (@doubleArrow{})           067 7           127 W           167 w
+@c 030 left arrow (@leftArrow{})             070 8           130 X           170 x
+@c 031 right arrow (@rightArrow{})            071 9           131 Y           171 y
+@c 032 not-equals (@notEquals{})             072 :           132 Z           172 z
 @c 033 diamond (altmode) ()      073 ;           133 [           173 @{
-@c 034 less-or-equal ()          074 <           134 \           174 |
-@c 035 greater-or-equal ()       075 =           135 ]           175 @}
-@c 036 equivalence ()            076 >           136 ^           176 ~
-@c 037 or ()                     077 ?           137 _           177 
+@c 034 less-or-equal (@lessOrEqual{})          074 <           134 \           174 |
+@c 035 greater-or-equal (@greaterOrEqual{})       075 =           135 ]           175 @}
+@c 036 equivalence (@equivalence{})            076 >           136 ^           176 ~
+@c 037 or (@or{})                     077 ?           137 _           177 @circlePlus{}
 @c 200 null character             210 bs          240 switch to font 0
 @c 201 break                      211 tab         241 switch to font 1
 @c 202 clear                      212 line        242 switch to font 2
@@ -10293,8 +10295,8 @@ of the package name prefix.
 Secondly, if the p.r. would not read in as a symbol at all (that is, if
 the print-name looks like a number, or contains special characters),
 then the p.r. must have some quoting for those characters, either
-by the use of slashes ("/") before each special character,
-or by the use of vertical bars ("|") around the whole name.
+by the use of slashes ("/") before each special character,
+or by the use of vertical bars ("|") around the whole name.
 The decision whether quoting is required is done using the readtable,
 so it is always accurate provided that @code{readtable} has the same value when
 the output is read back in as when it was printed.
@@ -10366,10 +10368,10 @@ printed.  Otherwise, the value of @code{prinlength} must be a fixnum.
 @end defvar
 
 For any other data type: the p.r. starts with a number sign and
-a less-than sign ("@code{<}"), the "@code{dtp-}" symbol for this datatype, a space, and
+a less-than sign ("@code{<}"), the "@code{dtp-}" symbol for this datatype, a space, and
 the machine address of the object.  Then, if the object is a microcoded
 function, compiled function, or stack group, its name
-is printed.  Finally a greater-than sign ("@code{>}") is printed.
+is printed.  Finally a greater-than sign ("@code{>}") is printed.
 
 None of the p.r.'s beginning with a number sign can be read back in,
 nor, in general, can anything produced by named structure functions.
@@ -10510,11 +10512,11 @@ in your code.  Note that the slash causes this construct to be parsed correctly
 by the editors, Emacs and Eine.
 
 The character can be modified with control and meta bits by inserting one or more special
-characters between the @code{#} and the @code{/}.  @code{#/@i{x}} generates control-@i{x}.
-@code{#/@i{x}} generates meta-@i{x}.  @code{#/@i{x}} generates super-@i{x}.
-@code{#ˆ/@i{x}} generates hyper-@i{x}.  These can be combined, for instance
-@code{#/&} generates super-meta-ampersand.  Also, @code{#/@i{x}} is an abbreviation
-for @code{#/@i{x}}.
+characters between the @code{#} and the @code{/}.  @code{#@alpha{}/@i{x}} generates control-@i{x}.
+@code{#@beta{}/@i{x}} generates meta-@i{x}.  @code{#@pi{}/@i{x}} generates super-@i{x}.
+@code{#ˆ/@i{x}} generates hyper-@i{x}.  These can be combined, for instance
+@code{#@pi{}@beta{}/&} generates super-meta-ampersand.  Also, @code{#@epsilon{}/@i{x}} is an abbreviation
+for @code{#@alpha{}@beta{}/@i{x}}.
 @item #\
 @code{#\@i{name}} reads in as the number which is the character code
 for the non-printing character symbolized by @i{name}.  (In the Lisp-machine
@@ -10540,13 +10542,13 @@ The names @code{mouse-1-1, mouse-2-1, mouse-3-1, mouse-1-2, mouse-2-2, @r{and} m
 represent the special characters sometimes used to represent clicking on the
 mouse buttons.
 @item #^
-@code{#^@i{x}} is exactily like @code{#/@i{x}} if the input is being
+@code{#^@i{x}} is exactily like @code{#@alpha{}/@i{x}} if the input is being
 read by the Lisp machine or being compiled to run on the Lisp machine;
 it generates control-@i{x}.
 In Maclisp @i{x} is converted to upper case and the xored with 100 (octal).
 Thus @code{#^@i{x}} always generates the fixnum returned by @code{tyi} if
 the user holds down the control key and types @i{x}.
-(In Maclisp @code{#/@i{x}} sets the bit set by the control key when the TTY is
+(In Maclisp @code{#@alpha{}/@i{x}} sets the bit set by the control key when the TTY is
 open in FIXNUM mode.)
 @item #'
 @code{#'@i{foo}} is an abbreviation for @code{(function @i{foo})}.
@@ -10815,7 +10817,7 @@ a different font than the default is being used.  The Maclisp Newio
 feature where one of the arguments to @code{cursorpos} can be a file
 is not supported.
 
-@code{(cursorpos)} => @code{(@i{line . column})}, the current
+@code{(cursorpos)} => @code{(@i{line . column})}, the current
 cursor position.
 
 @code{(cursorpos @i{line column})} moves the cursor to that position.
@@ -14853,7 +14855,7 @@ character set, with extra bits to incicate the Control and Meta
 keys.  Also, the characters may come from the @i{forced-input}
 mechanism (see (force-kbd-input-fun)), and may be from the mouse.
 The byte fields which make up the fixnums returned by these functions
-have names beginning with "@code{%%kbd-}", and are explained on (%%kbd).
+have names beginning with "@code{%%kbd-}", and are explained on (%%kbd).
 
 The special characters Break, Call, and Escape are normally intercepted
 by the keyboard routines.  Break causes the process which reads it to
@@ -15459,7 +15461,7 @@ you should supply a @i{type-symbol} which encodes the type.  For example:
 
 @lisp
 (check-arg a
-           (and (numberp a) ( a 10.) (> a 0.))
+           (and (numberp a) (@lessOrEqual{} a 10.) (> a 0.))
            "a number from one to ten"
            one-to-ten)
 @end lisp
@@ -15633,7 +15635,7 @@ is a microcode error, the debugger prints out a message such as the following:
 @lisp
 >>TRAP 5543 (TRANS-TRAP)
 The symbol FOOBAR is unbound.
-While in the function *EVAL  SI:LISP-TOP-LEVEL1
+While in the function *EVAL @leftArrow{} SI:LISP-TOP-LEVEL1
 @end lisp
 
 The first line of this error message indicates entry to
@@ -15649,7 +15651,7 @@ Here is an example of an error from Lisp code:
 
 @lisp
 >>ERROR: The argument X was 1, which is not a symbol,
-While in the function @{ FERROR  @} FOO  *EVAL
+While in the function @{ FERROR @leftArrow{} @} FOO @leftArrow{} *EVAL
 @end lisp
 
 Here the first line contains the English description of the
@@ -15677,7 +15679,7 @@ When the error hander is waiting for a command, it prompts
 with an arrow:
 
 @lisp
-
+@rightArrow{}
 @end lisp
 
 At this point, you may either type in a Lisp expression, or
@@ -15694,7 +15696,7 @@ command level, type a Control-Z; the debugger will respond with
 an arrow prompt.  In fact, at any time that typein is expected from
 you, you may type a Control-Z to flush what you are doing and get back
 to command level.  This @code{read-eval-print} loop maintains the values
-of @code{+}, @code{*}, and @code{-} just as the top-level one does.
+of @code{+}, @code{*}, and @code{-} just as the top-level one does.
 
 Various debugger commands ask for Lisp objects, such as an
 object to return, or the name of a catch-tag.  Whenever it tries to get
@@ -15743,7 +15745,7 @@ simply prints out the names of the functions on the stack; in the above
 example it would print
 
 @lisp
-BAZ  BAR  FOO  *SI:EVAL  SI:LISP-TOP-LEVEL1  SI:LISP-TOP-LEVEL
+BAZ @leftArrow{} BAR @leftArrow{} FOO @leftArrow{} *SI:EVAL @leftArrow{} SI:LISP-TOP-LEVEL1 @leftArrow{} SI:LISP-TOP-LEVEL
 @end lisp
 
 The arrows indicate the direction of calling.  The Meta-B command prints
@@ -16115,11 +16117,11 @@ must be a lambda-expression.  Compiled code cannot be stepped by the stepper.
 
 When evaluation is proceeding with single stepping, before any
 form is evaluated, it is (partially) printed out, preceded by a forward
-arrow (@code{}) character  When a macro is expanded, the expansion is
-printed out preceded by a double arrow (@code{}) character.  When a form
+arrow (@code{@rightArrow{}}) character  When a macro is expanded, the expansion is
+printed out preceded by a double arrow (@code{@doubleArrow{}}) character.  When a form
 returns a value, the form and the values are printed out preceded by a
-backwards arrow (@code{}) character; if there is more than one value being
-returned, an and-sign (@code{}) character is printed between the values.
+backwards arrow (@code{@leftArrow{}}) character; if there is more than one value being
+returned, an and-sign (@code{@andSign{}}) character is printed between the values.
 
 Since the forms may be very long, the stepper does not print all
 of a form; it truncates the printed representation after a certain number
@@ -16645,8 +16647,8 @@ prints out
 and then enters a loop reading, evaluating, and printing forms.
 A difference between a break loop and the top level loop
 is that after reading a form, @code{break} checks for the
-following special cases: if the symbol @code{g} is typed,
-@code{break} throws back to the Lisp top level.  If @code{p}
+following special cases: if the symbol @code{g} is typed,
+@code{break} throws back to the Lisp top level.  If @code{p}
 is typed, @code{break} returns @code{nil}.  If @code{(return @i{form})}
 is typed, @code{break} evaluates @i{form} and returns the result.
 @end defspec
