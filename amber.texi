@@ -13,7 +13,7 @@
 @end macro
 
 @macro packet{arg}
-@b{\arg}
+@b{\arg\}
 @end macro
 
 @ifnottex
