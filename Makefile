@@ -5,10 +5,11 @@ TEXISRC = cadr.texi amber.texi chinual.texi \
 
 .DEFAULT_GOAL: all 
 
-.PHONY: all all-info all-pdf
-all: all-info #all-pdf
+.PHONY: all all-info all-pdf all-html
+all: all-info all-html
 all-info: $(patsubst %.texi,%.info, $(TEXISRC))
 all-pdf: $(patsubst %.texi,%.pdf, $(TEXISRC))
+all-html: $(patsubst %.texi,%.html, $(TEXISRC))
 
 %.info: %.texi
 	makeinfo $^
@@ -16,9 +17,13 @@ all-pdf: $(patsubst %.texi,%.pdf, $(TEXISRC))
 %.pdf: %.texi
 	makeinfo --pdf $^
 
+%.html: %.texi
+	makeinfo --html --no-split $^
+
 .PHONY: clean
 clean:
 	rm -f *.info
 	rm -f *.pdf
+	rm -f *.html
 
 # doc/Makefile ends here.
