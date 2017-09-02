@@ -8,11 +8,6 @@
 @b{\arg\}
 @end macro
 
-@ifnottex
-@node Top
-@top CADR
-@end ifnottex
-
 @titlepage
 @center @t{MASSACHUSETTS INSTITUTE OF TECHNOLOGY}
 @center @t{ARTIFICIAL INTELLIGENCE LABORATORY}
@@ -49,6 +44,13 @@ laboratory's artificial intelligence research is provided in part by
 the Advanced Research Projects Agency of the Department of Defense
 under Office of Naval Research contract N00014-75-C-0643.
 @end titlepage
+
+@ifnottex
+@node Top
+@top CADR
+@end ifnottex
+
+@contents
 
 @chapter Overview
 
@@ -394,7 +396,7 @@ Note that the bits are permuted in such a way as to make the logical operations
 come out with the same opcodes as used by the Lisp BOOLE function.
 Names in square brackets are the CONSLP mnemonics for the operations.
 
-@smallexample
+@example
         @ul{Boolean (IR<7>=1)}             @ul{Arithmetic (IR<7>=0)}
 IR<6-3>                         @ul{Carry in = 1}                @ul{Carry in = 0}
  0      ZEROS   [SETZ]          -1                      0
@@ -413,7 +415,7 @@ IR<6-3>                         @ul{Carry in = 1}                @ul{Carry in = 
 15      ~M|A    [ORCM]          M+(M&A)                 M+(M&A)+1
 16      ~M|~A   [ORCB]          M+(M|~A)                M+(M|~A)+1
 17      ONES    [SETO]          M+M          [M+M]      M+M+1          [M+M+1]
-@end smallexample
+@end example
 
 @chapter The BYTE Instruction
 
@@ -426,22 +428,29 @@ is specified by the MR bit as either zero or equal to the contents of the ROTATE
 The length of the mask field used for replacement is specified in the LENGTH MINUS 1
 field.  The four states of the SR and MR bits yield the following operations:
 
-@c ---!!! Format this section.
-@verbatim
-MR=0_SR=0___Not useful__________(This is a subset of other modes.)
-
-MR=0_SR=1___LOAD BYTE___________PDP-10 LDB instruction
+@multitable @columnfractions .15 .15 .7
+@item MR=0 SR=0
+@tab Not useful
+@tab (This is a subset of other modes.)
+ 
+@item MR=0 SR=1
+@tab LOAD BYTE
+@tab PDP-10 LDB instruction
 (except the unmasked bits are from the A source).
 A byte of arbitrary position from the M source is right-justified
 in the output.
-
-MR=1_SR=0___SELECTIVE DEPOSIT___The masked field from the M source is used to
+ 
+@item MR=1 SR=0
+@tab SELECTIVE DEPOSIT
+@tab The masked field from the M source is used to
 replace the same length and position byte in the word from the A source.
-
-MR=1_SR=1___DEPOSIT BYTE________PDP-10 DPB instruction.
+ 
+@item MR=1 SR=1
+@tab DEPOSIT BYTE
+@tab PDP-10 DPB instruction.
 A right-justified byte from the M source
 is used to replace a byte of arbitrary position in the word from the A source.
-@end verbatim
+@end multitable
 
 The BYTE instruction automatically makes the output of the byte extractor
 available by forcing the output bus select code to 0 (byte extractor output).
@@ -598,19 +607,28 @@ The cycle that would have executed that instruction is wasted.
 
 The P and R bits are decoded as follows:
 
-@c ---!!! Format this section.
-@verbatim
-P=0_R=0_____BRANCH_________Normal program transfer.
+@multitable @columnfractions .15 .15 .7
+@item P=0 R=0
+@tab BRANCH
+@tab Normal program transfer.
 
-P=1_R=0_____CALL___________Save the correct return address on the SPC
+@item P=1 R=0
+@tab CALL
+@tab Save the correct return address on the SPC
 stack, and jump to the new PC address.
 
-P=0_R=1_____RETURN_________Ignore new PC; instead pop PC off the SPC stack.
+@item P=0 R=1
+@tab RETURN
+@tab Ignore new PC; instead pop PC off the SPC stack.
 
-P=1_R=1_____FALL_THROUGH___In a DISPATCH instruction, do not dispatch.
+@item P=1 R=1
+@tab FALLTHROUGH
+@tab In a DISPATCH instruction, do not dispatch.
 
-____________I-MEM_WRITE____In a JUMP instruction, write into the instruction memory, and do not jump.
-@end verbatim
+@item
+@tab I-MEM WRITE
+@tab In a JUMP instruction, write into the instruction memory, and do not jump.
+@end multitable
 
 The BRANCH transfer type is the normal program transfer, without saving
 a return address.
@@ -2703,7 +2721,7 @@ Comments can thus be written using Maclisp's semicolon convention.
 The input radix for numbers is 8 (octal), except that a trailing decimal
 point forces radix 10 (decimal).
 
-@chapter Localities
+@section Localities
 
 A program can specify data to be loaded into the instruction,
 dispatch, A, and M memories.
@@ -2717,7 +2735,7 @@ the LOCALITY pseudo-op is used:
         (LOCALITY M-MEM)        ;ditto, M memory
 @end lisp
 
-@chapter Location Tags and Symbols
+@section Location Tags and Symbols
 
 When an atomic symbol is encountered in the instruction
 stream being assembled, it is taken to be a location tag (label).
@@ -2755,7 +2773,7 @@ evaluated to produce the symbol's value (which may be
 conditional on the context in which it appears).
 Expression programs are discussed in a later section.
 
-@chapter Instructions
+@section Instructions
 
 In general, CONSLP assembles a list into a data
 item by evaluating all the elements of the list and adding
@@ -2836,7 +2854,7 @@ We assume the convention described above for A and M memory tags.
                         ; at the address already in the VMA
 @end lisp
 
-@chapter Literals
+@section Literals
 
 CONSLP provides a facility for specifying literals in the A and M memories.
 The constructs
@@ -2857,7 +2875,7 @@ of the appropriate memory (hence the user should reserve these locations
 as constant sources of zeros).  Similarly the -1 constant is made to refer
 to location 3 of the appropriate memory.
 
-@chapter Byte Specifications
+@section Byte Specifications
 
 Rather than requiring the user to calculate the
 rotation count and length (minus 1) fields for BYTE and DISPATCH
@@ -3074,7 +3092,7 @@ different formats.  For example:
    (RESET-BIT-POINTER PDP-11-INSTRUCTION)
 @end lisp
 
-@chapter Dispatch Tables
+@section Dispatch Tables
 
 When assembling into the dispatch memory (i.e. (LOCALITY D-MEM))
 it is necessary to use two special pseudo-operations,
@@ -3139,7 +3157,7 @@ is purely for cosmetic purposes, to indicate that the P bit but not the N bit
 is a constant in all of the dispatch table entries; it is otherwise
 identical to the DISPATCH op-code.
 
-@chapter Standard Operation Codes
+@section Standard Operation Codes
 
 CONSLP supplies a large number of initial symbols
 for various operations, particularly for the various conditional
@@ -3147,7 +3165,7 @@ jumps.  While it is possible to define different ones, use of these
 standard ones is naturally encouraged.  (These symbols are defined
 in the file LISPM; CONSYM >.)
 
-@chapter ALU Operations
+@section ALU Operations
 
 The standard ALU operations supplied by CONSLP are:
 
@@ -3193,21 +3211,19 @@ and division are explained in detail in a later section.
 The output bus selector field defaults to 1 (output bus
 gets ALU output).  The other two choices must be specified explicitly:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         OUTPUT-SELECTOR-RIGHTSHIFT-1
         OUTPUT-SELECTOR-LEFTSHIFT-1
-@end verbatim
+@end example
 
 The Q control field of an ALU instruction
 may be specified by using one of these symbols:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         SHIFT-Q-LEFT    shift Q left (shifts inverse of ALU<31> into Q<0>)
         SHIFT-Q-RIGHT   shift Q right (shifts ALU<0> into Q<31>)
         LOAD-Q          load Q from output bus
-@end verbatim
+@end example
 
 If none of these is present, the default is to do nothing to Q.
 (Instead of writing LOAD-Q, one may write Q-R in the destination
@@ -3220,7 +3236,7 @@ or ALU-CARRY-IN-ONE.  Note that the SUB, M+M+1, M+A+1, and M+1
 operations have ALU-CARRY-IN-ONE
 as part of their definitions, so it is not necessary to specify it explicitly.
 
-@chapter BYTE operations
+@section BYTE operations
 
 If a byte specifier is present in an instruction
 and the op-code is not explicitly forced to be JUMP or DISPATCH,
@@ -3250,17 +3266,16 @@ For example:
 
 @end lisp
 
-@chapter DISPATCH Operations
+@section DISPATCH Operations
 
 Four op-codes are defined in CONSLP for dispatching:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         DISPATCH
         DISPATCH-CALL
         DISPATCH-XCT-NEXT
         DISPATCH-CALL-XCT-NEXT
-@end verbatim
+@end example
 
 These are provided purely for cosmetic purposes, since the actual dispatch
 action is controlled by the dispatch table.  CONSLP makes no attempt
@@ -3292,21 +3307,19 @@ FOO may then use the READ-I-ARG functional source to pick up and act on the argu
 Miscellaneous Function 2 (write into the dispatch memory)
 is specified by the symbol WRITE-DISPATCH-RAM.
 
-@chapter JUMP Operations
+@section JUMP Operations
 
 CONSLP defines a large number of names for the various JUMP
 operations.  These are all built out of a logical progression of pieces:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         <type>  <condition>  <xct next>
-@end verbatim
+@end example
 
 The <type> may be either JUMP, CALL, or POPJ, meaning that no bits, the
 P bit, or the R bit is set.  The <condition> may be one of the following:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         IF-BIT-SET
         IF-BIT-CLEAR
         EQUAL
@@ -3321,7 +3334,7 @@ P bit, or the R bit is set.  The <condition> may be one of the following:
         IF-NO-PAGE-FAULT-OR-INTERRUPT
         IF-PAGE-FAULT-OR-INTERRUPT-OR-SEQUENCE-BREAK
         IF-NO-PAGE-FAULT-OR-INTERRUPT-OR-SEQUENCE-BREAK
-@end verbatim
+@end example
 
 If omitted, the <condition> is assumed to be "always".
 The <xct_next>, if present, is XCT-NEXT; its absence denotes the presence of the N bit,
@@ -3330,8 +3343,7 @@ The three parts are connected by "-".
 
 Examples of these operations:
 
-@c ---!!! Format this section.
-@verbatim
+@example
         CALL-LESS-THAN
         JUMP-LESS-THAN-XCT-NEXT
         CALL
@@ -3340,7 +3352,7 @@ Examples of these operations:
         CALL-IF-BIT-CLEAR-XCT-NEXT
         JUMP-XCT-NEXT
         POPJ-XCT-NEXT
-@end verbatim
+@end example
 
 The POPJ-XCT-NEXT operation is not to be confused with POPJ-AFTER-NEXT,
 which may be used in @ul{any} instruction to set the POPJ bit.
@@ -3350,13 +3362,12 @@ should have both an A and an M source; the sources are compared.
 Jump instructions which test a bit should have an M source and a byte specifier
 for a 1-bit byte to test.
 
-@chapter Functional Sources
+@section Functional Sources
 
 The following names are supplied by CONSLP for the various
 functional sources:
 
-@c ---!!! Format this section.
-@verbatim
+@example
  0      READ-I-ARG                      The dispatch constant
  1      MICRO-STACK-PNTR-AND-DATA       SPCPTR and SPC contents
         MICRO-STACK-POINTER             Byte specifier for bits <28-24>
@@ -3375,16 +3386,15 @@ functional sources:
 11      MEMORY-MAP-DATA                 MAP[MD]
 12      MEMORY-DATA                     MD
 13      LOCATION-COUNTER                LC
-@end verbatim
+@end example
 
-@chapter Functional Destinations
+@section Functional Destinations
 
 The following names are provided by CONSLP for functional
 destinations.  Note that some of them are the same names used for
 sources; CONSLP distinguishes usage by context.
 
-@c ---!!! Format this section.
-@verbatim
+@example
  1      LOCATION-COUNTER                LC
  2      INTERRUPT-CONTROL               Interrupt Control Register
 10      C-PDL-BUFFER-POINTER            Pdl location addressed by PDL POINTER
@@ -3403,14 +3413,14 @@ sources; CONSLP distinguishes usage by context.
 31      MEMORY-DATA-START-READ          MD, initiate read cycle
 32      MEMORY-DATA-START-WRITE         MD, initiate write cycle
 33      MEMORY-DATA-WRITE-MAP           MD, MAP[MD] <- VMA
-@end verbatim
+@end example
 
 The symbol Q-R may also be used as a destination; it causes
 an ALU instruction to have its Q control field to be set to "load Q from
 ALU output"; this is equivalent to specifying LOAD-Q in the instruction.
 Do not use the output bus shifter in connection with Q-R as a destination!
 
-@chapter Operations Common to All Instructions
+@section Operations Common to All Instructions
 
 The symbol for the POPJ bit is POPJ-AFTER-NEXT.
 
@@ -3418,7 +3428,7 @@ Miscellaneous Function 3 is denoted by
 LOW-PC-BIT-SELECTS-HALF-WD.  (This feature
 is described in greater detail in an earlier and a later section.)
 
-@chapter Expression Programs in CONSLP
+@section Expression Programs in CONSLP
 
 Wherever an expression may be used in CONSLP, the following
 arcane forms may be used.  In particular, the value of a symbol is
@@ -3570,7 +3580,7 @@ to the ones actually used in CONSLP):
             (FIELD FUNCTIONAL-DESTINATION 32)))
 @end lisp
 
-@chapter Miscellaneous Pseudo-Operations
+@section Miscellaneous Pseudo-Operations
 
 Several identical words may be assembled consecutively
 by saying:
@@ -3589,7 +3599,7 @@ The location counter within the current locality may be set by
 If the MODULO operation is used in A-memory, wastage is avoided by filling
 in the skipped-over locations with constants.
 
-@chapter CADR Features and Programming Examples
+@section CADR Features and Programming Examples
 
 In this section the various features of the CADR machine
 are examined and discussed in detail.  An attempt is made to
@@ -3598,7 +3608,7 @@ structure of the machine, and the purposes for which the feature
 is intended.  Short programming examples using each feature
 are presented.
 
-@chapter Timing - The N Bit and the POPJ Bit
+@section Timing - The N Bit and the POPJ Bit
 
 Because CADR fetches the next instruction at the same time
 it is executing the current one, by the time the effect of a JUMP
@@ -3670,7 +3680,7 @@ When started at START, it will go into an infinite loop alternately
 executing FOO and BAR.  Effectively it is in two "jump point" loops
 at the same time!
 
-@chapter Byte Manipulation
+@section Byte Manipulation
 
 By using M location 2 (by convention a source of zeros)
 with a BYTE instruction, one can clear any bit or field of bits
@@ -3720,11 +3730,11 @@ end of the word, by the following trick:
         ((DEST) SELECTIVE-DEPOSIT M-ZERO ALL-BUT-X-FIELD A-FOO)
 @end lisp
 
-@chapter The Instruction Stream
+@section The Instruction Stream
 
 <<Some new stuff should be written for this>>
 
-@chapter The SPC Stack
+@section The SPC Stack
 
 The SPC stack is 32 locations long, each location containing
 19 bits (plus parity).  It is indexed by SPCPTR, a 5-bit up/down counter.
@@ -3787,7 +3797,7 @@ There is no provision for detection of SPC stack overflow
 or underflow.  It is the responsibility of the programmer to
 avoid nesting subroutines to a depth greater than 32.
 
-@chapter The PDL BUFFER Memory
+@section The PDL BUFFER Memory
 
 The PDL BUFFER is intended to be used as a special-purpose
 cache in the Lisp machine to contain the top portion of the Lisp pushdown stack.
