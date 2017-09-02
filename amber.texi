@@ -16,11 +16,6 @@
 @b{\arg\}
 @end macro
 
-@ifnottex
-@node Top
-@top Chaosnet
-@end ifnottex
-
 @c Notes:
 @c  Check all quoted numbers
 @c  Make sure all initialisms are decoded upon first occurence.
@@ -64,6 +59,13 @@ artificial intelligence research is provided in part by the Advanced Research
 Projects Agency of the Department of Defense under Office of Naval Research
 contract N00014-80-C-0505.
 @end titlepage
+
+@ifnottex
+@node Top
+@top Chaosnet
+@end ifnottex
+
+@contents
 
 @chapter Introduction
 
@@ -1160,8 +1162,7 @@ The following packet types are associated with creating and destroying
 connections.  First the packets are described and then the details of the
 various connection-establishment protocols are given.
 
-@packet{1 RFC Request for connection}
-
+@deffn {Packet} RFC 1 Request for connection
 All connections are initiated by the transmission of an RFC from the user to the server.
 The data field of the packet contains the contact name.  The contact name can
 be followed by arbitrary arguments to the server, delimited by a space character.
@@ -1175,8 +1176,9 @@ required.  When an NCP receives an RFC packet, it checks all pending RFC's
 and all connections which are in the Open or RFC-received state (see
 (connection-states)), to see if the source address and index match; if so,
 the RFC is a duplicate and is discarded.
+@end deffn
 
-@packet{12 LSN Listen}
+@deffn {Packet} LSN 12 Listen
 
 A server process informs the local NCP of the contact name to which it is
 listening by sending a LSN packet, with the contact name in the data field.
@@ -1186,9 +1188,9 @@ RFC and a LSN containing the same contact name meet, the LSN is discarded
 and the RFC is given to the server, putting its connection into the
 RFC-received state (see (connection-states)).  The server reads the RFC
 and decides whether or not to open the connection.
+@end deffn
 
-@packet{2 OPN Open connection}
-
+@deffn {Packet} OPN 2 Open connection
 OPN is the usual positive response to RFC.  The source index field conveys the
 server's index number to the user; the user's index number was conveyed in the RFC.
 The data field of OPN is the same as that of STS (see below); it serves mainly to convey
@@ -1202,9 +1204,9 @@ it is simply discarded
 and an STS is sent.  This can happen if the connection is opened while a
 retransmitted OPN packet is in transit through the network, or if the STS
 which acknowledges an OPN is lost in the network.
+@end deffn
 
-@packet{3 CLS Close connection}
-
+@deffn {Packet} CLS 3 Close connection
 CLS is the negative response to RFC.  It indicates that no server was
 listening to the contact name, and one couldn't be created, or for
 some reason the server didn't feel like accepting this request for a
@@ -1225,9 +1227,9 @@ CLS.  Since there is no error recovery or retransmission mechanism for
 CLS, the use of CLS is necessarily optional; a process could simply
 stop responding to its connection.  However, it is desirable to send a
 CLS when possible to provide an error message for the user.
+@end deffn
 
-@packet{4 FWD Forward a request for connection}
-
+@deffn {Packet} FWD 4 Forward a request for connection
 This is a response to RFC which indicates that the desired service is
 not available from the process contacted, but may be available at a
 possibly-different contact name at a possibly-different host.  The data
@@ -1236,13 +1238,14 @@ field--exceptionally--contains the new host number.  The issuer of the
 RFC should issue another RFC to that address.  FWD is an uncontrolled
 packet; if it is lost in the network, the retransmission of the RFC
 will presumably stimulate an identical FWD.
+@end deffn
 
-@packet{5 ANS Answer to a simple transaction}
-
+@deffn {Packet} ANS 5 Answer to a simple transaction
 This is another kind of response to RFC.  The data field contains
 the entirety of the response, and no connection is established.
 ANS is an uncontrolled packet; if it is lost in the network, the
 retransmission of the RFC will presumably stimulate an identical ANS.
+@end deffn
 
 There are several connection-initiation protocols implemented with
 these packet types.  In addition to those described here, there is also
@@ -1309,8 +1312,7 @@ a small piece of information (e.g. the time of day) from a central data-base.
 
 @section Status
 
-@packet{7 STS Status}
-
+@deffn {Packet} STS 7 Status
 STS is an uncontrolled packet which is used to convey status
 information between NCPs.  The Acknowledgement field in the packet
 header contains an acknowledgement, that is, the packet number of the
@@ -1323,15 +1325,15 @@ field contains the window size for packets sent in the opposite direction
 The byte count is presently always 4.
 This will change if the protocol is revised to add additional items to
 the STS packet.
+@end deffn
 
-@packet{6 SNS Sense status}
-
+@deffn {Packet} SNS 6 Sense status
 SNS is an uncontrolled packet whose sole purpose is to cause the
 other end of the connection to send back an STS.  This is used by
 the @i{probing} mechanism described above (see (probing)).
+@end deffn
 
-@packet{11 LOS Lossage}
-
+@deffn {Packet} LOS 11 Lossage
 LOS is an uncontrolled packet which is used by one NCP to inform another of
 an error.  The data field contains a character-string explanation of the
 problem.  The source and destination addresses and indices are simply the
@@ -1355,25 +1357,25 @@ state, nor in response to a SNS to a connection not in the Open state,
 nor in response to a LOS to a non-existent or broken connection.  These
 rules are important to make the protocols work without timing errors.
 An OPN or a SNS to a non-existent connection elicits a LOS.
+@end deffn
 
 @section Data
 
-@packet{200-277 DAT 8-bit Data}
-
+@deffn {Packet} 277-200 DAT 8-bit Data
 Opcodes 200 through 277 (octal) are controlled packets with user data
 in 8-bit bytes in the data field.  The NCP treats all 64 of these opcodes
 identically; some higher-level protocols use the opcodes for their
 own purposes.  The standard default opcode is 200.
+@end deffn
 
-@packet{300-377 DAT 16-bit Data}
-
+@deffn {Packet} 377-300 DAT 16-bit Data
 Opcodes 300 through 377 (octal) are controlled packets with user data
 in 16-bit bytes in the data field.  The NCP treats all 64 of these
 opcodes identically; some higher-level protocols use the opcodes for their
 own purposes.  The standard default opcode for 16-bit data is 300.
+@end deffn
 
-@packet{15 UNC Uncontrolled Data}
-
+@deffn {Packet} UNC 15 Uncontrolled Data
 This is an uncontrolled packet with user data in 8-bit bytes in
 the data field.  It exists so that user-level programs may bypass
 the flow-control mechanism of Chaosnet protocol.  Note that
@@ -1388,11 +1390,11 @@ up to one more UNC packet than the window size may be queued.
 UNC packets are also used by the standard protocol for encapsulating
 packets of foreign protocols for transmission through Chaosnet
 (see (foreign-protocols)).
+@end deffn
 
 @section End-of-Data
 
-@packet{14 EOF End of File}
-
+@deffn {Packet} EOF 14 End of File
 EOF is a controlled packet which serves as a "logical end of data" mark
 in the packet stream.  When the user program is ignoring packets and
 treating a Chaosnet connection as a conventional byte-stream I/O device,
@@ -1434,25 +1436,25 @@ timeout has elapsed.  This asymmetrical protocol guarantees that each side
 gets a chance to know that both sides agree that all the data have been
 transferred.  The first CLS will only be sent after both sides have waited
 for their (first) EOF to be acknowledged.
+@end deffn
 
 @section Broadcast
 
 Chaosnet includes a generalized broadcast facility, intended to satisfy needs such as:
 
-@table @t
-@item -
+@itemize
+@item 
 Locating services when it is not known what host they are on.
-@item -
+@item 
 Internal communications of other protocols using Chaosnet as a transmission
 medium, such as routing in their own address spaces.
-@item -
+@item 
 Reloading and remote debugging of Chaosnet bridge computers.
-@item -
+@item 
 Experiments with radically different protocols.
-@end table
+@end itemize
 
-@packet{16 BRD Broadcast}
-
+@deffn {Packet} BRD 16 Broadcast
 A BRD packet works much like an RFC packet; it contains the name of a
 server to be communicated with, and possibly some arguments.  Unlike an
 RFC, which is delivered to a particular host, a BRD is broadcast to all
@@ -1529,20 +1531,20 @@ discarded.
 BRD packets put a noticeable load on every host on the network, so they
 should be used judiciously.  "Beacons" that send a BRD every 30 seconds all
 day long should not be used.
+@end deffn
 
 @section Low-level
 
-@packet{13 MNT Maintenance}
-
+@deffn {Packet} MNT 13 Maintenance
 MNT is a special packet type reserved for the use of network
 maintenance programs.  Normal NCPs should simply discard any MNT
 packets they receive.  MNT packets are an escape mechanism to allow
 special programs to send packets that are guaranteed not to get
 confused with normal packets.  MNT packets are forwarded by bridges
 although usually one would not be depending on this.
+@end deffn
 
-@packet{10 RUT Routing Information}
-
+@deffn {Packet} RUT 10 Routing Information
 RUT is a special packet type broadcast by bridges to inform other
 nodes of the bridge's ability to forward packets between subnets.
 The source address is the network address of the bridge on the
@@ -1551,6 +1553,7 @@ The byte count is a multiple of 4, and the data field contains a series
 of pairs of 16-bit bytes: a subnet number and the "cost" of getting to
 that subnet via this bridge.  The packet number and acknowledgement
 fields are not used and should contain zero.  See (routing) for the details.
+@end deffn
 
 @section Connection States
 
@@ -1571,7 +1574,7 @@ Also associated with the channel is a state, usually called the
 @i{connection state}.  Full understanding of these states depends
 on the descriptions of packet-types above.  The state can be one of:
 
-@table @t
+@itemize
 @item Open
 The connection exists and data may be transferred.
 
@@ -1617,7 +1620,7 @@ a while and then is revived, if its clock runs in the meantime.)
 The channel is talking some foreign protocol, whose packets are encapsulated
 in UNC packets.  As far as Chaosnet is concerned there is no connection.
 See (foreign-protocols) for the details.
-@end table
+@end itemize
 
 @chapter Higher-Level Protocols
 
@@ -1808,9 +1811,9 @@ with a suitable header, naming the user that sent the message.  The standard
 for such headers, not currently adhered to by all hosts, is one line formatted
 as in the following example:
 
-@lisp
+@example
 Moon@@MIT-MC 6/15/81 02:20:17
-@end lisp
+@end example
 
 Automatic reply to the sender can be implemented by searching for the first
 "@@" and using the SEND protocol to the host following the "@@" with the
@@ -2155,47 +2158,47 @@ This register contains a number of bits, in the usual pdp11 style.
 All read/write bits are initialized to zero on power-up.
 Identified by their masks, these are:
 @table @t
-@item "     1"
+@item 1
 Timer Interrupt Enable (read/write).  Enables interrupts from the interval
 timer present in some versions of the interface (not described here).
-@item "     2"
+@item 2
 Loop Back (read/write).  If this bit is 1, the cable and transceiver are
 not used and the interface is looped back to itself.  This is for maintenance.
-@item "     4"
+@item 4
 Spy (read/write).  If this bit is 1, the interface will receive all packets
 regardless of their destination.  This is for maintenance and network monitoring.
-@item "    10"
+@item 10
 Clear Receiver (write only).  Writing a 1 into this bit clears Receive Done 
 and enables the receiver to receive another packet.
-@item "    20"
+@item 20
 Receive Interrupt Enable (read/write).  If Receive Done and Receive Interrupt Enable
 are both 1, the computer is interrupted.
-@item "    40"
+@item 40
 Transmit Interrupt Enable (read/write).  If Transmit Done and Transmit Interrupt Enable
 are both 1, the computer is interrupted.
-@item "   100"
+@item 100
 Transmit Abort (read only).  This bit is 1 if the last transmission was aborted,
 by a collision or because the receiver was busy.
-@item "   200"
+@item 200
 Transmit Done (read only).  This bit is set to 1 when a transmission is
 completed or aborted, and cleared to 0 when a word is written into the outgoing
 packet buffer.
-@item "   400"
+@item 400
 Clear Transmitter (write only).  Writing a 1 into this bit stops the transmitter
 and sets Transmit Done.  This is for maintenance.
-@item " 17000"
+@item 17000
 Lost Count (read only).  These 4 bits contain a count of the number of packets
 which would have been received if the incoming packet buffer had not been busy.
 Setting Clear Receiver resets the lost count to 0.
-@item " 20000"
+@item 20000
 Reset (write only).  Writing a 1 into this bit completely resets the interface,
 just as at power up and Unibus Initialize.
-@item " 40000"
+@item 40000
 CRC Error (read only).  If this bit is 1 the receiver's cyclic redundancy
 checksum indicates an error.  This bit is only valid at two times: when the incoming packet
 buffer contains a fresh packet, and when the packet has been completely read out
 of the packet buffer.
-@item "100000"
+@item 100000
 Receive Done (read only).  A 1 in this bit indicates that the incoming packet
 buffer contains a packet.
 @end table
