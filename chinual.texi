@@ -8,11 +8,6 @@
 
 @defindex lkw
 
-@ifnottex
-@node Top
-@top Lisp Machine Manual
-@end ifnottex
-
 @titlepage
 @center @titlefont{Lisp Machine Manual}
 
