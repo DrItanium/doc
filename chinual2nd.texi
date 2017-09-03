@@ -6,11 +6,6 @@
 
 @include lmchar.txi
 
-@ifnottex
-@node Top
-@top Lisp Machine Manual
-@end ifnottex
-
 @titlepage
 @center @titlefont{Lisp Machine Manual}
 
@@ -85,6 +80,13 @@ This document was edited with the Emacs editor, and formatted
 by the Bolio text justifier.  It was printed on the MIT A.I.
 Lab's Xerox Graphic Printer.
 @end titlepage
+
+@ifnottex
+@node Top
+@top Lisp Machine Manual
+@end ifnottex
+
+@contents
 
 @chapter Introduction
 

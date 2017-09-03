@@ -91,6 +91,13 @@ to GNU, write to me at the address above.  Restrain social decay--help
 get programmers sharing again.
 @end titlepage
 
+@ifnottex
+@node Top
+@top Lisp Machine Manual
+@end ifnottex
+
+@contents
+
 @chapter Introduction
 
 @section General Information

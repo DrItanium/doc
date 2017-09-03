@@ -75,6 +75,13 @@ Alan Bawden.  The chapter on the LOOP iteration macro is a reprint of Laboratory
 Computer Science memo TM-169, by Glenn Burke.
 @end titlepage
 
+@ifnottex
+@node Top
+@top Lisp Machine Manual
+@end ifnottex
+
+@contents
+
 @chapter Introduction
 
 @section General Information
