@@ -12995,48 +12995,49 @@ automatically perform character set conversion when text files
 are read or written.  The details of the mapping are explained in
 (character-set-differences).
 
-@c 000 center-dot (@centerDot{})             040 space       100 @@           140 `
-@c 001 down arrow (@downArrow{})             041 !           101 A           141 a
-@c 002 alpha (@alpha{})                  042 "           102 B           142 b
-@c 003 beta (@beta{})                   043 #           103 C           143 c
-@c 004 and-sign (@andSign{})               044 $           104 D           144 d
-@c 005 not-sign (@notSign{})               045 %           105 E           145 e
-@c 006 epsilon (@epsilon{})                046 &           106 F           146 f
-@c 007 pi (@pi{})                     047 '           107 G           147 g
-@c 010 lambda ((ctl-h))                 050 (           110 H           150 h
-@c 011 gamma (@gamma{})                  051 )           111 I           151 i
-@c 012 delta (@delta{})                  052 *           112 J           152 j
-@c 013 uparrow (@uparrow{})                053 +           113 K           153 k
-@c 014 plus-minus (@plusMinus{})             054 ,           114 L           154 l
-@c 015 circle-plus ((ctl-m))            055 -           115 M           155 m
-@c 016 infinity (@infinity{})               056 .           116 N           156 n
-@c 017 partial delta (@partialDelta{})          057 /           117 O           157 o
-@c 020 left horseshoe (@leftHorseshoe{})         060 0           120 P           160 p
-@c 021 right horseshoe (@delta{})        061 1           121 Q           161 q
-@c 022 up horseshoe (@upHorseshoe{})           062 2           122 R           162 r
-@c 023 down horseshoe (@downHorseshoe{})         063 3           123 S           163 s
-@c 024 universal quantifier (@universalQuantifier{})   064 4           124 T           164 t
-@c 025 existential quantifier (@existentialQuantifier{}) 065 5           125 U           165 u
-@c 026 circle-X (@circleX{})               066 6           126 V           166 v
-@c 027 double-arrow (@doubleArrow{})           067 7           127 W           167 w
-@c 030 left arrow (@leftArrow{})             070 8           130 X           170 x
-@c 031 right arrow (@rightArrow{})            071 9           131 Y           171 y
-@c 032 not-equals (@notEquals{})             072 :           132 Z           172 z
-@c 033 diamond (altmode) ()      073 ;           133 [           173 @{
-@c 034 less-or-equal (@lessOrEqual{})          074 <           134 \           174 |
-@c 035 greater-or-equal (@greaterOrEqual{})       075 =           135 ]           175 @}
-@c 036 equivalence (@equivalence{})            076 >           136 ^           176 ~
-@c 037 or (@or{})                     077 ?           137 _           177 (ctl-qm)
-@c 200 Null character     210 Overstrike    220 Stop-output   230 Roman-iv
-@c 201 Break              211 Tab           221 Abort         231 Hand-up
-@c 202 Clear              212 Line          222 Resume        232 Hand-down
-@c 203 Call               213 Delete        223 Status        233 Hand-left
-@c 204 Terminal escape    214 Page          224 End           234 Hand-right
-@c 205 Macro/backnext     215 Return        225 Roman-i       235 System
-@c 206 Help               216 Quote         226 Roman-ii      236 Network
-@c 207 Rubout             217 Hold-output   227 Roman-iii
-@c 237-377 reserved for the future
-
+@verbatim
+000 center-dot (@centerDot{})             040 space       100 @@           140 `
+001 down arrow (@downArrow{})             041 !           101 A           141 a
+002 alpha (@alpha{})                  042 "           102 B           142 b
+003 beta (@beta{})                   043 #           103 C           143 c
+004 and-sign (@andSign{})               044 $           104 D           144 d
+005 not-sign (@notSign{})               045 %           105 E           145 e
+006 epsilon (@epsilon{})                046 &           106 F           146 f
+007 pi (@pi{})                     047 '           107 G           147 g
+010 lambda ((ctl-h))                 050 (           110 H           150 h
+011 gamma (@gamma{})                  051 )           111 I           151 i
+012 delta (@delta{})                  052 *           112 J           152 j
+013 uparrow (@uparrow{})                053 +           113 K           153 k
+014 plus-minus (@plusMinus{})             054 ,           114 L           154 l
+015 circle-plus ((ctl-m))            055 -           115 M           155 m
+016 infinity (@infinity{})               056 .           116 N           156 n
+017 partial delta (@partialDelta{})          057 /           117 O           157 o
+020 left horseshoe (@leftHorseshoe{})         060 0           120 P           160 p
+021 right horseshoe (@delta{})        061 1           121 Q           161 q
+022 up horseshoe (@upHorseshoe{})           062 2           122 R           162 r
+023 down horseshoe (@downHorseshoe{})         063 3           123 S           163 s
+024 universal quantifier (@universalQuantifier{})   064 4           124 T           164 t
+025 existential quantifier (@existentialQuantifier{}) 065 5           125 U           165 u
+026 circle-X (@circleX{})               066 6           126 V           166 v
+027 double-arrow (@doubleArrow{})           067 7           127 W           167 w
+030 left arrow (@leftArrow{})             070 8           130 X           170 x
+031 right arrow (@rightArrow{})            071 9           131 Y           171 y
+032 not-equals (@notEquals{})             072 :           132 Z           172 z
+033 diamond (altmode) (@diamond{})      073 ;           133 [           173 @{
+034 less-or-equal (@lessOrEqual{})          074 <           134 \           174 |
+035 greater-or-equal (@greaterOrEqual{})       075 =           135 ]           175 @}
+036 equivalence (@equivalence{})            076 >           136 ^           176 ~
+037 or (@or{})                     077 ?           137 _           177 (ctl-qm)
+200 Null character     210 Overstrike    220 Stop-output   230 Roman-iv
+201 Break              211 Tab           221 Abort         231 Hand-up
+202 Clear              212 Line          222 Resume        232 Hand-down
+203 Call               213 Delete        223 Status        233 Hand-left
+204 Terminal escape    214 Page          224 End           234 Hand-right
+205 Macro/backnext     215 Return        225 Roman-i       235 System
+206 Help               216 Quote         226 Roman-ii      236 Network
+207 Rubout             217 Hold-output   227 Roman-iii
+237-377 reserved for the future
+@end verbatim
 @center                    The Lisp Machine Character Set
 @center                        (all numbers in octal)
 
