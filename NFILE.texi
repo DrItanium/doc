@@ -5,30 +5,11 @@
 @c %**end of header
 
 @titlepage
-@end titlepage
+@c Network Working Group                                      B. Greenberg
+@c Request for Comments:  1037                                    S. Keene
+@c                                                           December 1987
 
-@ifnottex
-@node Top
-@top NFILE
-@end ifnottex
-
-@contents
-
-
-
-
-
-
-
-Network Working Group                                      B. Greenberg
-Request for Comments:  1037                                    S. Keene
-                                                          December 1987
-
-
-                    NFILE -  A File Access Protocol
-
-
-STATUS OF THIS MEMO
+@center NFILE -  A File Access Protocol
 
    This document includes a specification of the NFILE file access
    protocol and its underlying levels of protocol, the Token List
@@ -38,128 +19,16 @@ STATUS OF THIS MEMO
    of these ideas.  A secondary goal is to make the specification
    available to sites that might benefit from implementing NFILE.  The
    distribution of this document is unlimited.
+@end titlepage
 
-                             TABLE OF CONTENTS
-                                                                    Page
-   1.  INTRODUCTION                                                    3
+@ifnottex
+@node Top
+@top NFILE
+@end ifnottex
 
-   2.  NFILE PROTOCOL LAYERING                                         4
+@contents
 
-   3.  OVERVIEW OF AN NFILE SESSION                                    5
-
-   4.  NFILE CONTROL AND DATA CONNECTIONS                              6
-
-   5.  NFILE FILE OPENING MODES                                        7
-
-   6.  NFILE CHARACTER SET                                             9
-
-   7.  CONVENTIONS USED IN THIS DOCUMENT                              10
-
-       7.1  Mapping Data Types Into Token List Representation         10
-       7.2  Format of NFILE Commands and Responses                    10
-       7.3  Data Channel Handles and Direct File Identifiers          13
-       7.4  Syntax of File and Directory Pathname Arguments           13
-       7.5  Format of NFILE File Property/Value Pairs                 14
-
-   8.  NFILE COMMANDS                                                 16
-
-       8.1  ABORT Command                                             16
-       8.2  CHANGE-PROPERTIES Command                                 16
-       8.3  CLOSE Command                                             17
-       8.4  COMPLETE Command                                          19
-       8.5  CONTINUE Command                                          20
-
-
-
-Greenberg & Keene                                               [Page 1]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-       8.6  CREATE-DIRECTORY Command                                  21
-       8.7  CREATE-LINK Command                                       21
-       8.8  DATA-CONNECTION Command                                   22
-       8.9  DELETE Command                                            23
-       8.10  DIRECT-OUTPUT Command                                    23
-       8.11  DIRECTORY Command                                        24
-            8.11.1  NFILE DIRECTORY Data Format                       26
-       8.12  DISABLE-CAPABILITIES Command                             27
-       8.13  ENABLE-CAPABILITIES Command                              28
-       8.14  EXPUNGE Command                                          28
-       8.15  FILEPOS Command                                          29
-            8.15.1  Implementation Hint for FILEPOS Command           30
-       8.16  FINISH Command                                           30
-       8.17  HOME-DIRECTORY Command                                   31
-       8.18  LOGIN Command                                            32
-       8.19  MULTIPLE-FILE-PLISTS Command                             34
-       8.20  OPEN Command                                             35
-            8.20.1  NFILE OPEN Optional Keyword/Value Pairs           39
-            8.20.2  NFILE OPEN Response Return Values                 45
-       8.21  PROPERTIES Command                                       47
-       8.22  READ Command                                             49
-       8.23  RENAME Command                                           50
-       8.24  RESYNCHRONIZE-DATA-CHANNEL Command                       51
-            8.24.1  Implementation Hints for RESYNCHRONIZE-DATA-      51
-                    CHANNEL Command
-       8.25  UNDATA-CONNECTION Command                                52
-
-   9.  NFILE RESYNCHRONIZATION PROCEDURE                              53
-
-       9.1  NFILE Control Connection Resynchronization                54
-       9.2  NFILE Data Connection Resynchronization                   55
-
-   10.  NFILE ERRORS AND NOTIFICATIONS                                58
-
-       10.1  Notifications From the NFILE Server                      58
-       10.2  NFILE Command Response Errors                            59
-       10.3  NFILE Asynchronous Errors                                60
-       10.4  NFILE Three-letter Error Codes                           61
-
-   11.  TOKEN LIST TRANSPORT LAYER                                    65
-
-       11.1  Introduction to the Token List Transport Layer           65
-       11.2  Token List Stream                                        66
-            11.2.1  Types of Tokens and Token Lists                   66
-            11.2.2  Token List Stream Example                         68
-            11.2.3  Mapping of Lisp Objects to Token List Stream      70
-                    Representation
-            11.2.4  Aborting and the Token List Stream                71
-
-
-
-Greenberg & Keene                                               [Page 2]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-       11.3  Token List Data Stream                                   72
-
-   12.  BYTE STREAM WITH MARK                                         73
-
-       12.1  Discussion of Byte Stream with Mark                      73
-       12.2  Byte Stream with Mark Abortable States                   75
-
-   13.  POSSIBLE FUTURE EXTENSIONS                                    77
-
-   APPENDIX A.  NORMAL TRANSLATION MODE                               79
-
-   APPENDIX B.  RAW TRANSLATION MODE                                  83
-
-   APPENDIX C.  SUPER-IMAGE TRANSLATION MODE                          84
-
-   NOTES                                                              86
-
-                              LIST OF TABLES
-
-   TABLE 1.    TRANSLATIONS FROM NFILE CHARACTERS TO UNIX CHARACTERS  80
-   TABLE 2.    TRANSLATIONS FROM UNIX CHARACTERS TO NFILE CHARACTERS  80
-   TABLE 3.    TRANSLATIONS FROM NFILE TO PDP-10 CHARACTERS           81
-   TABLE 4.    TRANSLATIONS FROM PDP-10 CHARACTERS TO NFILE           82
-               CHARACTERS
-   TABLE 5.    SUPER-IMAGE TRANSLATION FROM NFILE TO ASCII            84
-   TABLE 6.    SUPER-IMAGE TRANSLATION FROM ASCII TO NFILE            85
-
-1.  INTRODUCTION
+@chapter 1.  INTRODUCTION
 
    NFILE stands for "New File Protocol".  NFILE was originally designed
    as a replacement for an older protocol named QFILE, with the goal of
@@ -180,14 +49,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             - Reading and writing entire files
             - Reading and writing selected portions of files
             - Deleting and renaming files
-
-
-
-Greenberg & Keene                                               [Page 3]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
             - Creating links
             - Listing, creating, and expunging directories
             - Listing and changing the properties of files
@@ -208,7 +69,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    the extensions that we are considering are described later on in this
    document:  See the section "Possible Future Extensions", section 13.
 
-2.  NFILE PROTOCOL LAYERING
+@chapter 2.  NFILE PROTOCOL LAYERING
 
    NFILE is a layered file protocol.  The layers are:
 
@@ -236,14 +97,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    transmission of simple structured data, such as lists.  See the
    section "Token List Transport Layer", section 11.
 
-
-
-
-Greenberg & Keene                                               [Page 4]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The NFILE commands and command responses are transmitted in "token
    lists".  See the section "NFILE Commands", section 8.
 
@@ -254,7 +107,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    would be through a dedicated client program that would issue NFILE
    commands in response to explicit requests by the user.
 
-3.  OVERVIEW OF AN NFILE SESSION
+@chapter 3.  OVERVIEW OF AN NFILE SESSION
 
    An NFILE session is a dialogue between two hosts.  The host that
    initiates the NFILE session is known as the "user side", and the
@@ -293,14 +146,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    implementation in which the user side has multiple processes, and
    several processes share a single NFILE server.
 
-
-
-Greenberg & Keene                                               [Page 5]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-4.  NFILE CONTROL AND DATA CONNECTIONS
+@chapter 4.  NFILE CONTROL AND DATA CONNECTIONS
 
    The user and server communicate through a single control connection
    and a set of data connections.  Data connections are established and
@@ -342,20 +188,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    token lists".  The control connection expects never to receive "loose
    tokens"; that is, tokens not contained in token lists.
 
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                               [Page 6]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    DATA CONNECTIONS
 
    Data connections are established and discarded at user request, by
@@ -379,7 +211,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    token EOF is sent.  Occasionally, token lists are transmitted over
    the data channels, such as asynchronous error descriptions.
 
-5.  NFILE FILE OPENING MODES
+@chapter 5.  NFILE FILE OPENING MODES
 
    The NFILE OPEN command opens a file for reading, writing, or "direct
    access" at the server host.  That means, in general, asking the host
@@ -402,15 +234,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    command.  Data stream mode is appropriate when the entire file is
    transferred, either from user to server, or from server to user.
    Data stream mode is used more often than direct access mode.
-
-
-
-
-
-Greenberg & Keene                                               [Page 7]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The OPEN command includes a "handle" argument, which identifies the
    data channel to be used to transfer the data.  The handle is used in
@@ -452,23 +275,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    CLOSE command.  The ABORT command can be given to terminate without
    transmitting all of the specified bytes.
 
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                               [Page 8]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-6.  NFILE CHARACTER SET
+@chapter 6.  NFILE CHARACTER SET
 
    The NFILE character set <1> is an extension of standard ASCII.  NFILE
    command and response names use only the standard ASCII characters.
@@ -514,19 +321,9 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    second-guess the translation-counting process without losing host-
    independence.  See the section "FILEPOS NFILE Command".
 
+@chapter 7.  CONVENTIONS USED IN THIS DOCUMENT
 
-
-
-
-
-Greenberg & Keene                                               [Page 9]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-7.  CONVENTIONS USED IN THIS DOCUMENT
-
-7.1  Mapping Data Types Into Token List Representation
+@section 7.1  Mapping Data Types Into Token List Representation
 
    Throughout this NFILE specification, the data types of arguments,
    return values, asynchronous error descriptions, and notifications are
@@ -567,18 +364,11 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
                         indicating "never" is represented by the empty
                         token list.
 
-7.2  Format of NFILE Commands and Responses
+@section 7.2  Format of NFILE Commands and Responses
 
    Each command description begins by giving the command format and
    response format.  Here is the beginning of the DATA-CONNECTION
    command description:
-
-
-
-Greenberg & Keene                                              [Page 10]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    Command:  (DATA-CONNECTION tid new-input-handle new-output-handle)
 
@@ -629,13 +419,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
          (DELETE tid handle pathname)
 
-
-
-Greenberg & Keene                                              [Page 11]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
     If you supply a handle and no pathname, the command format is:
 
          (DELETE tid handle)
@@ -681,18 +464,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    supplied in a command, consists of the keyword USER-VERSION followed
    by the value to be used for that keyword (in this example, 2).
 
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 12]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-7.3  Data Channel Handles and Direct File Identifiers
+@section 7.3  Data Channel Handles and Direct File Identifiers
 
    Several NFILE commands require an argument that specifies an opening.
    This kind of argument is called a handle in the command description.
@@ -718,7 +490,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    CONTINUE cannot be a direct file identifier, but must be a data
    channel handle instead.
 
-7.4  Syntax of File and Directory Pathname Arguments
+@section 7.4  Syntax of File and Directory Pathname Arguments
 
    Some arguments and return values in the NFILE command descriptions
    represent file pathnames.  These are strings in the pathname syntax
@@ -730,23 +502,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    supports version numbers, there is always an explicit version number,
    even if that number or other specification is that system's
    representation of "newest" or "oldest".
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 13]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    Here are some examples of file pathnames, for different server hosts:
 
@@ -789,20 +544,13 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
    ------------------------------------------------------------
 
-7.5  Format of NFILE File Property/Value Pairs
+@section 7.5  Format of NFILE File Property/Value Pairs
 
    Several NFILE commands request information regarding the properties
    of files or directories.  These commands include:  DIRECTORY,
    MULTIPLE-FILE-PLISTS, PROPERTIES, and CHANGE-PROPERTIES.  This
    section describes how file property information is conveyed over the
    token list stream.
-
-
-
-Greenberg & Keene                                              [Page 14]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    File property information is usually sent in property/value pairs,
    where the property identifies the property, and the following value
@@ -850,16 +598,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
                     SUPERSEDE-PROTECT, NOT-BACKED-UP, OFFLINE,
                     TEMPORARY, CHARACTERS, DIRECTORY
 
-
-
-
-
-
-Greenberg & Keene                                              [Page 15]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
     Strings         ACCOUNT, AUTHOR, LINK-TO, PHYSICAL-VOLUME,
                     PROTECTION, VOLUME-NAME, PACK-NUMBER, READER,
                     DISK-SPACE-DESCRIPTION, and any keywords not
@@ -872,13 +610,13 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    documentation set details the semantics that Symbolics associates
    with these properties.
 
-8.  NFILE COMMANDS
+@chapter 8.  NFILE COMMANDS
 
    It is important to understand the conventions used in each of the
    following command descriptions.  See the section "Conventions Used in
    This Document", section 7.
 
-8.1  ABORT Command
+@section 8.1  ABORT Command
 
    Command:  (ABORT tid input-handle)
 
@@ -903,18 +641,11 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    puts the data channel into the unsafe state.  Before the data channel
    can be used again, it must be resynchronized.
 
-8.2  CHANGE-PROPERTIES Command
+@section 8.2  CHANGE-PROPERTIES Command
 
    Command:  (CHANGE-PROPERTIES tid handle pathname property-pairs)
 
    Response: (CHANGE-PROPERTIES tid)
-
-
-
-Greenberg & Keene                                              [Page 16]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    CHANGE-PROPERTIES changes one or more properties of a file.  Either a
    handle or a pathname must be given, but not both.  Whichever one is
@@ -940,7 +671,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    values:  See the section "Format of NFILE File Property/Value Pairs",
    section 7.5.
 
-8.3  CLOSE Command
+@section 8.3  CLOSE Command
 
    Command:  (CLOSE tid handle abort-p)
 
@@ -962,15 +693,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    successfully written to disk.  The server should not send a
    successful response until all these things have completed
    successfully.
-
-
-
-
-
-Greenberg & Keene                                              [Page 17]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    In either data stream or direct access mode, the user can request the
    server to close-abort the file, instead of simply closing it.  To
@@ -1014,21 +736,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    check whether an asynchronous error description is outstanding on the
    channel.  The server simply close-aborts the file.
 
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 18]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-8.4  COMPLETE Command
+@section 8.4  COMPLETE Command
 
    Command:  (COMPLETE tid string pathname DIRECTION NEW-OK DELETED)
 
@@ -1076,14 +784,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    Empty token list    Failure due to one of these reasons:
 
                        The file is on a file system that does not
-
-
-
-Greenberg & Keene                                              [Page 19]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
                        support completion.  new-string is supplied as
                        the unchanged string.
 
@@ -1107,7 +807,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    "Reference Guide to Streams, Files, and I/O" in the Symbolics
    documentation set for the recommended semantics of COMPLETE.
 
-8.5  CONTINUE Command
+@section 8.5  CONTINUE Command
 
    Command:  (CONTINUE tid handle)
 
@@ -1132,15 +832,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    RESTARTABLE argument, and the user issues the CONTINUE command
    anyway, the server gives a command error response.
 
-
-
-
-Greenberg & Keene                                              [Page 20]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-8.6  CREATE-DIRECTORY Command
+@section 8.6  CREATE-DIRECTORY Command
 
    Command:  (CREATE-DIRECTORY tid pathname property-pairs)
 
@@ -1164,7 +856,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    See the section "Format of NFILE File Property/Value Pairs", section
    7.5.
 
-8.7  CREATE-LINK Command
+@section 8.7  CREATE-LINK Command
 
    Command:  (CREATE-LINK tid pathname target-pathname properties)
 
@@ -1188,14 +880,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    The required properties argument is a token list of keyword/value
    pairs. These properties and their values specify certain attributes
    to be given to the link.  The allowable keywords and associated
-
-
-
-Greenberg & Keene                                              [Page 21]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    values are operating system dependent; typically they indicate
    arguments to be given to the native primitive for creating links.
 
@@ -1203,7 +887,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    apply a reasonable default set of attributes to the link.  See the
    section "Format of NFILE File Property/Value Pairs", section 7.5.
 
-8.8  DATA-CONNECTION Command
+@section 8.8  DATA-CONNECTION Command
 
    Command:  (DATA-CONNECTION tid new-input-handle new-output-handle)
 
@@ -1236,22 +920,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    only that the server has fulfilled its responsibility in the process
    of establishing a data connection.
 
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 22]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The connection-identifier informs the user of the correct identity of
    the logical port that the server has provided.  NFILE expects the
    connection-identifier to be a string.  For TCP this string is the
@@ -1264,7 +932,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    For background information:  See the section "NFILE Control and Data
    Connections", section 4.
 
-8.9  DELETE Command
+@section 8.9  DELETE Command
 
    Command:  (DELETE tid handle pathname)
 
@@ -1290,7 +958,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    open file bound to the data channel specified by handle at close
    time.  This is true in both the output and input cases.
 
-8.10  DIRECT-OUTPUT Command
+@section 8.10  DIRECT-OUTPUT Command
 
    Command:  (DIRECT-OUTPUT tid direct-handle output-handle)
 
@@ -1299,14 +967,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    DIRECT-OUTPUT starts and stops output data flow for a direct access
    file opening.  DIRECT-OUTPUT explicitly controls binding and
    unbinding of an output data channel to a direct access opening.
-
-
-
-
-Greenberg & Keene                                              [Page 23]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    direct-handle is a required argument, and output-handle is optional.
 
@@ -1319,7 +979,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    If the output-handle is omitted, this is a request to unbind the
    channel and terminate the active output transfer.
 
-8.11  DIRECTORY Command
+@section 8.11  DIRECTORY Command
 
    Command:  (DIRECTORY tid input-handle pathname control-keywords
               properties)
@@ -1353,16 +1013,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    list, the server sends along all properties.  If any properties are
    supplied, the user is requesting the server to send only those
    properties.
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 24]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    control-keywords ARGUMENT TO DIRECTORY
 
@@ -1407,19 +1057,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    properties at all for the files concerned; that is, only the
    truenames are returned.
 
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 25]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    NO-EXTRA-INFO
 
    Specifies that the server is to suppress listing those properties
@@ -1433,7 +1070,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    alphabetically by directory, then by file name, then file type, then
    file version (by increasing version number).
 
-8.11.1  NFILE DIRECTORY Data Format
+@subsection 8.11.1  NFILE DIRECTORY Data Format
 
    If the NFILE DIRECTORY command completes successfully, a single token
    list containing the requested directory information is sent on the
@@ -1469,13 +1106,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
              prop2 value2
              LIST-END
 
-
-
-Greenberg & Keene                                              [Page 26]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
              LIST-BEGIN
              pathname1        - pathname of the first file
              prop1 value1     - property/value pairs of first file
@@ -1505,7 +1135,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    For further information on file property/value pairs:  See the
    section "Format of NFILE File Property/Value Pairs", section 7.5.
 
-8.12  DISABLE-CAPABILITIES Command
+@section 8.12  DISABLE-CAPABILITIES Command
 
    Command:  (DISABLE-CAPABILITIES tid capability)
 
@@ -1522,22 +1152,12 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    successfully disabled, the corresponding success-1 is supplied as
    Boolean truth; otherwise it is the empty token list.
 
-
-
-
-
-
-Greenberg & Keene                                              [Page 27]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    Although the user can specify only one capability to disable, it is
    conceivable that the result of disabling that particular capability
    is the disabling of other, related capabilities.  That is why the
    command response can contain information on more than one capability.
 
-8.13  ENABLE-CAPABILITIES Command
+@section 8.13  ENABLE-CAPABILITIES Command
 
    Command:  (ENABLE-CAPABILITIES tid capability password)@}
 
@@ -1560,7 +1180,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    the enabling of other, related capabilities.  That is why the command
    response can contain information on more than one capability.
 
-8.14  EXPUNGE Command
+@section 8.14  EXPUNGE Command
 
    Command:  (EXPUNGE tid directory-pathname)
 
@@ -1580,14 +1200,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    system, and not to a file.  See the section "Syntax of File and
    Directory Pathname Arguments", section 7.4.
 
-
-
-
-Greenberg & Keene                                              [Page 28]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The return value server-storage-units-freed is an integer specifying
    how many records, blocks, or whatever unit is used to measure file
    storage on the server host system, were recovered.  This return value
@@ -1600,7 +1212,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    or required to be supported, in the directory portion of the pathname
    (representing an implicit request to expunge many directories).
 
-8.15  FILEPOS Command
+@section 8.15  FILEPOS Command
 
    Command:  (FILEPOS tid handle position resync-uid)
 
@@ -1636,14 +1248,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    In the output case, the user must somehow indicate to the server, on
    the output data channel, when there is no more data.  The user side
    sends the keyword token EOF to do so.  Upon receiving that control
-
-
-
-Greenberg & Keene                                              [Page 29]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    token, the server is required to position the file pointer according
    to the position given.  When the new file position is established,
    the server resumes accepting data at the new file position.
@@ -1660,7 +1264,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    supported in the future on character files.  FILEPOS is not
    problematic for binary files.
 
-8.15.1  Implementation Hint for FILEPOS Command
+@subsection 8.15.1  Implementation Hint for FILEPOS Command
 
    The server processing of this command (by the control connection
    handler) must not attempt to wait for the resynchronization procedure
@@ -1677,7 +1281,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    to finish performing the resynchronization procedure.  This wait
    should instead be performed by the process managing the data channel.
 
-8.16  FINISH Command
+@section 8.16  FINISH Command
 
    Command:  (FINISH tid handle)
 
@@ -1688,17 +1292,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    possible, the implementation should do the closing and opening in an
    indivisible operation, such that no other process can get access to
    the file.
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 30]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The arguments, results, and their meaning are identical to those of
    the CLOSE command.  See the section "CLOSE Command", section 8.3.
@@ -1733,7 +1326,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    three-letter error code is EPC.  See the section "NFILE Errors and
    Notifications", section 10.
 
-8.17  HOME-DIRECTORY Command
+@section 8.17  HOME-DIRECTORY Command
 
    Command:  (HOME-DIRECTORY tid user)
 
@@ -1747,16 +1340,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    the directory pathname format.  See the section "Syntax of File and
    Directory Pathname Arguments", section 7.4.
 
-
-
-
-
-Greenberg & Keene                                              [Page 31]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-8.18  LOGIN Command
+@section 8.18  LOGIN Command
 
    Command:  (LOGIN tid user password FILE-SYSTEM USER-VERSION)
 
@@ -1799,18 +1383,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    command error response including the three-letter code NFS, meaning
    "no file system".  See the section "NFILE Errors and Notifications",
    section 10.
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 32]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The user tells the server what version of NFILE it is running by
    including the optional USER-VERSION keyword/value pair.  The value
@@ -1860,14 +1432,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    or a token list.  The value is a representation of the version of the
    server is running.  Upon receiving the server version, the user can:
    adjust certain parameters to handle this particular version; accept
-
-
-
-Greenberg & Keene                                              [Page 33]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    the version; or close the connection.  Currently, the only released
    versions of NFILE are user version 2 and server version 2.
 
@@ -1885,7 +1449,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    indexed by the number 0.  See the section "DIRECTORY Command",
    section 8.11.
 
-8.19  MULTIPLE-FILE-PLISTS Command
+@section 8.19  MULTIPLE-FILE-PLISTS Command
 
    Command:  (MULTIPLE-FILE-PLISTS tid input-handle paths
               characters properties)
@@ -1916,14 +1480,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    properties is supplied as the empty token list, the server should
    transmit all known properties on the files.
 
-
-
-
-Greenberg & Keene                                              [Page 34]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The server transmits as much of the requested information as possible
    on the given input-handle.  The information is contained in a top-
    level token list of elements.  Each element corresponds with a
@@ -1952,7 +1508,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    See the section "Format of NFILE File Property/Value Pairs", section
    7.5.
 
-8.20  OPEN Command
+@section 8.20  OPEN Command
 
    Command:  (OPEN tid handle pathname direction binary-p
                 TEMPORARY RAW SUPER-IMAGE DELETED PRESERVE-DATES
@@ -1972,13 +1528,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    argument, and many optional keyword/value pairs.  For details on the
    syntax of each of these parts of the OPEN command:  See the section
    "Conventions Used in This Document", section 7.
-
-
-
-Greenberg & Keene                                              [Page 35]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The following arguments are required:  pathname, direction, and
    binary-p.  handle is an optional argument, which must either be
@@ -2029,13 +1578,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    INPUT, OUTPUT, IO, PROBE, PROBE-DIRECTORY, and PROBE-LINK.  The
    meanings of the direction keywords are as follows:
 
-
-
-Greenberg & Keene                                              [Page 36]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    INPUT
 
       Specifies that the file is to be opened for input server-to-user
@@ -2078,19 +1620,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
       Like PROBE, with one difference.  PROBE-LINK specifies that if the
       pathname is found to refer to a link, that link is not to be
       followed, and information about the link itself is to be returned.
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 37]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    PROBE-DIRECTORY
 
@@ -2137,23 +1666,12 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    file, the server performs a BINARY openingwith BYTE-SIZE of16;
    otherwise, it performs a CHARACTER opening.
 
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 38]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The details of the check are as follows: if the first 16-bit byte is
    the octal number170023 and the second 16-bit byte is any number
    between 0 and 77 octal(inclusive), the file is recognized as a
    Symbolics object file.  In any othercase, it is not.
 
-8.20.1  NFILE OPEN Optional Keyword/Value Pairs
+@subsection 8.20.1  NFILE OPEN Optional Keyword/Value Pairs
 
    The OPEN command has many optional keyword/value pairs that encode
    conceptual arguments to the file system for the OPEN operation.
@@ -2194,15 +1712,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
       For example, Multics supports 36 bit words and 9 bit bytes.  A
       packing scheme appropriate for a Multics NFILE server is:
-
-
-
-
-
-Greenberg & Keene                                              [Page 39]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
                Byte Size                Packing Scheme
 
@@ -2252,14 +1761,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    PRESERVE-DATES
 
       If supplied as Boolean truth, PRESERVE-DATES specifies that the
-
-
-
-Greenberg & Keene                                              [Page 40]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
       server is to attempt to prevent the operating system from updating
       the "reference date" or date-time used" of the file.  This is
       meaningful only for input openings, and is an error otherwise.
@@ -2305,16 +1806,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
       file pathname) or NEW-VERSION (if the version in the file pathname
       is the newest version).  For file systems not supporting versions,
       the default is SUPERSEDE.  These actions are described below.
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 41]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
       IF-EXISTS provides the mechanism for overwriting or appending to
       files.  With the default setting of IF-EXISTS, new files are
@@ -2365,13 +1856,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
          the file; however, the file is not truncated to length zero
          upon opening.
 
-
-
-Greenberg & Keene                                              [Page 42]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
       TRUNCATE
 
          Output operations on the opening destructively modify the
@@ -2419,14 +1903,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
          Creates an empty file with the specified name and then proceeds
          as if it already existed.
-
-
-
-
-Greenberg & Keene                                              [Page 43]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The following optional keyword/value pairs are rarely used, if ever:
 
@@ -2476,19 +1952,11 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
       closed.  VMS is an example of an operating system that could
       conveniently support SUBMIT.  SUBMIT can also be followed by the
       empty token list, which has the same effect as if the SUBMIT
-
-
-
-Greenberg & Keene                                              [Page 44]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
       keyword/value pair were omitted entirely.  Servers that do not
       implement this option should give an error response if requested
       to submit a file to the operating system.
 
-8.20.2  NFILE OPEN Response Return Values
+@subsection 8.20.2  NFILE OPEN Response Return Values
 
    The results of a successful OPEN operation are reported in the
    command response.  Here is the specification of the OPEN response
@@ -2532,14 +2000,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    of the file.  This is some kind of user identifier, whose format is
    system-specific.  As with CREATION-DATE (see below), AUTHOR is
    supposed to represent the logical determinor of the current data
-
-
-
-Greenberg & Keene                                              [Page 45]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    content of the file, not necessarily the agency that actually created
    the file.
 
@@ -2589,13 +2049,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    measured in server units: See the section "NFILE Character Set",
    section 6.
 
-
-
-Greenberg & Keene                                              [Page 46]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    LENGTH
 
    An integer reporting the length of the file, in characters for
@@ -2605,7 +2058,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    the length for a character opening in server units; thus, it reports
    length in server units.
 
-8.21  PROPERTIES Command
+@section 8.21  PROPERTIES Command
 
    Command:  (PROPERTIES tid handle pathname control-keywords
    properties)
@@ -2638,19 +2091,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    requested in the properties argument.  If properties is supplied as
    the empty token list, the server transmits all known properties of
    the file.
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 47]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    PROPERTIES COMMAND RESPONSE
 
@@ -2686,28 +2126,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    keywords is not constrained; this example has two property/value
    pairs and three settable-properties keywords returned:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 48]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
              TOP-LEVEL-LIST-BEGIN
              PROPERTIES         - name of the command
              tid                - transaction identifier
@@ -2733,7 +2151,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
              (PROPERTIES tid [ pathname prop1 value1 prop2 value2 ...]
                              [ keyword1 keyword2 keyword3 ... ]
 
-8.22  READ Command
+@section 8.22  READ Command
 
    Command: (READ tid direct-file-id input-handle count FILEPOS)
 
@@ -2755,15 +2173,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    remaining in the file, the server sends the keyword EOF to mark the
    end of the file.
 
-
-
-
-
-Greenberg & Keene                                              [Page 49]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    FILEPOS is an optional keyword/value pair.  If the keyword FILEPOS is
    supplied, it must be followed by an integer.  Before data is
    transferred, the opening is positioned to the point specified by the
@@ -2779,7 +2188,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    side assumes that the data channel can now be reused for another data
    transfer.
 
-8.23  RENAME Command
+@section 8.23  RENAME Command
 
    Command:  (RENAME tid handle pathname to-pathname)
 
@@ -2811,16 +2220,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    the server on these systems must check for and reject an attempted
    cross-directory rename.
 
-
-
-
-
-Greenberg & Keene                                              [Page 50]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-8.24  RESYNCHRONIZE-DATA-CHANNEL Command
+@section 8.24  RESYNCHRONIZE-DATA-CHANNEL Command
 
    The command and response format for this command varies, depending on
    whether the handle argument indicates an input or output data
@@ -2850,7 +2250,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    resynchronization of data channels:  See the section "NFILE Data
    Connection Resynchronization", section 9.2.
 
-8.24.1  Implementation Hints for RESYNCHRONIZE-DATA-CHANNEL Command
+@subsection 8.24.1  Implementation Hints for RESYNCHRONIZE-DATA-CHANNEL Command
 
    In general, both the user and server should should be implemented
    with the knowledge that a transmission can be aborted.  That is, the
@@ -2859,22 +2259,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    been successfully received in entirety.  This protects the user
    program from the possibility that an abort can occur after a
    transmission has been partially sent.
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 51]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    RESYNCHRONIZING AN OUTPUT DATA CHANNEL
 
@@ -2910,7 +2294,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    command loop, to possibly receive a command that might break the data
    process out of that block.
 
-8.25  UNDATA-CONNECTION Command
+@section 8.25  UNDATA-CONNECTION Command
 
    Command:  (UNDATA-CONNECTION tid input-handle output-handle)
 
@@ -2921,16 +2305,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    connections at its discretion.  There is no place in the protocol
    where disestablishment of data connections is required, other than at
    the end of the session, where it is implicit.
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 52]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    The data connection to be disestablished is the one designated by the
    input-handle and output-handle arguments.  These two handles must
@@ -2950,7 +2324,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    For more information about data connections:  See the section "NFILE
    Control and Data Connections", section 4.
 
-9.  NFILE RESYNCHRONIZATION PROCEDURE
+@chapter 9.  NFILE RESYNCHRONIZATION PROCEDURE
 
    Ordinarily, the user side sends NFILE commands to the server side
    over the control connection; the server side responds to every user
@@ -2980,13 +2354,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    The resynchronization procedure is somewhat complex, but it fulfills
    a genuine need.  For those interested, a brief design discussion is
    included as note <3>.
-
-
-
-Greenberg & Keene                                              [Page 53]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
 9.1  NFILE Control Connection Resynchronization
 
@@ -3036,14 +2403,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
            until it detects the second mark, and the token following
            it.
 
-
-
-
-Greenberg & Keene                                              [Page 54]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
         3. The server checks to see if the token following the mark is
            USER-RESYNC-DUMMY.  This rare situation occurs if the user
            aborts during the course of the resynchronization itself.
@@ -3079,26 +2438,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    connections are put into unsafe states only when the user aborts
    during control connection I/O operations.  Data channels are made
    unsafe by a larger set of circumstances:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 55]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
        - User aborts occur during the file protocol operations that
          assign and deassign data channels.  This is the most common
@@ -3136,25 +2475,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    which the resynchronization data is always sent by the user side.
    The resynchronization steps for input data channels are different
    than the steps for output data channels.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 56]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    INPUT DATA CHANNEL RESYNCHRONIZATION
 
@@ -3204,18 +2524,10 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
       8. The server side recognizes the mark and the unique
          identifier that follows, and the resynchronization is
-
-
-
-Greenberg & Keene                                              [Page 57]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
          complete.  The data channel is no longer in the unsafe
          state.
 
-10.  NFILE ERRORS AND NOTIFICATIONS
+@chapter 10.  NFILE ERRORS AND NOTIFICATIONS
 
    NFILE recognizes two types of errors:  command response errors and
    asynchronous errors.  In addition to errors, NFILE supports
@@ -3244,7 +2556,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
        - Provide general information, such as a warning that the
          system is going down
 
-10.1  Notifications From the NFILE Server
+@section 10.1  Notifications From the NFILE Server
 
    The NFILE server can send asynchronous notifications to the user side
    over the control connection.  The text of the notification contains
@@ -3261,14 +2573,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    Notifications are initiated by the server, and are not associated
    with any transaction originated by the user side.n
 
-
-
-Greenberg & Keene                                              [Page 58]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-10.2  NFILE Command Response Errors
+@section 10.2  NFILE Command Response Errors
 
    When an error prevents the successful completion of an NFILE command,
    a command response error is sent instead of the normal command
@@ -3311,20 +2616,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    argument.  This gives the user side valuable information that it
    otherwise would not have known.
 
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 59]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-10.3  NFILE Asynchronous Errors
+@section 10.3  NFILE Asynchronous Errors
 
    When a data channel process, in either direction, encounters an error
    condition, the server sends an asynchronous error description. An
@@ -3373,14 +2665,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    both cases, the three-letter code included in the command error
    response is EPC, for Error Pending on Channel.
 
-
-
-Greenberg & Keene                                              [Page 60]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-10.4  NFILE Three-letter Error Codes
+@section 10.4  NFILE Three-letter Error Codes
 
    Usually the server's operating system provides some description of an
    error that occurs.  NFILE has a mechanism for conveying that
@@ -3427,14 +2712,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
      CCL   Cannot create link.  An error occurred in attempting to
            create a link.
-
-
-
-
-Greenberg & Keene                                              [Page 61]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
      CIR   Circular link.  An operation was attempted on a pathname that
            designates a link that eventually links back to itself.
@@ -3484,14 +2761,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
            for output was attempted.
 
      FOR   Filepos out of range.  Setting the file pointer past the
-
-
-
-Greenberg & Keene                                              [Page 62]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
            end-of-file position or to a negative position was attempted.
 
      FTB   File too big.  File is larger than the maximum file size
@@ -3540,13 +2809,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
            intervention is probably required to fix the problem, but
            retrying the operation is likely to succeed after the problem
            is solved.
-
-
-
-Greenberg & Keene                                              [Page 63]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
      NER   Not enough resources.  For example, a system limit on the
            number of open files or network connections has been reached.
@@ -3597,20 +2859,13 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
      WNA   Wildcard not allowed.
 
-
-
-Greenberg & Keene                                              [Page 64]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-11.  TOKEN LIST TRANSPORT LAYER
+@chapter 11.  TOKEN LIST TRANSPORT LAYER
 
    PURPOSE:  The Token List Transport Layer is a protocol that
    facilitates the transmission of simple structured data, such as
    lists.
 
-11.1  Introduction to the Token List Transport Layer
+@section 11.1  Introduction to the Token List Transport Layer
 
    The Token List Transport Layer is a general-purpose protocol.  The
    Token List Transport Layer sends "tokens" through its underlying
@@ -3648,27 +2903,15 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
      of use:       NFILE data channels         NFILE control
                                                connection
 
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 65]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    NFILE uses the the Token List Transport Layer, and provides an
    excellent example of its usefulness.  The NFILE commands and command
    responses are sent over the control connection in a token list
    stream.  File data is sent across each data channel in a token list
    data stream.
 
-11.2  Token List Stream
+@section 11.2  Token List Stream
 
-11.2.1  Types of Tokens and Token Lists
+@subsection 11.2.1  Types of Tokens and Token Lists
 
    All numbers in the token list documentation are represented in
    decimal notation.  Bytes are 8 bits long.
@@ -3708,13 +2951,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
                 256) or long integers (greater than or equal to 256).
                 Short integers are preceded by the byte known as
                 PUNCTUATION-SHORT-INTEGER, of value 206.
-
-
-
-Greenberg & Keene                                              [Page 66]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
                 Long integers are begun by PUNCTUATION-LONG-INTEGER,
                 of value 207.  One byte follows, containing the length
@@ -3762,16 +2998,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
                                            list stream.  It can be
                                            sent to fill buffers.
 
-
-
-
-
-
-Greenberg & Keene                                              [Page 67]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    TOKEN LISTS
 
    A token list consists of a sequence of atomic tokens or token lists.
@@ -3798,7 +3024,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             empty token list is composed of TOP-LEVEL-LIST-BEGIN
             followed immediately by TOP-LEVEL-LIST-END.
 
-11.2.2  Token List Stream Example
+@subsection 11.2.2  Token List Stream Example
 
    This section contains an example of some data that can appear on a
    token list stream.  The example is a top-level token list encoding an
@@ -3820,14 +3046,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             3. The data token containing the characters:  t105
             4. LIST-BEGIN
             5. LIST-END
-
-
-
-Greenberg & Keene                                              [Page 68]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
             6. The data token containing the characters:  /usr/max/temp
             7. TOP-LEVEL-LIST-END
 
@@ -3876,14 +3094,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
                204     represents LIST-BEGIN
 
-
-
-
-Greenberg & Keene                                              [Page 69]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
         5. LIST-END
 
                205     represents LIST-END
@@ -3909,7 +3119,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
                203     represents TOP-LEVEL-LIST-END
 
-11.2.3  Mapping of Lisp Objects to Token List Stream Representation
+@subsection 11.2.3  Mapping of Lisp Objects to Token List Stream Representation
 
    The Symbolics interface to the token list stream sends Lisp objects
    through the underlying Byte Stream with Mark and produces Lisp
@@ -3932,14 +3142,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
         - NIL is represented as the empty token list.
 
         - Lists are represented as token lists.  Circular lists cannot
-
-
-
-Greenberg & Keene                                              [Page 70]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
           be sent.  See the footnote related to the ambiguity between
 
           NIL and the empty list:  See the section "Types of Tokens
@@ -3948,7 +3150,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
         - Integers are represented as numeric tokens.  Only
           nonnegative integers less than 2^63 can be sent.
 
-11.2.4  Aborting and the Token List Stream
+@subsection 11.2.4  Aborting and the Token List Stream
 
    A token list stream accrues the benefits of the abort management
    policy of the Byte Stream with Mark on which it is built.  In order
@@ -3986,16 +3188,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    tokens until a mark is encountered; read and discard that mark;
    declare the stream safe again".
 
-
-
-
-
-
-Greenberg & Keene                                              [Page 71]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    Depending on the client protocol, the receipt of a mark might cause
    the reading side to read for further marks.  NFILE implements the
    resynchronization of token list streams, and serves as a useful
@@ -4015,7 +3207,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
          (on the input side), this is the only permitted input
          operation (other than closing).
 
-11.3  Token List Data Stream
+@section 11.3  Token List Data Stream
 
    The token list data stream is a facility to transmit stream data
    through a token list stream.  The token list data stream imposes the
@@ -4044,14 +3236,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    application program to indicate exceptional situations.
 
    Data tokens, the keyword token EOF, and token lists are defined in
-
-
-
-Greenberg & Keene                                              [Page 72]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    the token list stream documentation:  See the section "Types of
    Tokens and Token Lists", section 11.2.1.
 
@@ -4061,7 +3245,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    such as disk errors during the reading of a file are conveyed as
    token lists through the token list data stream.
 
-12.  BYTE STREAM WITH MARK
+@chapter 12.  BYTE STREAM WITH MARK
 
    PURPOSE:  Byte Stream with Mark is a simple layer of protocol that
    guarantees that an out-of-band signal can be transmitted in the case
@@ -4069,7 +3253,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    provide end-to-end stream consistency in the face of user program
    aborts.
 
-12.1  Discussion of Byte Stream with Mark
+@section 12.1  Discussion of Byte Stream with Mark
 
    INTRODUCTION
 
@@ -4100,13 +3284,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    synchronization has been lost.  For a description of NFILE's use of
    marks to resynchronize streams:  See the section "NFILE
    Resynchronization Procedure", section 9.
-
-
-
-Greenberg & Keene                                              [Page 73]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    BYTE STREAM WITH MARK ON CHAOSNET
 
@@ -4156,14 +3333,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
    Because of diverse network implementations on different operating
    systems, the software that implements the encapsulated stream might
-
-
-
-Greenberg & Keene                                              [Page 74]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    not be able to provide integral record buffers to the Byte Stream
    with Mark implementation.  For example, the writing stream could have
    written records that are much longer than available buffers on the
@@ -4189,7 +3358,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    processed a fractional record, and must discard the remaining buffers
    of the record now being read.
 
-12.2  Byte Stream with Mark Abortable States
+@section 12.2  Byte Stream with Mark Abortable States
 
    Byte Stream with Mark is designed to provide end-to-end stream
    consistency in the face of user program aborts.  This section
@@ -4212,14 +3381,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    program, which is not vulnerable to aborts, short of system or
    network failure.  Nevertheless, the need still exists to implement
    streams outside of the boundaries of the supervisor.  Furthermore,
-
-
-
-Greenberg & Keene                                              [Page 75]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    the Symbolics computer environment has no supervisor or executive
    program, and is thus vulnerable to aborts everywhere.
 
@@ -4267,15 +3428,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             the possibility that an abort can occur after a
             transmission has been partially sent.
 
-
-
-
-
-Greenberg & Keene                                              [Page 76]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
          3. Abort occurs during the sending or receiving of a record.
 
             This is the most vulnerable state of the mechanism.  This
@@ -4306,7 +3458,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             encapsulated stream, since no waiting is possible at
             unexpected times.
 
-13.  POSSIBLE FUTURE EXTENSIONS
+@chapter 13.  POSSIBLE FUTURE EXTENSIONS
 
    NFILE was designed to be extended as the needs of its clients grow,
    or as new clients with different needs appear.  Currently it meets
@@ -4324,14 +3476,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
          - The Token List Transport Layer provides a general substrate
            for the value-transmission portion of network protocols.  In
            fact, it has been used at Symbolics for other protocols
-
-
-
-Greenberg & Keene                                              [Page 77]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
            besides NFILE.  The Token List Transport Layer could
            conveniently be extended to support transmission of other
            types of values besides those it currently supports.
@@ -4370,27 +3514,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    implement a multiplexing scheme as a level between NFILE and the
    communication medium.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 78]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-                                APPENDIX A
-                          NORMAL TRANSLATION MODE
-
+@appendix APPENDIX A: NORMAL TRANSLATION MODE
 
    NORMAL translation mode guarantees the following:
 
@@ -4435,14 +3559,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    includes "going to the next line".  This is a notable difference from
    the convention used in PDP-10 ASCII in which lines are ended by a
    pair of characters, "carriage return" and "line feed".
-
-
-
-
-Greenberg & Keene                                              [Page 79]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
 
    NORMAL TRANSLATION TO UNIX SERVERS
 
@@ -4492,14 +3608,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    characters.  On the PDP-10 the sequence CRLF, 015 012, represents a
    new line.
 
-
-
-
-Greenberg & Keene                                              [Page 80]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
    The mechanism for this translation on machines with 7-bit bytes is to
    use the RUBOUT character (octal code 177) as an escape character.
 
@@ -4542,20 +3650,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    some ASCII systems.  In the NFILE character set there is no
    representation
 
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 81]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
      TABLE 4.   TRANSLATIONS FROM PDP-10 CHARACTERS TO NFILE CHARACTERS
 
 
@@ -4581,39 +3675,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    an 012 therefore turns into a 215.  A stray CR is arbitrarily
    translated into a single M (115).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 82]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-                                APPENDIX B
-                           RAW TRANSLATION MODE
+@appendix APPENDIX B: RAW TRANSLATION MODE
 
 
    RAW mode means no translation should be performed.  In RAW mode the
@@ -4622,54 +3684,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
    character file, but transfer the actual binary values of the
    character codes.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 83]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-                                APPENDIX C
-                       SUPER-IMAGE TRANSLATION MODE
+@appendix APPENDIX C: SUPER-IMAGE TRANSLATION MODE
 
 
    SUPER-IMAGE mode is intended for use by PDP-10 family machines only.
@@ -4706,24 +3721,6 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             x in 216..376     <x - 200>
             377               no corresponding code
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 84]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
          TABLE 6.   SUPER-IMAGE TRANSLATION FROM ASCII TO NFILE
 
 
@@ -4739,48 +3736,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
             x in <016..176>   x
             177               177
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 85]
-
-RFC 1037             NFILE - A File Access Protocol        December 1987
-
-
-                                   NOTES
+@chapter NOTES
 
    1. NFILE's requirement for using the NFILE character set is
       recognized as a drawback for non-Symbolics machines.  A useful
@@ -4813,24 +3769,5 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
       distinguish between Boolean falsity and an empty list.
 
    5. No so-called "fat strings" can be sent.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Greenberg & Keene                                              [Page 86]
 
 @bye
