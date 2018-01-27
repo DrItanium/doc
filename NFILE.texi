@@ -1,3 +1,19 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename NFILE.info
+@settitle NFILE
+@c %**end of header
+
+@titlepage
+@end titlepage
+
+@ifnottex
+@node Top
+@top NFILE
+@end ifnottex
+
+@contents
+
 
 
 
@@ -1523,7 +1539,7 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
 8.13  ENABLE-CAPABILITIES Command
 
-   Command:  (ENABLE-CAPABILITIES tid capability password)}
+   Command:  (ENABLE-CAPABILITIES tid capability password)@}
 
    Response: (ENABLE-CAPABILITIES tid cap-1 success-1
               cap-2 success-2 cap-3 success-3 ...)
@@ -4816,4 +4832,5 @@ RFC 1037             NFILE - A File Access Protocol        December 1987
 
 
 Greenberg & Keene                                              [Page 86]
-   
+
+@bye
