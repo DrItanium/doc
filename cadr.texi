@@ -3876,7 +3876,7 @@ is non-existent memory.  Bit 14 enables write access from the unibus.
 The remainder of the register is the page number (address divided by 400)
 of the xbus page to be accessed from this unibus page.
 
-@unnumberedsec The 16-bit parallel I/O register.
+@unnumberedsec The 16-bit parallel I/O register
 
 The I/O board contains one 16-bit register which can be connected to an
 arbitrary device.  Any unibus word written to this register appears on one
@@ -3896,12 +3896,12 @@ bidirectional device.
 If you connect to two of these connectors, all connections to the same input
 or output pin are shorted together.
 
-@unnumberedsec Serial I/O.
+@unnumberedsec Serial I/O
 
 The serial I/O port uses unibus locations from 764160 through 164166.
 It interrupts with vector 264.  More information needs to be inserted here.
 
-@unnumberedsec Timers.
+@unnumberedsec Timers
 
 The I/O board contains three timers: the microsecond clock, the 60 cycle clock,
 and the interval timer.  The first two are registers that you can read.  The
@@ -3927,7 +3927,7 @@ and located at unibus address 764124 (the same address which, when read, gives
 the 60 cycle clock).  The timer increments each 16 microseconds, and when it
 reaches zero, it requests an interrupt with a vector of 274.
 
-@unnumberedsec Keyboard.
+@unnumberedsec Keyboard
 
 Data from the keyboard appears in a 32-bit register at unibus addresses
 764100 and 764102.  The high half must be read first.  The keyboard generates
@@ -3938,7 +3938,7 @@ Connector J03 on the I/O board runs to the console, carrying the keyboard,
 mouse and speaker signals as well as the video output signal that runs through
 the I/O board from the TV board.
 
-@unnumberedsec Mouse.
+@unnumberedsec Mouse
 
 The mouse X position, in 16 bits, is accessible at unibus address
 764106, and the Y position and buttons are in 764104.  Only the
@@ -3947,13 +3947,13 @@ Changes in the mouse position or buttons can cause an interrupt, but the
 Lisp machine system does not enable the interrupt.  If enabled, the
 interrupt vector is 260.
 
-@unnumberedsec Speaker.
+@unnumberedsec Speaker
 
 To complement the signal sent to the keyboard speaker, refer to unibus
 location 764110.  The value is meaningless.  A sound is produced by
 complementing the signal at the desired frequency.
 
-@unnumberedsec I/O board status register.
+@unnumberedsec I/O board status register
 
 Unibus address 764112 contains the I/O board status register.
 In this register:
@@ -3963,7 +3963,7 @@ In this register:
  Bit 3  enables clock interrupts.
  Bit 7  enables input interrupts from the serial I/O port.
 
-@unnumberedsec Chaos Interface.
+@unnumberedsec Chaos Interface
 
 The I/O board contains the interface to the Chaos network.
 
@@ -3990,7 +3990,7 @@ connected to the cable must have that subnet number in their net addresses.
 
 Connector J01 on the I/O board runs to the transceiver box.
 
-@unnumberedsec Table of all unibus addresses used.
+@unnumberedsec Table of all unibus addresses used
 
 @verbatim
 140000-177777   (in CADR)  UNIBUS region mapped to XBUS
