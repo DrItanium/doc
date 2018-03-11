@@ -202,7 +202,8 @@ is (or would have been) @code{(aref bar 0)}".
 
 	A typical description of a Lisp function looks like this:
 
-@defun_no_index function-name arg1 arg2 &optional arg3 (arg4 @code{(foo 3)})
+@c ---!!! Should not be listed in index.
+@defun function-name arg1 arg2 &optional arg3 (arg4 @code{(foo 3)})
 The @code{function-name} function adds together @i{arg1} and @i{arg2},
 and then multiplies the result by @i{arg3}.  If @i{arg3} is not provided,
 the multiplication isn't done.  @code{function-name} then returns a list
@@ -232,12 +233,14 @@ also contain "@code{&rest}", which is part of the same syntax.
 
 The descriptions of special forms and macros look like this:
 
-@defspec_no_index do-three-times form
+@c ---!!! Should not be listed in index.
+@defspec do-three-times form
 This evaluates @i{form} three times and returns the result of the third
 evaluation.
 @end defspec
 
-@defmac_no_index with-foo-bound-to-nil form...
+@c ---!!! Should not be listed in index.
+@defmac with-foo-bound-to-nil form...
 This evaluates the @i{forms} with the symbol @code{foo} bound to @code{nil}.
 It expands as follows:
 @lisp
@@ -282,7 +285,8 @@ form.
 
 This ridiculous special form exhibits all of the syntactic features:
 
-@defspec_no_index twiddle-frob [(frob option...)] @{parameter value@}...
+@c ---!!! Should not be listed in index.
+@defspec twiddle-frob [(frob option...)] @{parameter value@}...
 This twiddles the parameters of @i{frob}, which defaults to @code{default-frob}
 if not specified.  Each @i{parameter} is the name of one of the adjustable parameters of
 a frob; each @i{value} is what value to set that parameter to.  Any number
@@ -301,7 +305,8 @@ are violated.
 Methods, the message-passing equivalent of ordinary Lisp's functions,
 are described in this style:
 
-@defmethod_no_index flavor-name message-name arg1 arg2 &optional arg3
+@c ---!!! Should not be listed in index.
+@defmethod flavor-name message-name arg1 arg2 &optional arg3
 This is the documentation of the effect of sending a message
 named @code{message-name}, with arguments @i{arg1}, @i{arg2}, and @i{arg3},
 to an instance of flavor @code{flavor-name}.
@@ -309,7 +314,8 @@ to an instance of flavor @code{flavor-name}.
 
 	Descriptions of variables ("special" or "global" variables) look like this:
 
-@defvar_no_index typical-variable
+@c ---!!! Should not be listed in index.
+@defvar typical-variable
 The variable @code{typical-variable} has a typical value....
 @end defvar
 
