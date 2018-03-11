@@ -4,21 +4,18 @@
 @settitle Introduction to Using the Window System
 @c %**end of header
 
-.headings off
-
 @titlepage
 @sp 10
 @center @titlefont{Lisp Machine Window System Manual}
 @sp 4
 @center Edition 1.1, System Version 95
-.space
+@sp 1
 @center August 1983
 @sp 5
 @center Richard Stallman
 @center Daniel Weinreb
 @center David Moon
 @sp 12
-.nopara
 This report describes research done at the Artificial Intelligence
 Laboratory of the Massachusetts Institute of Technology.  Support for the
 laboratory's artificial intelligence research is provided in part by the
@@ -26,23 +23,10 @@ Advanced Research Projects Agency of the Department of Defense under Office
 of Naval Research Contract number N00014-80-C-0505.
 @page
 @end titlepage
-.headings on
 
 @c Cross references to the Chine Nual
 @c These are for the Fifth edition
 
-.setq manual-make-instance-fun "section 20.7 of the Lisp Machine manual"
-.setq stream-protocol "section 21.5 of the Lisp Machine manual"
-.setq character-set "section 21.1 of the Lisp Machine manual"
-.setq call-and-abort "Operating the Lisp Machine"
-.setq make-array-fun "section 8.2 of the Lisp Machine manual"
-.setq bitblt-fun "section 8.7 of the Lisp Machine manual"
-.setq terminal-io-var "section 21.5.9 of the Lisp Machine manual"
-.setq defresource-fun "section 5.12 of the Lisp Machine manual"
-.setq si:process-reset-method "section 26.4.3 of the Lisp Machine manual"
-.setq stream-copy-until-eof-fun "section 21.4 of the Lisp Machine manual"
-.setq progw-fun "section 3.1 of the Lisp Machine manual"
-.setq fs:pathname-string-for-wholine-method "section 22.6 of the Lisp Machine manual"
 
 @sp 2
 @center @titlefont{Preface}
@@ -73,7 +57,7 @@ authority for all questions.
 Any comments, suggestions, or criticisms will be welcomed.  Please send
 Arpa network mail to BUG-LMMAN@@MIT-MC.
 
-Those not on the Arpanet may send U.S. snail to
+Those not on the Arpanet may send U.S. snail to
 
 @lisp
 @t{Richard M. Stallman
@@ -86,7 +70,7 @@ Cambridge, Mass. 02139}
 
 The Lisp Machine is a product of the efforts of many people too
 numerous to list here and of the former unique cooperative environment
-of the M.I.T. Artificial Intelligence Laboratory.  I believe that the
+of the M.I.T. Artificial Intelligence Laboratory.  I believe that the
 commercialization of computer software hinders the further development
 of systems such as described herein.  I consider proprietary software
 morally objectionable and plan to dedicate my career to promoting the
@@ -427,7 +411,7 @@ below by functionality.
 There is a vague convention sometimes followed for naming flavors of
 windows.  Here the word @i{frobboz} is used to stand for any feature,
 attribute, or class of windows that would appear in a flavor name
-(e.g. @code{peek}, @code{lisp-listener}, or @code{delayed-redisplay-label}).
+(e.g. @code{peek}, @code{lisp-listener}, or @code{delayed-redisplay-label}).
 Naming conventions are different for @i{instantiable} flavors (which
 are complete and can support instances of themselves) and @i{mixin}
 flavors (which are incomplete and only supply one particular aspect of
@@ -509,7 +493,7 @@ especially involving mouse-sensitivity or automatic updating,
 it is time to consider creating your own windows (and your own
 window flavors, perhaps).
 
-.findex tv:make-window
+@findex tv:make-window
 To create a window, use the functions @code{make-instance} or @code{instantiate-flavor}.
 (Old programs usually use @code{tv:make-window}, which is now equivalent to
 @code{make-instance} but was different in the past).
@@ -555,7 +539,6 @@ The name of the window.
 .end_defmetainstvar
 
 @chapter Visibility and Exposure of Windows
-.setq visibility-chapter chapter-number
 
 The most important piece of information about a window is whether it is
 actually @i{visible} on the screen.  A related but different piece of
@@ -592,7 +575,6 @@ one is not.
 @cindex inferior windows
 @cindex superior window
 @cindex pane
-.setq window-hierarchy section-page
 
 Several Lisp Machine system programs and application programs present
 the user with a window that is split up into several sections, which are
@@ -639,7 +621,6 @@ You can then edit the inferiors of whichever one you choose.
 
 @cindex active window
 @cindex screen manager
-.setq activation page
 So, what @code{Edit Screen} really does is to manipulate a set of inferiors
 of some specific superior, which may or may not be a screen.  The
 set of inferiors that you are manipulating is called the @i{active
@@ -753,7 +734,6 @@ including @i{sheet} itself.
 
 @section Screens
 @cindex screens
-.setq screens section-page
 
 The topmost nodes of the window hierarchy are actually screens
 rather than windows, a screen being an instance of the flavor @code{tv:screen}.
@@ -903,7 +883,6 @@ among other things, the flag controlling black-on-white mode.
 .end_definstvar
 
 @section Bit-Save Arrays
-.setq bit-save-array section-page
 @cindex bit-save array
 
 The pixel values that make up a window's screen image are called its @i{contents}.
@@ -1037,7 +1016,6 @@ possible.
 @cindex exposed window
 @cindex exposable window
 @cindex visible
-.setq exposure section-page
 @cindex screen array
 
 This section discusses the concepts of screen arrays and of exposed
@@ -1267,13 +1245,13 @@ the @code{:expose} operation (the @i{inhibit-blinkers} argument).
 Returns a list of all exposable inferiors of this window or screen.
 .end_defmetamethod
 
-.defspec tv:with-sheet-deexposed (sheet) &body body
+@defspec tv:with-sheet-deexposed (sheet) &body body
 Executes the @i{body} with @i{sheet} deexposed.
 If @i{sheet} had been exposed, it is reexposed when
 @i{body} exits.  Operations that change things about the window
 often make use of this to reduce the complicated case of an
 exposed window to the simpler case of a deexposed one.
-.end_defspec
+@end defspec
 
 .defmetamethod "windows and screens" :screen-array
 Returns the window or screen's screen array, or @code{nil}.
@@ -1298,7 +1276,6 @@ Accessor defsubsts for the corresponding instance variables.
 @end defun
 
 @section Ability to Output
-.setq ability-to-output section-page
 @cindex output hold
 @cindex holding output
 @cindex output hold flag
@@ -1320,7 +1297,6 @@ output on the window.  This is @code{setf}'able.
 @end defun
 
 @cindex deexposed typeout action
-.setq deexposed-typeout-action page
 When a process attempts to type out on a window which is deexposed and
 has its output hold flag set, what happens depends on the window's
 @i{deexposed typeout action}.  The deexposed typeout action can be any
@@ -1361,10 +1337,9 @@ allowing typeout to proceed immediately.  If the superior is the screen,
 the @code{:expose} option provides a very different user interface from the
 @code{:normal} option.
 
-.setq deexposed-permit page
 @item :permit "deexposed typeout action"
 This means to permit typeout even though the window is not exposed, as
-long as the window has a screen array; i.e., it may type out on its own
+long as the window has a screen array; i.e., it may type out on its own
 bit-save array even though it is not exposed.  The next time the window
 is exposed, the updated contents will be retrieved from the bit-save
 array.
@@ -1410,7 +1385,7 @@ Does not return until the window is exposed.
 (Some window flavors implement it differently).
 .end_defmetamethod
 
-.defspec tv:sheet-force-access (window) body
+@defspec tv:sheet-force-access (window) body
 @code{tv:sheet-force-access} allows you to do typeout on a window that has
 a screen array even if its output hold flag is set.  It works by turning
 off the output hold flag temporarily around the execution of the body.
@@ -1440,10 +1415,9 @@ it redisplays the window in its bit-save array if necessary.
     (send self ':redisplay 0 
 	  (tv:sheet-number-of-inside-lines))))
 @end lisp
-.end_defspec
+@end defspec
 
 @section Window Locking
-.setq window-locking section-page
 
 Each window or screen has a lock which is used to prevent two processes
 from operating on the window at once in a way that might cause
@@ -1463,12 +1437,12 @@ the temporary windows are all deexposed.  The @code{:mouse-select} operation
 and some other things know how to deexpose temporary windows when necessary
 to cause a window to become unlocked.
 
-.defspec tv:lock-sheet (window-or-screen) &rest body...
+@defspec tv:lock-sheet (window-or-screen) &rest body...
 Executes @i{body} with @i{window-or-screen} locked by this process.
 Calls to @code{tv:lock-sheet} are found in wrappers for operations such as
 @code{:expose}, so you need not call it yourself, but you should be aware
 that it is being done.
-.end_defspec
+@end defspec
 
 .defmetainstvar "windows and screens" tv:lock
 The lock.  It is @code{nil} for an unlocked window, a process that has
@@ -1501,8 +1475,6 @@ Unlocks the locks of all active windows.  For use in an emergency.
 @end defun
 
 @section Temporary Windows
-.setq temporary-window page
-.setq temporary-windows page
 @cindex temporary window
 
 Normally, when a window is exposed in an area of the screen where there
@@ -1584,7 +1556,6 @@ will be temp-locked just like any other window, and so it will not be
 possible to deexpose @i{a} until @i{b} has been deexposed.
 
 @section The Screen Manager
-.setq screen-manager section-page
 @cindex screen manager
 @cindex autoexposure
 @cindex partially visible
@@ -1629,7 +1600,6 @@ does not try to autoexpose such windows.  However, they can be
 partially visible like any other windows.
 
 @cindex autoselection
-.setq autoselection page
 The screen manager has one other job.  At the same time that it
 does autoexposure, it can also select a window if there isn't any
 selected window at the time.  This is called @i{autoselection}.  A
@@ -1696,11 +1666,11 @@ faster, but does not work for windows that have inferiors.  You would use
 these mixins in windows without bit-save arrays, as a cheaper alternative
 to @code{tv:show-partially-visible-mixin}, to provide something
 better than blankness when the window ought to be partially visible.
-.vindex tv:12%-gray
-.vindex tv:25%-gray
-.vindex tv:33%-gray
-.vindex tv:50%-gray
-.vindex tv:75%-gray
+@vindex tv:12%-gray
+@vindex tv:25%-gray
+@vindex tv:33%-gray
+@vindex tv:50%-gray
+@vindex tv:75%-gray
 
 The precise kind of gray is controlled by the instance variable
 @code{tv:gray-array}, which comes with operations @code{:gray-array} and
@@ -1721,7 +1691,6 @@ available for @code{System} keys to select, but will not become partly
 visible if some other window is made smaller.
 .end_defflavor
 
-.setq deexposed-permit-in-background page
 Recall that if a deexposed window has its deexposed typeout action set
 to @code{:permit}, output on the window can proceed but goes to the
 bit-save array rather than to the screen.  If the window is partially
@@ -1739,7 +1708,6 @@ of a second.
 @end defvar
 
 @subsection Priority among Windows for Exposure
-.setq screen-manager-priority section-page
 
 Suppose there is a section of the screen in which there are no exposed
 windows, and more than one active, deexposed window could be exposed to
@@ -1882,23 +1850,21 @@ eventually get done.
 When @code{tv:delaying-screen-management} forms are nested,
 only the outermost one will do any screen management when it is exited.
 
-.defspec tv:delaying-screen-management body...
+@defspec tv:delaying-screen-management body...
 The body forms are evaluated sequentially with screen management delayed.
 The value of the last form is returned.
-.end_defspec
+@end defspec
 
-.defspec tv:without-screen-management body...
+@defspec tv:without-screen-management body...
 The body forms are evaluated seqentially with screen management delayed.
 Moreover, if the body completes normally, the queue entries put on by
 its execution are removed from the queue, on the assumption that the body
 has itself done all appropriate screen redisplay.  If the body terminates
 abnormally with a throw, the queued entries remain on the queue and
 are processed by the screen manager eventually.
-.end_defspec
+@end defspec
 
 @chapter Selection
-.setq selection-chapter chapter-number
-.setq selection section-page
 @cindex selection
 @cindex selected window
 
@@ -1968,7 +1934,6 @@ This is fine for the who line, but can lead to weird results in @code{Control-Ab
 So @i{you should use @code{tv:process-mixin} whenever it makes sense.}
 
 @cindex deexposed typein action
-.setq deexposed-typein-action page
 @kindex :normal "deexposed typein action"
 @kindex :notify "deexposed typein action"
 If a process tries to do input from a window whose input buffer is empty
@@ -2090,8 +2055,8 @@ where it controls where to put the window in the list of
 previously selected windows used by the @code{Terminal} and @code{System} commands.
 @end defun
 
-.defspec tv:window-call (window [exit-operation exit-args...]) body...
-.defspec1 tv:window-mouse-call (window [exit-operation exit-args...]) body...
+@defspec tv:window-call (window [exit-operation exit-args...]) body...
+@defspecx tv:window-mouse-call (window [exit-operation exit-args...]) body...
 Execute @i{body} with @i{window} selected.  @code{tv:window-call} uses the
 @code{:select} operation to do this, while @code{tv:window-mouse-call} uses
 the @code{:mouse-select} operation; that is how they differ.  On exit, they reselect the
@@ -2104,10 +2069,9 @@ some other window is selected.
 These constructs are no longer as useful as they once were.  For
 controlling selection among windows of a team, selection substitutes
 (see (selection-substitutes)) should be used now instead.
-.end_defspec
+@end defspec
 
 @section Teams of Windows
-.setq window-teams section-page
 @cindex teams of windows
 
 The simple paradigm of selection is based on windows that are
@@ -2172,7 +2136,6 @@ alias for any editor windows inside it.)
 The following subsections describe the details of how these things are done.
 
 @subsection The System Menu Select Option
-.setq select-menu section-page
 @cindex select menu
 
 When the @code{Select} option in the system menu is used, it gets the list
@@ -2220,7 +2183,6 @@ A window can be autoselected only if its @code{:name-for-selection} is non-@code
 .end_defmetamethod
 
 @subsection Selection with Terminal and System Commands
-.setq previously-selected-windows-section section-page
 
 @defvar tv:previously-selected-windows
 This variable's value is an @code{art-q} array whose contents are all
@@ -2308,7 +2270,6 @@ An older name for this mixin, which still works, is
 
 @section Selection Substitutes
 @cindex selection substitutes
-.setq selection-substitutes section-page
 
 Every window has the ability to designate a "selection substitute".
 If a window has a substitute, requests to select or deselect the
@@ -2374,18 +2335,18 @@ if the team is deselected and reselected at any time.
 
 To switch the selected pane temporarily, use
 
-.defspec tv:with-selection-substitute (window for-window) body...
+@defspec tv:with-selection-substitute (window for-window) body...
 Executes @i{body} with @i{window} as the substitute for @i{for-window}.
 On exit, it sets @i{for-window} back to whatever it used to be,
 and deexposes or deactivates @i{window} if appropriate.
-.end_defspec
+@end defspec
 
 Also useful is
 
-.defspec tv:preserve-substitute-status window body...
+@defspec tv:preserve-substitute-status window body...
 Executes @i{body}, then selects @i{window} if @i{window} or its substitute
 had been selected to begin with.
-.end_defspec
+@end defspec
 
 .defmetamethod windows :remove-selection-substitute window-to-remove suggested-substitute
 Makes sure that @i{window-to-remove} is not this window's substitute,
@@ -2462,7 +2423,6 @@ to deselecting it.
 .end_defmetamethod
 
 @section Windows and Processes
-.setq processes section-page
 @cindex processes
 
 A self-contained interactive system that has its own window(s) usually
@@ -2577,8 +2537,6 @@ The default is to return @code{nil}.
 @code{tv:process-mixin} contributes a suitable method.
 .end_defmetamethod
 
-.need 1500
-.nopara
 These process-related operations are defined on @code{tv:select-mixin} so
 that they are always supported by the selected window.
 Since windows lacking @code{tv:process-mixin} do not explicitly remember a
@@ -2626,11 +2584,8 @@ try to output on it when it has output hold.  This flavor is what
 .end_defflavor
 
 @chapter Sizes and Positions
-.setq sizes-chapter chapter-number
 @cindex size of window
 @cindex position of window
-.setq sizes-and-positions section-page
-.setq edges section-page
 
 This chapter is about examining and setting the sizes and positions of
 windows.  There are many different operations that let you express
@@ -2882,7 +2837,7 @@ one, after all error checking has been done.
 This operation should not be called by users; to change the size, use
 @code{:set-size} or another higher-level operation, and the margin sizes
 should be managed by the flavors that are responsible for computing how
-big they should be (@code{tv:borders-mixin}, etc.).
+big they should be (@code{tv:borders-mixin}, etc.).
 
 However, this operation is a good place to add @code{:after} daemons to
 recompute other data structure or change the size of inferiors according
@@ -2975,8 +2930,6 @@ The edges are specified relative to @i{outer-sheet}'s superior.
 @end defun
 
 @chapter Input
-.setq input-chapter chapter-number
-.setq input section-page
 @cindex keyboard input
 
 Windows can be given the ability to function as input streams (see
@@ -3002,7 +2955,6 @@ a single "selected" window the only window on which input operations can
 proceed, we enable the user to decide which process to direct his input to
 by selecting the corresponding window.
 
-.setq characters page
 
 Reading characters from a window normally returns a fixnum that
 represents a character in the Lisp Machine character set, possibly
@@ -3015,41 +2967,40 @@ Programs decode keyboard characters with @code{ldb} and @code{dpb} using
 the following byte fields:
 
 @itemize @code
-.vindex %%kbd-char
+@vindex %%kbd-char
 @item %%kbd-char
 A name for the byte field that contains the basic character.
 This is the low eight bits, and the contents are a character that
 can go in a string.
-.setq %%kbd-control-var page
-.vindex %%kbd-control
+@vindex %%kbd-control
 @item %%kbd-control
 A name for the byte field that contains the @code{Control} bit.
-.vindex %%kbd-meta
+@vindex %%kbd-meta
 @item %%kbd-meta
 A name for the byte field that contains the @code{Meta} bit.
-.vindex %%kbd-super
+@vindex %%kbd-super
 @item %%kbd-super
 A name for the byte field that contains the @code{Super} bit.
-.vindex %%kbd-hyper
+@vindex %%kbd-hyper
 @item %%kbd-hyper
 A name for the byte field that contains the @code{Hyper} bit.
-.vindex %%kbd-control-meta
+@vindex %%kbd-control-meta
 @item %%kbd-control-meta
 A name for the four-bit byte field that contains
 the @code{Hyper}, @code{Super}, @code{Meta} and @code{Control} bits,
 in that order from most significant to least.
-.vindex %%kbd-mouse
+@vindex %%kbd-mouse
 @item %%kbd-mouse
 A name for the byte field that is @code{1} if this is a "mouse" character,
 a character that reports a click of a mouse button rather than a
 pressing of a keyboard key.  (See (tv:kbd-mouse-buttons-mixin-flavor).)
 Note that mouse characters may contain @code{Control} bits, etc.
-.vindex %%kbd-mouse-button
+@vindex %%kbd-mouse-button
 @item %%kbd-mouse-button
 A name for the byte field that, in a mouse character, records the number
 of the button that was clicked.  The left button is 0, the middle is 1,
 and the right is 2.
-.vindex %%kbd-mouse-n-clicks
+@vindex %%kbd-mouse-n-clicks
 @item %%kbd-mouse-n-clicks
 A name for the byte field that, in a mouse character, records the number
 of times whichever button was clicked, minus 1.  It is 0 for a single
@@ -3091,8 +3042,6 @@ character was typed.
 
 @section Input Buffers
 @cindex input buffer
-.setq input-buffer section-page
-.setq shared-input-buffers section-page
 
 Every window that generates input or from which input is read must have
 an @i{input buffer} that holds characters that are typed by the user
@@ -3198,7 +3147,6 @@ Return or set the window's input buffer.
 
 @section Blips
 @cindex blip
-.setq blips section-page
 Input need not be made of characters; lists are often used as well for
 program-generated input, especially for representing mouse clicks in
 different kinds of mouse-sensitive areas.  "Characters" which are lists
@@ -3340,7 +3288,7 @@ from the keyboard.
 
 @kindex :pass-through :rubout-handler
 @item :pass-through @i{ch1} @i{ch2...}
-Treat the characters @i{ch1}, @i{ch2}, etc. as ordinary characters
+Treat the characters @i{ch1}, @i{ch2}, etc. as ordinary characters
 even if they would normally be special commands to the rubout-handler.
 
 @kindex :prompt :rubout-handler
@@ -3413,8 +3361,6 @@ buffer when the blip arrived will come back the next time a @code{:preemptable-r
 operation is used, so the user can keep typing his expression in.
 .end_defmethod
 
-.need 1500
-.nopara
 These obsolete functions are still used in some old code:
 
 @defun kbd-tyi
@@ -3431,7 +3377,6 @@ Performs @code{:listen} on @code{terminal-io}.
 
 @section I/O Buffers
 @cindex i/o buffers
-.setq io-buffer section-page
 
 An I/O buffer is an array of fixed size used as a ring buffer.
 Typically, characters are put into the buffer by one process and removed
@@ -3463,7 +3408,6 @@ If the output pointer points at the slot after the input pointer,
 the buffer is considered full (in fact, one slot is still empty.  It
 cannot be used).
 
-.setq io-buffer-output-function page
 @item tv:io-buffer-output-function
 A function to be called when characters are removed, or @code{nil}.  It is
 called with the buffer and the character as arguments.  Its value should
@@ -3496,7 +3440,6 @@ The last process that put a character in this I/O buffer.
 @item tv:io-buffer-last-output-process
 The last process that removed a character from this I/O buffer.
 
-.setq io-buffer-record page
 @item tv:io-buffer-record
 An array that records the last @i{n} characters read from this
 I/O buffer, for some fixed @i{n}.  This array too is a ring buffer,
@@ -3504,7 +3447,7 @@ but nothing is ever "removed" from it; after it is full, it contains
 the last @i{n} things stored into it.  The accessor
 @code{tv:io-buffer-record-pointer} gets the index of the last slot stored
 into.
-.findex tv:io-buffer-record-pointer
+@findex tv:io-buffer-record-pointer
 @end itemize
 
 @defun tv:io-buffer-empty-p io-buffer
@@ -3564,7 +3507,6 @@ buffer.
 @end defun
 
 @subsection I/O Buffers and Type Ahead
-.setq typeahead-explanation section-page
 
 We have said (see (input-buffer)) that keyboard input goes into
 the selected window's input buffer.  This is not precisely true.
@@ -3657,10 +3599,9 @@ The effect of this is hardware dependent.
 An alist which controls which characters are
 intercepted asynchronously when this window is selected.
 
-.setq control-character-case page
 @kindex :dont-upcase-control-characters "input buffer plist"
 @item :dont-upcase-control-characters
-Non-@code{nil} prevents the @code{Control} (etc.)
+Non-@code{nil} prevents the @code{Control} (etc.)
 keys from causing special treatment of alphabetic case.
 Normally, typing @code{Control-Shift-A} produces the character
 @code{#\Control-/a} with a lower case "a", while @code{Control-A}
@@ -3783,7 +3724,6 @@ taken care of the character.
 @end defvar
 
 @subsection Asynchronously Intercepted Characters
-.setq asynchronous-intercepted-characters section-page
 
 Each window that has @code{tv:stream-mixin} can define a set of
 characters to be intercepted asynchronously when that window is
@@ -3895,8 +3835,6 @@ is passed as arguments @i{character}, @i{window}, and the
 @cindex global asynchronous characters
 @cindex Terminal key
 @cindex System key
-.setq global-asynchronous-characters section-page
-.setq terminal-and-system page
 
 The @code{Terminal} and @code{System} keys are also intercepted
 asynchronously, but since their functions do not usually relate to the
@@ -3955,7 +3893,7 @@ should not use this option, since you do not want to interfere with the
 operation of the keyboard process.  The cost of creating a new process is quite low.
 
 If the @code{:typeahead} option is specified, then everything typed before
-the @code{Terminal} key will be shoved into the selected I/O buffer, i.e.
+the @code{Terminal} key will be shoved into the selected I/O buffer, i.e.
 it will be treated as typeahead to the currently selected window.  Use this
 option with commands that change the selected window, to ensure that the user's
 typed input goes where he expected it to when he typed it.
@@ -4081,8 +4019,6 @@ key names are:
 @end defun
 
 @chapter Output of Text
-.setq output section-page
-.setq output-chapter chapter-number
 @cindex output of text
 
 All windows can function as output streams, displaying the output as
@@ -4132,7 +4068,6 @@ fonts (see (windows-tv:baseline-instvar)).
 
 @cindex alu function
 @cindex char-aluf
-.setq char-aluf page
 @cindex overstriking
 
 When a character is drawn, it is combined with the existing contents
@@ -4162,8 +4097,6 @@ while drawing a character clears the character's pixels to zero.
 @cindex current font
 @cindex character width
 @cindex line height
-.setq char-width-and-line-height page
-.setq vsp page
 @cindex vsp
 @cindex vertical spacing (vsp)
 
@@ -4261,7 +4194,6 @@ the end-of-page condition as described above.  However, if the window's
 as a format effector and is displayed as "@code{return}" in a lozenge, like
 other special characters.
 
-.setq backspace-not-overprinting-flag-blurb page
 
 If the character being typed out is a @code{#\backspace}, the result depends
 on the value of the window's @i{backspace-not-overprinting-flag}.  If the
@@ -4376,7 +4308,6 @@ on exit from this function.  But the value will be correct.
 @end defun
 
 @section Output Exceptions
-.setq output-exceptions section-page
 
 Before doing output to a window, various exceptional conditions are
 checked for.  If an exceptional condition is discovered, a standard
@@ -4402,7 +4333,7 @@ gone (usually because the window has been exposed).
 .defmetamethod windows :handle-exceptions
 Performs the exception processing described by all the rest of this section.
 Exceptions are processed in this order:
-.break
+
 Output Hold, End-of-Page, @r{**MORE**}, and End-of-Line.
 .end_defmetamethod
 
@@ -4447,12 +4378,10 @@ clear that line, and set the vertical position for the next
 
 @subsection **MORE** Exceptions
 
-.setq more-processing page
-.setq more-flag page
 
 Next, if the window's @i{more flag} is set, a @i{more exception} happens.
 The more flag gets set when the cursor is moved to a new line
-(e.g. when a @code{#\return} is typed) and the cursor
+(e.g. when a @code{#\return} is typed) and the cursor
 position is thus made to be below the @i{more vpos} of the window.  (If
 @code{tv:more-processing-global-enable} is @code{nil}, this exception is
 suppressed and the more flag is turned off.)  The
@@ -4507,7 +4436,7 @@ output to be printed and then erased.
 Note that the more flag is set only when the cursor moves to the next
 line, because a @code{#\return} is typed out, after a @code{:line-out}, or by the
 @code{:end-of-line-exception} handler described below.  It is not set when the
-cursor position of the window is explicitly set (e.g. with
+cursor position of the window is explicitly set (e.g. with
 @code{:set-cursorpos}); in fact, explicitly setting the cursor position clears
 the more flag.  The idea is that when typeout is being streamed out
 sequentially to the window, @i{more}-exceptions happen at the right times
@@ -4541,7 +4470,6 @@ when a @r{**MORE**} break happens.
 
 @subsection End of Line Exceptions
 
-.setq right-margin-character-flag-blurb page
 
 Finally, if the cursor is at or near the end of the line so that there
 is no room to output the next character, an end-of-line exception
@@ -4569,8 +4497,6 @@ to print it.  It can simply @code{:tyo} the character.
 @cindex continuation of lines
 @cindex wraparound, horizontal
 @cindex horizontal wraparound
-.setq continuation page
-.setq wraparound page
 
 The way the cursor position goes to the next line when it reaches the
 right edge of the window is called @i{horizontal wraparound} or
@@ -5022,7 +4948,6 @@ If @i{more-p} is @code{nil}, turns off more processing (see
 (more-processing)); otherwise turns it on.
 .end_defmetamethod
 
-.setq vsp-operations page
 
 .defmetainitoption windows :vsp n-pixels
 Initializes the window's @i{vsp}.  It defaults to 2.
@@ -5106,7 +5031,6 @@ Returns the distance between tab stops, measured in pixels.
 @end defun
 
 @chapter Fonts
-.setq font-section section-page
 
 Having used the Lisp Machine for a while, you have probably noticed
 that characters can be typed out in any of a number of different
@@ -5184,7 +5108,7 @@ name of a font may be used.
 @i{new-map} may also be a list of font specifiers, in which case the
 array is created from the list in the style of @code{fillarray}, with the
 last element of the list filling in the remaining elements of the array
-if any (the array is made at least 26. elements long, or long enough to
+if any (the array is made at least 26. elements long, or long enough to
 hold all the elements of the list).
 
 If @i{new-map} is @code{nil}, all the elements of the map are set to the
@@ -5288,7 +5212,6 @@ program will only work if the window that you are using is on the same
 kind of screen as the fonts you are using were designed for.
 
 @cindex font specifier
-.setq font-specifier page
 
 To solve this problem, a program does not have to specify the actual
 font to be used.  Instead, it specifies a certain symbol that stands
@@ -5321,7 +5244,6 @@ you can load the file yourself and create a color version of the font
 yourself (see (color:make-color-font-fun)).
 
 @cindex font purposes
-.setq font-purposes page
 Since different users like to use different fonts, we provide a facility
 called @i{font purposes}.  Wherever a font specifier is used, the
 program can specify a @i{purpose} keyword instead.  This means, "use
@@ -5422,7 +5344,6 @@ system can't predict when you might, in the middle of a line, suddenly
 switch to the large font.
 
 @cindex baseline
-.setq font-baseline page
 
 Another attribute of a font is its @i{baseline}.  The baseline is a
 non-negative fixnum that is the number of raster lines between the top
@@ -5451,7 +5372,6 @@ the bits of the character (although it usually does); it is just defined
 to be the amount by which the cursor should be moved.
 
 @cindex left kern
-.setq font-left-kern page
 
 There is another attribute that is an attribute of each character
 separately; it is called the @i{left kern}.  Usually it is zero, but it
@@ -5723,7 +5643,7 @@ black-and-white font.  The new font has all the same attributes as
 corresponding character in @i{bw-font}.  For each zero-valued pixel in
 @i{bw-font}, the pixel in the new font is zero as well.  For each
 one-valued pixel in @i{bw-font}, the pixel in the new font has value
-@i{color}.  The name of the new font is formed by appending "color-",
+@i{color}.  The name of the new font is formed by appending "color-",
 the print-name of the name of @i{bw-font}, and @i{suffix} together to
 form a string, and then interning that string in the @code{fonts} package.
 @end defun
@@ -5751,7 +5671,6 @@ background is made of zeroes before drawing characters onto a color
 window.
 
 @chapter Drawing Graphics
-.setq graphics-section section-page
 
 A window can be used to draw graphics (pictures).  There is a set of
 operations for drawing lines, circles, sectors, polygons, cubic splines,
@@ -5795,8 +5714,6 @@ drawn.  Any attempt to write outside the inside part of the window
 simply won't happen.
 
 @section Alu Functions
-.setq aluf section-page
-.setq alu-functions section-page
 
 Most graphics operations take an @i{alu} argument, which controls how the
 bits of the graphic object being drawn are combined with the bits
@@ -6110,7 +6027,7 @@ In addition, the subprimitives must be used only within the body of a
 @code{tv:prepare-sheet} special form.  An error is signaled if they are
 used elsewhere.
 
-.defspec tv:prepare-sheet body...
+@defspec tv:prepare-sheet body...
 Executes @i{body} in an environment in which it is safe to draw on the
 window.  @code{tv:prepare-sheet} waits until the window is not output-held
 or locked, and then opens all blinkers that could be on top of the
@@ -6123,7 +6040,7 @@ Because interrupts are turned off, you must be careful in writing the
 you would mind being unable to do a @code{Control-Abort}.  It also @i{must}
 not wait for anything, since that would allow the blinkers to reappear
 and defeat the whole purpose of preparing the sheet.
-.end_defspec
+@end defspec
 
 The microcode subprimitives generally use coordinates relative to the
 outside edges of the window.  This is unlike the high-level
@@ -6205,7 +6122,7 @@ it is usually correct to use this font.
 @end itemize
 
 Here is an example from the @code{tv:graphics-mixin} flavor, changed by
-adding the @code{tv:} prefixes in the places where you would need them if you
+adding the @code{tv:} prefixes in the places where you would need them if you
 were to write this outside the @code{tv} package.
 
 @lisp
@@ -6331,7 +6248,7 @@ in the other subprimitives.
 This function creates a two-dimensional bit-array useful for bitblting
 to and from windows.  It makes an array whose first dimension
 is at least @i{x} but is rounded up so that @code{bitblt}'s restriction regarding
-multiples of 32. is met, whose second dimension is @i{y}, and whose
+multiples of 32. is met, whose second dimension is @i{y}, and whose
 type is the same type as that of the screen array of @i{window} (or the
 type it would be if @i{window} had a screen array).  @i{make-array-options}
 are passed along to @code{make-array} (see (make-array-fun)) when the
@@ -6339,8 +6256,6 @@ array is created, so you can control other parameters such as the area.
 @end defun
 
 @chapter Blinkers
-.setq blinkers-chapter chapter-number
-.setq blinkers section-page
 @cindex blinker
 @cindex following blinker
 
@@ -6363,7 +6278,6 @@ All flavors of blinkers incorporate this one.
 
 @cindex visibility of a blinker
 @cindex half-period of a blinker
-.setq blinker-visibility page
 
 Blinkers need not actually blink; for example, the mouse arrow
 does not blink.  A blinker's @i{visibility} may be any of the following:
@@ -6413,7 +6327,6 @@ visibilities of @code{:on} or @code{:off} are changed to @code{:blink}.
 Blinkers whose visibility is @code{t} or @code{nil} or @code{:blink} are not
 affected.
 
-.setq open-blinkers page
 @cindex opening blinkers
 
 Blinkers are used to add visible ornaments to a window; a blinker is
@@ -6621,7 +6534,7 @@ one is happening, but usually there is no need to know.  The
 output.  It is always called with interrupts disabled.
 .end_defmetamethod
 
-.defspec tv:with-blinker-ready do-not-open body...
+@defspec tv:with-blinker-ready do-not-open body...
 This macro is useful in writing methods of blinkers that change the
 size, position, shape or anything else that affects how the blinker
 appears.  It executes @i{body} after preparing to remove the blinker
@@ -6634,7 +6547,7 @@ of @i{body}.
 
 Once the blinker is opened, its instance variables may be set without
 special care.
-.end_defspec
+@end defspec
 
 @defun tv:open-blinker blinker
 Clears @i{blinker} off from the screen if it is currently drawn.  This
@@ -6655,7 +6568,6 @@ Sets the visibility of all blinkers on @i{window} to @code{:off}.
 @end defun
 
 @section Blinker Flavors
-.setq blinker-flavors section-page
 
 All the flavors in this section depend on @code{tv:blinker}.
 
@@ -6850,8 +6762,6 @@ down from the blinker position (the rectangle's upper left corner).
 .end_definitoption
 
 @chapter The Mouse
-.setq mouse section-page
-.setq mouse-chapter chapter-number
 @cindex mouse
 
 Programs and windows can use the mouse as an input device.  The
@@ -6908,7 +6818,6 @@ Applies @i{function} to @i{args} with @i{sheet} as the mouse-sheet.
 @end defun
 
 @cindex warping the mouse
-.setq warp page
 
 Usually the mouse cursor moves only if the user moves the mouse.
 However, the program can move the mouse cursor, and change the logical
@@ -6923,7 +6832,6 @@ does not result in any inconsistency.
 Warps the mouse to be at positions @i{x}, @i{y} with respect to the mouse sheet.
 @end defun
 
-.setq mouse-process page
 @cindex mouse process
 @cindex owning the mouse
 @cindex tracking the mouse
@@ -6977,10 +6885,9 @@ button, the window is selected.
 
 The state of the @code{Control}, @code{Meta}, @code{Super} and @code{Hyper} keys at
 the time of the click is included in the character, in the
-@code{%%kbd-control}, etc., fields (see (%%kbd-control-var)).
+@code{%%kbd-control}, etc., fields (see (%%kbd-control-var)).
 .end_defflavor
 
-.setq mouse-blip page
 .defflavor tv:list-mouse-buttons-mixin
 This is just like @code{tv:kbd-mouse-buttons-mixin} except that a blip
 goes in the input buffer rather than just an encoded click.  The blip
@@ -6997,7 +6904,7 @@ window the mouse was over (this is useful primarily if several windows
 are sharing the same input buffer).
 
 The state of the @code{Control}, @code{Meta}, @code{Super} and @code{Hyper} keys
-is included in the encoded click, in the @code{%%kbd-control}, etc., fields.
+is included in the encoded click, in the @code{%%kbd-control}, etc., fields.
 .end_defflavor
 
 The following subtle point may explain some difficulties you may have
@@ -7085,7 +6992,7 @@ it vanishes.
 .end_defflavor
 
 .definitoption tv:hysteretic-window-mixin :hysteresis n-pixels
-Sets the initial value of the hysteresis, in pixels.  It defaults to 25.
+Sets the initial value of the hysteresis, in pixels.  It defaults to 25.
 (decimal).
 .end_definitoption
 
@@ -7095,14 +7002,13 @@ Examine or set the hysteresis of the window.
 .end_defmethod
 
 @subsection Grabbing the Mouse
-.setq grabbing-mouse section-page
 @cindex grabbing the mouse
 
 Normally mouse clicks and motion are interpreted by a window that owns
 the mouse.  Some applications, such as @code{Edit Screen}, use the mouse
 for choosing a window to be operated on.  Then it is necessary to make
 sure that control of the mouse remains with the program that is doing
-this (e.g. @code{Edit Screen}) rather than going to whatever window the
+this (e.g. @code{Edit Screen}) rather than going to whatever window the
 user wants to choose.  This is done by @i{grabbing the mouse}.
 
 When the mouse is grabbed, the mouse process gets told that no window
@@ -7112,7 +7018,7 @@ and your process can now watch the position and the buttons by using
 @code{tv:mouse-x} and @code{tv:mouse-y}, and the
 variables and functions described below.
 
-.defspec tv:with-mouse-grabbed
+@defspec tv:with-mouse-grabbed
 A @code{tv:with-mouse-grabbed} special form just has a body:
 
 @lisp
@@ -7121,7 +7027,7 @@ A @code{tv:with-mouse-grabbed} special form just has a body:
 @end lisp
 
 The forms inside are evaluated with the mouse grabbed.
-.end_defspec
+@end defspec
 
 @defvar tv:mouse-last-buttons
 This variable contains a mask describing the mouse buttons, as of the last time
@@ -7239,7 +7145,6 @@ or @code{nil} if the user aborted.
 @end defun
 
 @subsection Usurping the Mouse
-.setq usurping-mouse section-page
 @cindex usurping the mouse
 
 For high real-time performance, you can @i{usurp} the mouse.  Then the
@@ -7249,7 +7154,7 @@ tracking the mouse until you return control of it.  The variables
 usurped.  The mouse blinker disappears, and if you want any visual
 indication of the mouse to appear, you have to do it yourself.
 
-.defspec tv:with-mouse-usurped
+@defspec tv:with-mouse-usurped
 A @code{tv:with-mouse-usurped} special form just has a body:
 
 @lisp
@@ -7258,7 +7163,7 @@ A @code{tv:with-mouse-usurped} special form just has a body:
 @end lisp
 
 The forms inside are evaluated with the mouse usurped.
-.end_defspec
+@end defspec
 
 @defun tv:mouse-input &optional (wait-flag @code{t})
 Waits until something happens with the mouse, and then returns saying what
@@ -7422,7 +7327,6 @@ process.  Used by @code{:mouse-click} methods.
 @end defun
 
 @section Mouse Blinkers
-.setq mouse-blinkers section-page
 
 At any time one blinker is the mouse blinker, which follows the motion
 of the mouse.  It is not always the same blinker.  Each window can set
@@ -7579,7 +7483,6 @@ at once.  Scrolling means moving the actually-shown portion up or down
 through the entire display.
 
 @subsection Scrolling Protocol
-.setq scroll-protocol section-page
 
 There are several ways the mouse can be used to scroll a window.  Each
 is implemented by a mixin.  They all communicate with the window using
@@ -7590,7 +7493,6 @@ of the window.  These do not have to be actual lines of text, though
 usually they are, but they must all have the same height.  Usually this
 common height is the window's line-height, but that is not required.
 
-.setq enable-scrolling-p-op page
 .defmetamethod "scrolling windows" :enable-scrolling-p
 The various mouse-scrolling features use this operation to decide
 whether they should be active at any given time.  If this operation
@@ -7639,7 +7541,6 @@ update their displays when the situation changes.
 
 @subsection Scroll Bars
 @cindex scroll bar
-.setq scroll-bar section-page
 
 If you move the mouse to the left edge of an editor window from the
 inside, eventually the mouse cursor changes to a thick up-and-down
@@ -7821,8 +7722,6 @@ flashy scrolling areas overlying the margin scrolling regions.  You
 don't need anything else except @code{tv:basic-scroll-bar}.
 .end_defflavor
 
-.need 1500
-.nopara
 Here are two ways of controlling when margin scrolling regions appear
 or disappear:
 
@@ -7877,7 +7776,6 @@ it requires users to define it.
 .end_defmethod
 
 @section Mouse Parameters
-.setq mouse-parameters section-page
 
 @defvar tv:use-kbd-buttons
 If this is non-@code{nil}, the Roman numeral keys I through III on the
@@ -7888,7 +7786,7 @@ down.  The default is @code{t}.
 @defvar tv:mouse-bounce-time
 The delay in microseconds after a change in a mouse button status
 before the system begins to look for another change.
-The default is 2000. microseconds.
+The default is 2000. microseconds.
 @end defvar
 
 @defvar tv:mouse-double-click-time
@@ -7915,10 +7813,8 @@ it is treated as a double click.
 @end defvar
 
 @chapter Margins, Borders, and Labels
-.setq margins section-page
 @cindex margins
 @cindex inside
-.setq inside-size page
 
 In previous sections, we have mentioned the distinction between the
 inside and outside parts of the window.  The part of the window that is
@@ -7994,7 +7890,6 @@ may be used only within methods or @code{(declare (:self-flavor ...))} functions
 
 @section Borders
 @cindex borders
-.setq borders section-page
 
 .defflavor tv:borders-mixin
 The @code{tv:borders-mixin} margin item creates the borders around windows that you often see
@@ -8069,7 +7964,7 @@ a specification is a non-@code{nil} symbol.
 Note that setting border specifications to ask for a border width of
 zero is not the same thing as giving @code{nil} as the argument to this
 option, because in the former case the space for the border margin width
-'c (see (tv:borders-mixin-border-margin-width-init-option))
+@c (see (tv:borders-mixin-border-margin-width-init-option))
 (see the previous page)
 is allocated, whereas in the latter case it is not.
 .end_definitoption
@@ -8116,7 +8011,6 @@ With an argument of @code{nil}, reinstates the normal borders of all such window
 @end defun
 
 @section Labels
-.setq labels section-page
 @cindex label
 
 .defflavor tv:label-mixin
@@ -8272,7 +8166,6 @@ Non-@code{nil} if a @code{:delayed-set-label} has been done but not displayed ye
 .end_definstvar
 
 @section Margin Regions
-.setq margin-regions section-page
 @cindex margin regions
 
 Margin regions are a general facility for allocating space in a window's
@@ -8429,8 +8322,6 @@ The font to display the strings in.
 	     0 nil nil))))
 @end lisp
 
-.nopara
-
 @lisp
   ((:mouse-enters-region :mouse-leaves-region :mouse-moves)
    (&rest ignore))
@@ -8473,7 +8364,7 @@ Some margin mixins have just a single variable whose value is a
 list containing both the contents and the position of the margin item.
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defflavor mumble-margin-mixin 
 	   ((current-mumbles nil) mumble-margin-area)
 	   ()
@@ -8601,8 +8492,6 @@ screen updating has been done), in case the @i{contents} of the mumbles
 have changed.
 
 @chapter Frames
-.setq frame-chapter chapter-number
-.setq frames section-page
 @cindex frame
 @cindex pane
 
@@ -8663,7 +8552,6 @@ All frame flavors are built on this one.  @code{tv:frame-forwarding-mixin}
 a non-constraint frame to which you need only add code to decide when
 to expose the panes and how big to make them.
 
-.setq frame-flavor-components page
 @code{tv:basic-frame} is nearly the same as @code{tv:minimum-window}; it does
 @i{not} have all the mixins that go into the @code{tv:window} flavor.  In
 particular, it does not provide for borders or a label, and it cannot be
@@ -8673,7 +8561,6 @@ the selected window.  It also has @code{tv:delay-notification-mixin} (see
 
 @section Constraint Frames
 @cindex constraint frames
-.setq constraint-frames section-page
 
 If you use @code{Edit Screen} to change the shape of an inspector or
 debugger window frame, the shapes of the panes are all changed so that
@@ -8975,7 +8862,6 @@ this:
  ...)
 @end lisp
 
-.setq configuration-description page
 
 Each configuration-description describes the layout of the panes in a
 single configuration.  The description has two parts.  The first part
@@ -9157,7 +9043,7 @@ to take up.  The format of a constraint using @code{:ask} is as follows:
 
 A message with operation @i{operation} and arguments composed of
 some extra arguments passed by the constraint mechanism followed by
-@i{arg-1}, @i{arg-2}, etc. is sent to the pane; its answer says how much
+@i{arg-1}, @i{arg-2}, etc. is sent to the pane; its answer says how much
 space the pane should take up.  Note that @i{arg-1}, etc., are not
 forms: they are the values of the arguments themselves (i.e. they are
 not evaluated; if you want to compute them, you must build the
@@ -9192,7 +9078,6 @@ It works like @code{:ask} except that the message is sent to the pane named
 used for dummies, when the size of a dummy wants to be controlled by
 the needs of a pane inside it.
 
-.setq :ask-arguments page
 @item :funcall "constraint frames"
 This constraint lets you supply a function to be called, which should compute
 the amount of space to use.  The format is:
@@ -9203,7 +9088,7 @@ the amount of space to use.  The format is:
 
 The specified @i{function} is called.  It is first passed six arguments
 from inside the workings of constraint frames, and then the @i{arg-1},
-@i{arg-2}, etc. values.  The six arguments are:
+@i{arg-2}, etc. values.  The six arguments are:
 
 @itemize @i
 @item constraint-node
@@ -9237,12 +9122,12 @@ you provide a form.  The format is:
 The six special values that are passed as arguments when the
 @code{:funcall} constraint-type is used can be accessed by @i{form} as the
 values of the following special variables:  
-'vindex tv:**constraint-node**
-'vindex tv:**constraint-remaining-width**
-'vindex tv:**constraint-remaining-height**
-'vindex tv:**constraint-total-width**
-'vindex tv:**constraint-total-height**
-'vindex tv:**constraint-stacking**
+@vindex tv:**constraint-node**
+@vindex tv:**constraint-remaining-width**
+@vindex tv:**constraint-remaining-height**
+@vindex tv:**constraint-total-width**
+@vindex tv:**constraint-total-height**
+@vindex tv:**constraint-stacking**
 
 @lisp
 tv:**constraint-node**
@@ -9481,10 +9366,10 @@ instantiable flavors of constraint frame.
 .end_defflavor
 
 @code{tv:basic-frame} has an instance variable @code{tv:recursion} which
-is used to distinguish between @code{:expose}, etc. operations sent by the
+is used to distinguish between @code{:expose}, etc. operations sent by the
 frame's code to its panes, and those sent by other programs.
 When an outside program sends a @code{:expose}, @code{:deexpose}, or @code{:bury}
-message to one of the panes, the @code{:inferior-expose}, etc. operation
+message to one of the panes, the @code{:inferior-expose}, etc. operation
 on the frame simply exposes, deexpose or buries the frame itself,
 and does not allow the operation on the pane to proceed.
 When the frame's code itself exposes a pane, it does so with
@@ -9553,7 +9438,6 @@ would typically be the selected pane.
 
 @section Notifications
 @cindex notifications
-.setq notifications section-page
 
 Notifications are asynchronous messages that come from something other
 than the selected window.  For example, when an interactive message from
@@ -9749,7 +9633,7 @@ on this window; that should be left up to the window's own process.
 Requests to this process, which generally ask the process to select
 a buffer, are passed to it as blips of the form
 @cindex blip types
-.kindex :execute "blip type"
+@kindex :execute "blip type"
 
 @lisp
 @code{(:execute zwei:edit-thing @i{spec})}
@@ -9942,7 +9826,6 @@ A resource of such windows.
 .end_defresource
 
 @section The Who Line
-.setq who-line section-page
 @cindex who line
 
 The @i{who line} is the pair of lines at the bottom of the main Lisp
@@ -10054,10 +9937,9 @@ Prints descriptions of all active network servers.
 @end defun
 
 @section The Color Screen
-.setq color section-page
 @cindex color screen
 
-The usual color screen on a Lisp Machine has 454. lines of 576. pixels
+The usual color screen on a Lisp Machine has 454. lines of 576. pixels
 each, and each pixel has four bits.  This allows sixteen different
 colors to be displayed at once.  There are far more than sixteen possible colors.
 A @i{color map} controls the meaning of each of the sixteen pixel values.
@@ -10274,7 +10156,7 @@ resources, and is documented in the Lisp Machine manual.
 
 All the names described in this manual as resources are defined in this way.
 
-.defspec tv:defwindow-resource name parameters &rest options
+@defspec tv:defwindow-resource name parameters &rest options
 Defines a resource of windows, named @i{name}.  @i{parameters} are parameters on which
 the object can depend.  Following the parameters specified is one
 additional parameter that is always defined: the window's superior.
@@ -10313,14 +10195,14 @@ is not exposed is considered to have been returned to the pool.
 @code{:deactivated} means that any window that is not active is considered
 to have been returned to the pool.
 @end itemize
-.end_defspec
+@end defspec
 
 @defvar tv:window-resource-list
 A list of the names of all window resources defined with @code{tv:defwindow-resource}.
 @end defvar
 
 @lisp
-.exdent 96 Example: the system menu is created thus:
+@exdent Example: the system menu is created thus:
 
 ;Resource of system menus
 (defwindow-resource system-menu ()
@@ -10513,7 +10395,6 @@ commands.  These can also be used to answer yes-or-no questions.
 @end itemize
 
 @chapter Choice Facilities
-.setq choice-chapter chapter-number
 
 The window system contains several facilities to allow the user to make
 choices.  These all work by displaying some arrangement of choices in a
@@ -10547,7 +10428,6 @@ Thus the user may freely use side-effects (both special variables and
 will interfere with mouse tracking.
 
 @section Menus
-.setq menu section-page
 @cindex menus
 
 A menu is an array of choices, each identified by a word or short phrase.
@@ -10567,7 +10447,6 @@ causing the system menu to appear.
 
 @subsection Menu Items
 @cindex menu items
-.setq menu-items section-page
 
 A menu has a list of items; each item represents one of the choices offered.
 An item tells the menu what to display and what to do if the user selects
@@ -10581,7 +10460,6 @@ returned value comes back to the user from @code{tv:menu-choose},
 @code{:choose}, or @code{:execute} depending on how the menu is used.  This
 will be explained in detail later.
 
-.nopara
 An item can take any of the following forms:
 
 @itemize
@@ -10611,7 +10489,6 @@ A list of items is sometimes called an "item alist" since most forms
 of menu item look like alist elements mapping strings into what to do
 about them.
 
-.nopara
 The possible values of @i{type} in the most general form of menu item are:
 
 @itemize @code
@@ -10631,7 +10508,7 @@ menus.  @i{arg} is ignored, but must be present to make the item be the form tha
 has a @i{type} keyword in it.
 
 @item :kbd "menu item type"
-'cindex blip types
+@cindex blip types
 @i{arg} is sent to the selected window via the @code{:force-kbd-input}
 operation.  Typically it is either a character code, which is to be
 treated as if it were typed in from the keyboard, or a list (a blip),
@@ -10652,7 +10529,7 @@ and the result of choosing from that menu is returned.
 
 @item :buttons "menu item type"
 @i{arg} is a list of three menu items.  The item actually chosen
-(i.e. the item to be executed) is one of these three, depending on which mouse
+(i.e. the item to be executed) is one of these three, depending on which mouse
 button was clicked.  The order in the list is @code{(@i{left} @i{middle} @i{right})}.  The three menu items in the list will be used only
 for execution, not for display, so it does not matter what they
 have as the string to be displayed (it can be @code{nil}), and
@@ -10670,7 +10547,6 @@ The flavor @code{tv:window-hacking-menu-mixin} provides a method to
 implement it.
 @end itemize
 
-.nopara
 The menu item modifier keywords are:
 
 @itemize @code
@@ -10845,8 +10721,6 @@ in the center of the menu.
 The default is @code{tv:mouse-sheet}, which is usually a screen.
 @end defun
 
-.need 96
-.nopara
 Example:
 
 @lisp
@@ -10854,7 +10728,6 @@ Example:
 		"Direction")
 @end lisp
 
-.nopara
 will return @code{foo} or @code{bar} (or @code{nil} if the user moves the mouse out of the menu).
 
 @defun tv:mouse-y-or-n-p string
@@ -10867,7 +10740,6 @@ if he moves the mouse out of it.
 @end defun
 
 @subsection Geometry
-.setq menu-geometry section-page
 @cindex menu geometry
 @cindex geometry (or menus)
 @cindex filled menus
@@ -10885,7 +10757,6 @@ choices: the same as the number of columns.  This is not true in filled
 format.  Filled format is specified by giving zero as the number of
 columns.
 
-.nopara
 The geometry is represented as a list of six elements, one for each
 parameter.
 
@@ -10944,7 +10815,6 @@ and the user will have to scroll to see all the items.
 When the item list of a menu is changed, the display of the menu is
 recomputed based on the new item list and the geometry.
 
-.nopara
 The following init-plist options to a menu will initialize the geometry:
 
 .definitoption tv:menu :geometry list
@@ -10980,7 +10850,6 @@ the standard font for the purpose @code{:menu} on the screen the menu is on
 (see (font-purposes)).
 .end_definitoption
 
-.nopara
 The following operations manipulate the geometry of a menu:
 
 .defmethod tv:menu :geometry
@@ -11103,7 +10972,6 @@ warps back to where it was when the menu appeared, and the @code{:choose}
 operation returns the chosen item or @code{nil}.
 .end_defflavor
 
-.nopara
 These are the interesting instantiable menu flavors:
 
 .defflavor tv:menu (@code{basic-menu} @code{borders-mixin} @code{top-box-label-mixin} @code{basic-scroll-bar} @code{minimum-window})
@@ -11247,7 +11115,6 @@ The operations @code{:scroll-position}, @code{:scroll-to} and
 bar.  See (scroll-protocol).
 
 @subsection Command Menus
-.setq command-menu section-page
 
 .defflavor tv:command-menu-mixin
 The menus described so far are driven by the @code{:choose} operation;
@@ -11260,7 +11127,7 @@ but Peek cannot spend all its time waiting for the user to do this.
 The command menu is designed for such applications.  When an item in a
 command menu is chosen, the menu puts a blip into its input buffer.  The
 blip is a list
-'cindex blip types
+@cindex blip types
 @kindex :menu "blip type"
 
 @lisp
@@ -11356,7 +11223,6 @@ Get or set the form.
 Initializes the form.
 .end_definitoption
 
-.nopara
 These are menu flavors that are just combinations of this with other flavors:
 
 .defflavor tv:dynamic-momentary-menu
@@ -11571,9 +11437,9 @@ Make @i{item} be highlighted, or make it stop being highlighted.
 .defmethod1 tv:menu-highlighting-mixin :add-highlighted-value value
 .defmethod1 tv:menu-highlighting-mixin :remove-highlighted-value value
 These operations are similar to the preceding four, except that instead of referring
-to items directly you refer to their values, i.e. the result of executing them.
+to items directly you refer to their values, i.e. the result of executing them.
 For instance if your item list is an association list, with elements
-@code{(@i{string} . @i{symbol})}, these operations use @i{symbol}.
+@code{(@i{string} . @i{symbol})}, these operations use @i{symbol}.
 This only works for menu items that can be executed without side-effects,
 not for item types @code{:eval}, @code{:funcall}, etc.
 .end_defmethod
@@ -11621,7 +11487,6 @@ A instantiable momentary menu flavor that also allows margin choices.
 
 @section Multiple Choice Facility
 @cindex multiple choice windows
-.setq multiple-choice section-page
 
 The @i{multiple choice} facility provides a window containing a bunch of
 items, one per text line, and several choices about each item.
@@ -11637,7 +11502,7 @@ form a column, with a heading at the top saying what that choice is for.
 The leftmost column contains the text naming each item.  The remaining
 columns contain small boxes (called @i{choice boxes}).  A "no" box has a
 blank center, while a "yes" box contains an "X".
-'setq choice-box page
+
 Pointing the mouse at a choice box and clicking the left button
 turns it on or off.  Each choice can be initialized by the
 program to "yes" or "no" as appropriate for a default.
@@ -11795,7 +11660,6 @@ This is a resource of temporary multiple-choice windows, used by the @code{tv:mu
 function.
 .end_defresource
 
-.nopara
 The following operations are provided by multiple choice windows.
 
 .definitoption tv:basic-multiple-choice :item-list item-list
@@ -11834,7 +11698,6 @@ the function @code{tv:multiple-choose}.
 
 @section Choose-Variable-Values Facility
 @cindex choose-variable-values windows
-.setq choose-variable-values section-page
 
 This facility presents the user with a display of a bunch of Lisp variables
 and their values.  The user may change the value of some of the variables.
@@ -11851,7 +11714,6 @@ of the @code{Split Screen} item in the system menu.  ZMail profile mode is
 also a good example.
 
 @subsection Specifying the Variables
-.setq c-v-v-specs section-page
 
 When you use a choose-variable-values window, you must specify
 one or more variables with a list of specifiers.  You pass the
@@ -11877,7 +11739,6 @@ syntax for input and output is controlled by the binding of @code{base},
 @code{ibase}, @code{*nopoint}, @code{prinlevel}, @code{prinlength}, @code{package},
 and @code{readtable} as usual.
 
-.nopara
 Each line of the display is specified by an @i{item}, which can be one of the
 following:
 
@@ -12083,7 +11944,6 @@ black-on-white.  It is used as the argument of the @code{:set-reverse-video-p} o
 @end itemize
 @end defun
 
-.setq c-v-v-function page
 A choose-variable-values window optionally may have an @i{associated
 function}, which is called whenever the user commands the window to
 change the value of one of the variables.
@@ -12095,8 +11955,6 @@ original variable needs to be redisplayed, or @code{t} if no redisplay is
 required; in this case it would usually @code{setq} several of the
 variables, then perform a @code{:refresh} operation on the window.
 
-.need 2000
-.setq choose-variable-values-examples page
 Here are some examples of how to call @code{tv:choose-variable-values}.  The simplest
 sort of thing you can do is:
 
@@ -12230,7 +12088,7 @@ the variable.
 A string to display in the mouse documentation line when the mouse is
 pointing at this item.  This string should tell the user that clicking
 the mouse will change the value of this variable and give any special
-information (e.g. that the value must be a number).
+information (e.g. that the value must be a number).
 
 Alternatively, this can be a symbol that is the name of a function.  It will
 be called with one argument, which is the current element of @i{choices} or
@@ -12245,7 +12103,7 @@ The function is called by the who-line updating in the scheduler, not in the use
 @end itemize
 
 @lisp
-.exdent 96 For example, @code{:boolean} is defined thus:
+@exdent For example, @code{:boolean} is defined thus:
 (defprop :boolean 
          (choose-variable-values-boolean-print nil (t nil))
 	 choose-variable-values-keyword)
@@ -12302,7 +12160,6 @@ But in any case, you must specify the list of variable-specifiers
 (see (c-v-v-specs)) and the stack group to evaluate variables in
 before you can use the window.
 
-.nopara
 The following init options are available:
 
 .definitoption tv:basic-choose-variable-values :variables specifier-list
@@ -12374,7 +12231,6 @@ height is dictated by the number of variables to be displayed.
 Specifying a height in the init-plist, using any of the standard dimension-specifying
 init-plist options, overrides the automatic choice of height.
 
-.nopara
 Choose-variable-values windows provide these operations:
 
 .defmethod tv:choose-variable-values-window :setup items label function margin-choices
@@ -12393,7 +12249,7 @@ displayed in the window, then redisplays the window.
 Unless
 @i{dont-set-height} is supplied non-@code{nil}, the height of the window
 will be adjusted according to the number of lines required.  If more
-than 25. lines would be required, 25. lines will be used and scrolling
+than 25. lines would be required, 25. lines will be used and scrolling
 will be enabled.  The @code{:setup} operation uses @code{:set-variables} to do part of its work.
 .end_defmethod
 
@@ -12442,8 +12298,7 @@ for this purpose.
 The I/O buffer to be used for blips and for ordinary input from the window.
 .end_definitoption
 
-'cindex blip types
-.nopara
+@cindex blip types
 The following forms of list are inserted as blips into the input buffer:
 
 @itemize
@@ -12505,7 +12360,7 @@ for putting all the options into a choose-values window so that the user can alt
 them, for writing the current state of the options into an init file, and for resetting
 all the options to their default initial values.
 
-.defspec define-user-option-alist name constructor documentation
+@defspec define-user-option-alist name constructor documentation
 Defines @i{name} a special variable whose value is
 a "user option alist", something which may be used by the other
 functions below.  This alist will keep track of all of the option variables for
@@ -12524,9 +12379,9 @@ similarly-named arguments to @code{defvar-user-option}.
 A third argument may be used to specify a documentation string for the
 variable @i{name}.  To specify a documentation string and no constructor,
 give @code{nil} for the constructor.
-.end_defspec
+@end defspec
 
-.defspec defvar-user-option
+@defspec defvar-user-option
 Defines an option and adds it to a user option list.
 
 @lisp
@@ -12548,27 +12403,27 @@ the definition is done), are the arguments for the type keyword used.
 choose-variable-values window.  If it is omitted or @code{nil}, the default
 is @code{(string-capitalize-words (get-pname @i{option}))}; except that
 when the first and last characters of the print-name are asterisks, they
-are removed.  E.g. the default name for @code{sowq:*sunny-side-up*} would
+are removed.  E.g. the default name for @code{sowq:*sunny-side-up*} would
 be @code{"Sunny Side Up"}.
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (defvar-user-option preferred-radix 8 
   "Radix to use for files that don't specify one."
   my-program-option-alist "Preferred radix"
   :assoc '(("8" 8) ("10" 10.)))
 @end lisp
-.end_defspec
+@end defspec
 
-.defspec defvar-site-user-option
+@defspec defvar-site-user-option
 This is like @code{defvar-user-option}, except that instead of an initial
 value a site option keyword is specified.  Instead of a default value,
 you specify the name of a site option (a keyword).  The actual default
 value is the value of that site option in the current
 site table.  Loading a new site table resets the option.
-.end_defspec
+@end defspec
 
-.defspec defvar-site-alist-user-option
+@defspec defvar-site-alist-user-option
 Defines a user option whose possible values are controlled by
 site options.
 
@@ -12608,7 +12463,7 @@ site option's value is @code{:foo-present}.
 
 If @i{default} is @code{nil}, then the first available menu alist item is
 also the default.
-.end_defspec
+@end defspec
 
 @defun choose-user-options alist &rest options
 Displays the values of the option variables in @i{alist} to the user and
@@ -12760,7 +12615,7 @@ Here is part of the item type alist used in typeout windows of editor windows:
 @end lisp
 
 When an item is clicked on with the mouse, a blip which is a list of the form
-'cindex blip types
+@cindex blip types
 @kindex :typeout-execute "blip type"
 
 @lisp
@@ -12786,7 +12641,7 @@ blip might be
 
 @lisp
 (:typeout-execute zwei:load-defaulted-file
- #fs:logical-pathname "SYS: SYS; QFCTNS LISP")
+ #fs:logical-pathname "SYS: SYS; QFCTNS LISP")
 @end lisp
 
 .defmethod tv:basic-mouse-sensitive-items :item-type-alist
@@ -12798,7 +12653,7 @@ Return or set the item type alist of the window.
 Initializes the item type alist of the window.
 .end_definitoption
 
-.defspec tv:add-typeout-item-type
+@defspec tv:add-typeout-item-type
 The special form
 
 @lisp
@@ -12842,10 +12697,8 @@ In the editor, @i{alternative} is interpreted (when a
 @code{:typeout-execute} blip is read) as a function to be called, and the
 @code{tv:add-typeout-item-type} form is typically placed right before the
 function definition of @i{alternative}.
-.end_defspec
+@end defspec
 
-.need 1500
-.nopara
 These are the operations used to print items on a window.
 
 .defmethod tv:basic-mouse-sensitive-items :item type item &rest format-args
@@ -12862,7 +12715,7 @@ is used to look up a function in the item type alist, and @i{item} is
 placed directly into the @code{:typeout-execute} blip.
 
 @lisp
-.exdent 96 Example:
+@exdent Example:
 (send standard-output ':item 'zwei:file pathname)
 @end lisp
 
@@ -12900,7 +12753,7 @@ Returns a list describing the mouse-sensitive item found at cursor
 position @i{x}, @i{y} in the window, or @code{nil} if there is none there.
 
 @lisp
-.exdent 96 The list looks like this:
+@exdent The list looks like this:
 (@i{type} @i{item} @i{left} @i{top} @i{right} @i{bottom})
 @end lisp
 
@@ -12912,7 +12765,6 @@ outside top left corner of the window).
 @section Margin Choices
 @cindex margin choices
 @cindex choice boxes
-.setq margin-choice page
 
 A window can be augmented with choice boxes (see (choice-box)) in its
 bottom margin using the flavor @code{tv:margin-choice-mixin}.  These give
@@ -12991,9 +12843,6 @@ the menu.
 
 @chapter Typeout Windows
 @cindex typeout windows
-.setq typeout-window-chapter chapter-number
-.setq typeout-windows section-page
-.setq windows-with-typeout section-page
 
 @i{Typeout windows} are a facility provided to make it easier for a program
 that normally displays a single updating picture to print a stream of
@@ -13326,8 +13175,6 @@ All the standard output stream operations also do this.
 .end_defmethod
 
 @chapter Text Scroll Windows
-.setq text-scroll-window-chapter chapter-number
-.setq text-scroll-windows section-page
 @cindex text scroll windows
 @cindex items, in text scroll windows
 
@@ -13385,8 +13232,6 @@ The index of the first item currently being displayed (on the first line
 of the window).  This is how the current scroll position is remembered.
 .end_definstvar
 
-.need 1500
-.nopara
 The flavor @code{tv:text-scroll-window} provides these operations:
 
 .defmethod tv:text-scroll-window :items
@@ -13548,7 +13393,6 @@ This is used in some panes of the window-based debugger frame.
 .end_defflavor
 
 @section Item Generators
-.setq item-generators section-page
 @cindex item generators
 
 The item generator feature is how the inspector can scroll through the
@@ -13645,7 +13489,6 @@ from the flavor @code{tv:function-text-scroll-window}; see (tv:function-text-sc
 @code{:insert-item} and @code{:delete-item} are not supported, since the inspector
 does not try to insert or delete items.
 
-.setq print-function-example page
 The inspector uses a @code{tv:function-text-scroll-window} (see
 (tv:function-text-scroll-window-flavor)) so @code{:print-object} is
 handled by calling a dynamically changeable @i{print-function}.  Here is
@@ -13762,7 +13605,7 @@ Here is the real code for the @code{cond}-clause that handles leader elements:
 makes mouse sensitive at various times.
 
 When the mouse is clicked on a mouse sensitive item, a blip is placed in the window's input buffer.  The blip looks like
-'cindex blip types
+@cindex blip types
 
 @lisp
 (@i{type} @i{item} @i{window} @i{mouse-character})
@@ -13787,7 +13630,7 @@ You must also include the flavor @code{tv:margin-region-mixin} in the
 flavor combination you instantiate.
 
 A mouse click in the line area puts a blip into the input buffer that looks like this:
-'cindex blip types
+@cindex blip types
 @kindex :line-area "blip type"
 
 @lisp
@@ -13829,8 +13672,6 @@ no matter where it scrolls to.
 Get or set the value of @code{tv:current-item}.
 .end_defmethod
 
-.need 1500
-.nopara
 These flavors are part of the implementation of @code{tv:mouse-sensitive-text-scroll-window}.
 
 .defflavor tv:mouse-sensitive-text-scroll-window-without-click
@@ -13870,8 +13711,6 @@ as my mother.
 @cindex scroll windows
 @cindex items, in scroll windows
 @cindex entries, in scroll windows
-.setq scroll-window-chapter chapter-number
-.setq scroll-windows section-page
 
 General scroll windows are used to put up a continuously-maintained
 display of items, each of which can vary in size.  They are used by
@@ -14180,9 +14019,6 @@ Initializes the truncation flag.
 .end_definitoption
 
 @cindex value array of a scroll window
-.setq value-array page
-.need 1500
-.nopara
 A scroll window has a @i{value array} whose elements may be used to
 hold arbitrary data to be displayed by entries using the keyword
 @code{:value}.  Such an entry specifies the index of a slot in the value
@@ -14281,7 +14117,6 @@ that position.
 These operations also update the window on the screen as necessary.
 
 @section Automatically Updating Items
-.setq automatically-updating-items section-page
 
 Just as an entry automatically updates the value it displays, sometimes
 one wants an item to update automatically the list of items it contains.
@@ -14416,7 +14251,6 @@ of automatically updating items:
 		(peek-window-inferiors sheet (+ indent 4)))))))
 @end lisp
 
-.need 4000
 And here is how it makes the item that displays a chaosnet connection's packets.
 
 @lisp
@@ -14496,7 +14330,6 @@ internally, and users should probably not access them directly.
 Peek never needs to do so.
 
 @section Mouse Sensitive Scroll Windows
-.setq scroll-window-mouse section-page
 
 .defflavor tv:essential-scroll-mouse-mixin
 This mixin gives a scroll window the ability to make either items or
@@ -14525,7 +14358,7 @@ other process has expressed its willingness to handle them with a
 If the car of the mouse sensitivity is non-@code{nil}, a click is handled
 by putting a blip into the scroll window's
 input buffer.  The blip has the form
-'cindex blip types
+@cindex blip types
 
 @lisp
 (@i{blip-type} @i{sensitivity} @i{window} @i{mouse-character})
@@ -14540,7 +14373,7 @@ The reason that the @i{blip-type} is extracted and put at the front is
 that programs that use scroll windows may need to handle blips from many
 sources.  By specifying the car of each mouse sensitivity, the program
 can arrange to distinguish these blips from blips coming from menus,
-typeout windows, etc. and process each one in the correct fashion.
+typeout windows, etc. and process each one in the correct fashion.
 
 @c the type-alist feature seems to be unused, and seems ill-thought-out,
 @c so it is not mentioned.
