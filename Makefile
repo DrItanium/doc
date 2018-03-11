@@ -20,7 +20,7 @@ all-html: $(patsubst %.texi,%.html, $(TEXISRC))
 	makeinfo --pdf $^
 
 %.html: %.texi
-	makeinfo --html --no-split $^
+	makeinfo --html --no-split --css-ref=https://lm-3.github.io/static/texinfo.css $^
 
 .PHONY: clean
 clean:
