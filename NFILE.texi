@@ -28,6 +28,26 @@ distribution of this document is unlimited.
 
 @contents
 
+@menu
+* Introduction::
+* NFILE Protocol Layering::
+* Overview of an NFILE Session::
+* NFILE Control and Data Connections::
+* NFILE File Opening Modes::
+* NFILE Character Set::
+* Conventions Used in This Document::
+* NFILE Commands::
+* NFILE Resynchronization Procedure::
+* NFILE Errors and Notifications::
+* Token List Transport Layer::
+* Byte Stream with Mark::
+* Possible Future Extensions::
+* NORMAL Translation Mode::
+* RAW Translation Mode::
+* SUPER-IMAGE Translation Mode::
+* Notes::
+@end menu
+
 @node Introduction
 @chapter Introduction
 
@@ -332,6 +352,14 @@ independence.  @xref{FILEPOS Command}.
 @node Conventions Used in This Document
 @chapter Conventions Used in This Document
 
+@menu
+* Mapping Data Types Into Token List Representation::
+* Format of NFILE Commands and Responses::
+* Data Channel Handles and Direct File Identifiers::
+* Syntax of File and Directory Pathname Arguments::
+* Format of NFILE File Property/Value Pairs::
+@end menu
+
 @node Mapping Data Types Into Token List Representation
 @section Mapping Data Types Into Token List Representation
 
@@ -378,6 +406,11 @@ Time interval       A numeric data token.  The time interval is
 
 @node Format of NFILE Commands and Responses
 @section Format of NFILE Commands and Responses
+
+@menu
+* Optional Arguments::
+* Optional Keyword/Value Pairs::
+@end menu
 
 Each command description begins by giving the command format and
 response format.  Here is the beginning of the DATA-CONNECTION
@@ -647,6 +680,34 @@ with these properties.
 @node NFILE Commands
 @chapter NFILE Commands
 
+@menu
+* ABORT Command::
+* CHANGE-PROPERTIES Command::
+* CLOSE Command::
+* COMPLETE Command::
+* CONTINUE Command::
+* CREATE-DIRECTORY Command::
+* CREATE-LINK Command::
+* DATA-CONNECTION Command::
+* DELETE Command::
+* DIRECT-OUTPUT Command::
+* DIRECTORY Command::
+* DISABLE-CAPABILITIES Command::
+* ENABLE-CAPABILITIES Command::
+* EXPUNGE Command::
+* FILEPOS Command::
+* FINISH Command::
+* HOME-DIRECTORY Command::
+* LOGIN Command::
+* MULTIPLE-FILE-PLISTS Command::
+* OPEN Command::
+* PROPERTIES Command::
+* READ Command::
+* RENAME Command::
+* RESYNCHRONIZE-DATA-CHANNEL Command::
+* UNDATA-CONNECTION Command::
+@end menu
+
 It is important to understand the conventions used in each of the
 following command descriptions.  @xref{Conventions Used in This Document}.
 
@@ -708,6 +769,11 @@ values: @xref{Format of NFILE File Property/Value Pairs}.
 
 @node CLOSE Command
 @section CLOSE Command
+
+@menu
+* An Unsuccessful Close Operation::
+* A Successful Close Operation::
+@end menu
 
 Command: (CLOSE tid handle abort-p)
 
@@ -1020,6 +1086,10 @@ channel and terminate the active output transfer.
 @node DIRECTORY Command
 @section DIRECTORY Command
 
+@menu
+* NFILE DIRECTORY Data Format::
+@end menu
+
 Command: (DIRECTORY tid input-handle pathname control-keywords
            properties)
 
@@ -1030,7 +1100,7 @@ attributes for logically related groups of files, directories, and
 links.  If the command is successful, a single token list containing
 the requested information is sent over the data channel specified by
 input-handle, and the data channel is then implicitly freed by both
-sides <2>.  For details on the format of the token list: @xref{NFILE DIRECTORY Data Format} among their properties.  DELETED is
+sides <2>.  For details on the format of the token list: @pxref{NFILE DIRECTORY Data Format} among their properties.  DELETED is
 ignored on systems that do not support soft deletion.
 
 @itemize @code
@@ -1223,6 +1293,10 @@ or required to be supported, in the directory portion of the pathname
 @node FILEPOS Command
 @section FILEPOS Command
 
+@menu
+* Implementation Hint for FILEPOS Command::
+@end menu
+
 Command: (FILEPOS tid handle position resync-uid)
 
 Response: (FILEPOS tid)
@@ -1351,6 +1425,10 @@ the directory pathname format.  @xref{Syntax of File and Directory Pathname Argu
 @node LOGIN Command
 @section LOGIN Command
 
+@menu
+* LOGIN RETURN VALUES (keyword/value-pairs)::
+@end menu
+
 Command: (LOGIN tid user password FILE-SYSTEM USER-VERSION)
 
 Response: (LOGIN tid keyword/value-pairs)
@@ -1403,7 +1481,7 @@ either adjust certain parameters to handle this particular version,
 or simply ignore the user version altogether.  Currently, the only
 released versions of NFILE are user version 2 and server version 2.
 
-@node LOGIN RETURN VALUES: keyword/value-pairs
+@node LOGIN RETURN VALUES (keyword/value-pairs)
 @subsection LOGIN RETURN VALUES: keyword/value-pairs
 
 The keyword/value-pairs is a token list composed of keywords followed
@@ -1520,6 +1598,15 @@ For further detail on how file properties and values are expressed:
 
 @node OPEN Command
 @section OPEN Command
+
+@menu
+* The PATHNAME Open Argument::
+* The HANDLE Open Argument::
+* The DIRECTION Open Argument::
+* The BINARY-P Open Argument::
+* NFILE OPEN Optional Keyword/Value Pairs::
+* NFILE OPEN Response Return Values::
+@end menu
 
 Command: (OPEN tid handle pathname direction binary-p
              TEMPORARY RAW SUPER-IMAGE DELETED PRESERVE-DATES
@@ -2085,6 +2172,10 @@ length in server units.
 @node PROPERTIES Command
 @section PROPERTIES Command
 
+@menu
+* Properties Command Response::
+@end menu
+
 Command: (PROPERTIES tid handle pathname control-keywords
 properties)
 
@@ -2249,6 +2340,10 @@ cross-directory rename.
 @node RESYNCHRONIZE-DATA-CHANNEL Command
 @section RESYNCHRONIZE-DATA-CHANNEL Command
 
+@menu
+* Implementation Hints for RESYNCHRONIZE-DATA-CHANNEL Command::
+@end menu
+
 The command and response format for this command varies, depending on
 whether the handle argument indicates an input or output data
 channel.
@@ -2279,6 +2374,11 @@ resynchronization of data channels: @xref{NFILE Data Connection Resynchronizatio
 @node Implementation Hints for RESYNCHRONIZE-DATA-CHANNEL Command
 @subsection Implementation Hints for RESYNCHRONIZE-DATA-CHANNEL Command
 
+@menu
+* Resynchronizing an Output Data Channel::
+* Resynchronizing an Input Data Channel::
+@end menu
+
 In general, both the user and server should should be implemented
 with the knowledge that a transmission can be aborted.  That is, the
 receiving side must be careful not to act upon a transmission (that
@@ -2287,6 +2387,7 @@ been successfully received in entirety.  This protects the user
 program from the possibility that an abort can occur after a
 transmission has been partially sent.
 
+@node Resynchronizing an Output Data Channel
 @subsubsection Resynchronizing an Output Data Channel
 
 The server will probably want to dispatch the looping and reading to
@@ -2313,6 +2414,7 @@ identifiers have been successfully received.  The user implementation
 must allow for this one case of a command where a subroutine that
 "sends a command and waits for a response" is inapplicable.
 
+@node Resynchronizing an Input Data Channel
 @subsubsection Resynchronizing an Input Data Channel
 
 The server control process should dispatch the data process to send
@@ -2353,6 +2455,11 @@ For more information about data connections: @xref{NFILE Control and Data Connec
 
 @node NFILE Resynchronization Procedure
 @chapter NFILE Resynchronization Procedure
+
+@menu
+* NFILE Control Connection Resynchronization::
+* NFILE Data Connection Resynchronization::
+@end menu
 
 Ordinarily, the user side sends NFILE commands to the server side
 over the control connection; the server side responds to every user
@@ -2395,7 +2502,6 @@ control connection is attempted.
 
 A "mark" is defined in the context of Byte Stream with Mark: @xref{Discussion of Byte Stream with Mark}.
 
-@node User Side Steps: Control Connection Resynchronization
 @subsection User Side Steps: Control Connection Resynchronization
 
 @enumerate
@@ -2442,6 +2548,10 @@ This rare situation occurs if the user aborts during the course of the resynchro
 
 @node NFILE Data Connection Resynchronization
 @section NFILE Data Connection Resynchronization
+
+@menu
+* Input Data Channel Resynchronization::
+@end menu
 
 The NFILE data channel resynchronization procedure is similar to the
 NFILE control connection resynchronization.  Both procedures are
@@ -2528,6 +2638,13 @@ The data channel is no longer in the unsafe state.
 
 @node NFILE Errors and Notifications
 @chapter NFILE Errors and Notifications
+
+@menu
+* Notifications From the NFILE Server::
+* NFILE Command Response Errors::
+* NFILE Asynchronous Errors::
+* NFILE Three-letter Error Codes::
+@end menu
 
 NFILE recognizes two types of errors: command response errors and
 asynchronous errors.  In addition to errors, NFILE supports
@@ -2873,6 +2990,12 @@ This is the set of three-letter codes:
 @node Token List Transport Layer
 @chapter Token List Transport Layer
 
+@menu
+* Introduction to the Token List Transport Layer::
+* Token List Stream::
+* Token List Data Stream::
+@end menu
+
 The Token List Transport Layer is a protocol that
 facilitates the transmission of simple structured data, such as
 lists.
@@ -2926,6 +3049,13 @@ data stream.
 
 @node Token List Stream
 @section Token List Stream
+
+@menu
+* Types of Tokens and Token Lists::
+* Token List Stream Example::
+* Mapping of Lisp Objects to Token List Stream Representation::
+* Aborting and the Token List Stream::
+@end menu
 
 @node Types of Tokens and Token Lists
 @subsection Types of Tokens and Token Lists
@@ -3288,6 +3418,11 @@ token lists through the token list data stream.
 @node Byte Stream with Mark
 @chapter Byte Stream with Mark
 
+@menu
+* Discussion of Byte Stream with Mark::
+* Byte Stream with Mark Abortable States::
+@end menu
+
 Byte Stream with Mark is a simple layer of protocol that
 guarantees that an out-of-band signal can be transmitted in the case
 of program interruption.  Byte Stream with Mark is designed to
@@ -3296,6 +3431,13 @@ aborts.
 
 @node Discussion of Byte Stream with Mark
 @section Discussion of Byte Stream with Mark
+
+@menu
+* Example of Use::
+* Byte Stream With Mark on Chaosnet::
+* Byte Stream With Mark On TCP (Record Mode)::
+* Maintaining Record Integrity::
+@end menu
 
 Byte Stream with Mark is a reliable, bidirectional byte stream with
 one out-of-band (but not out-of-sequence) signal called a "mark".
@@ -3337,7 +3479,7 @@ If Byte Stream with Mark is implemented on another (non-Chaos) stream
 that supports opcode-bearing packets, the recommended implementation
 is the reservation of an opcode for the mark.
 
-@node Byte Stream With Mark On TCP: Record Mode
+@node Byte Stream With Mark On TCP (Record Mode)
 @subsection Byte Stream With Mark On TCP: Record Mode
 
 The purpose of Byte Stream with Mark is to guarantee that marks can
@@ -3403,6 +3545,10 @@ of the record now being read.
 
 @node Byte Stream with Mark Abortable States
 @section Byte Stream with Mark Abortable States
+
+@menu
+* User Program Aborts and I/O Streams::
+@end menu
 
 Byte Stream with Mark is designed to provide end-to-end stream
 consistency in the face of user program aborts.  This section
@@ -3546,6 +3692,10 @@ communication medium.
 
 @node NORMAL Translation Mode
 @appendix NORMAL Translation Mode
+
+@menu
+* Normal Translation to UNIX Servers::
+@end menu
 
 NORMAL translation mode guarantees the following:
 
