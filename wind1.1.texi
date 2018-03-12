@@ -101,7 +101,7 @@ the manual, and Chris Schneider and Steve Strassman provided useful suggestions.
 
 @ifnottex
 @node Top
-@top Lisp Machine Manual
+@top Introduction to Using the Window System
 @end ifnottex
 
 @contents
