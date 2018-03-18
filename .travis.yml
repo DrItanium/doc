@@ -1,0 +1,3 @@
+sudo: required
+install: sudo apt-get install texinfo
+script: make
